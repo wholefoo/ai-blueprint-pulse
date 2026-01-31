@@ -1,35 +1,62 @@
 import OpenAI from "openai";
+import { tavily } from "@tavily/core";
 
 export const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
 
+// Initialize Tavily for real-time web search
+const tvly = tavily({ apiKey: process.env.TAVILY_API_KEY || "" });
+
 export async function analyzeBusinessTrends(topic: string): Promise<string> {
-  // Step 1: Summarize top threats and opportunities (prompt chain step 1)
+  // Step 0: Fetch real-time trends using Tavily web search
+  let webResearchContext = "";
+  try {
+    const searchResponse = await tvly.search(
+      `latest trends and pain points for ${topic} business in 2026`,
+      {
+        searchDepth: "advanced",
+        maxResults: 5,
+      }
+    );
+    webResearchContext = searchResponse.results
+      .map((r: { title?: string; content?: string; url?: string }) => 
+        `**${r.title || "Source"}**\n${r.content || ""}\nSource: ${r.url || "N/A"}`
+      )
+      .join("\n\n---\n\n");
+  } catch (error) {
+    console.error("Tavily search error:", error);
+    webResearchContext = "Unable to fetch real-time web data. Using AI analysis only.";
+  }
+
+  // Step 1: Summarize top threats and opportunities using web research (prompt chain step 1)
   const threatOpportunityResponse = await openai.chat.completions.create({
     model: "gpt-5.2",
     messages: [
       {
         role: "system",
-        content: `You are a business trend analyst specializing in identifying market threats and opportunities. Be concise and specific.`
+        content: `You are a business trend analyst specializing in identifying market threats and opportunities. Be concise and specific. Base your analysis on the real-time research data provided.`
       },
       {
         role: "user",
         content: `For the niche: "${topic}"
 
-Summarize the TOP 5 THREATS and TOP 5 OPPORTUNITIES for 2026.
+Real-time Web Research (2026):
+${webResearchContext}
+
+Based on this research, summarize the TOP 5 THREATS and TOP 5 OPPORTUNITIES for 2026.
 
 Format as:
 ## Top 5 Threats
-1. [Threat]: [Brief explanation]
+1. [Threat]: [Brief explanation with data from research]
 ...
 
 ## Top 5 Opportunities  
-1. [Opportunity]: [Brief explanation]
+1. [Opportunity]: [Brief explanation with data from research]
 ...
 
-Be specific to this niche and focus on actionable insights.`
+Be specific to this niche and cite findings from the research where possible.`
       }
     ],
     max_completion_tokens: 1024,
@@ -79,8 +106,13 @@ Make each step specific, measurable, and achievable.`
 
   const actionableChecklist = checklistResponse.choices[0]?.message?.content || "";
 
-  // Combine both outputs into comprehensive research
+  // Combine all outputs into comprehensive research
   return `# Business Research: ${topic}
+
+## Real-Time Market Intelligence (2026)
+${webResearchContext}
+
+---
 
 ${threatOpportunityAnalysis}
 
@@ -90,7 +122,7 @@ ${actionableChecklist}
 
 ---
 
-*Research generated using prompt chain methodology for maximum actionability.*`;
+*Research generated using Tavily web search + AI prompt chain methodology for maximum actionability.*`;
 }
 
 export async function generateBlueprintContent(topic: string, research: string, tier: "starter" | "growth" | "enterprise" = "growth"): Promise<{
