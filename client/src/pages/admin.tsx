@@ -12,6 +12,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -29,7 +35,9 @@ import {
   Save,
   Eye,
   BarChart,
+  X,
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import type { Blueprint, ResearchSession, BlueprintTier } from "@shared/schema";
 
 const tierOptions: { value: BlueprintTier; label: string; icon: typeof BookOpen }[] = [
@@ -51,6 +59,7 @@ const categoryOptions = [
 export default function AdminPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("research");
+  const [selectedBlueprint, setSelectedBlueprint] = useState<Blueprint | null>(null);
 
   const [researchTopic, setResearchTopic] = useState("");
   const [researchResults, setResearchResults] = useState("");
@@ -433,10 +442,13 @@ export default function AdminPage() {
                           <span className="font-semibold">
                             ${(blueprint.price / 100).toFixed(2)}
                           </span>
-                          <Button variant="ghost" size="icon" asChild>
-                            <a href={`/blueprint/${blueprint.id}`} target="_blank" rel="noreferrer">
-                              <Eye className="h-4 w-4" />
-                            </a>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => setSelectedBlueprint(blueprint)}
+                            data-testid={`button-view-blueprint-${blueprint.id}`}
+                          >
+                            <Eye className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
@@ -448,6 +460,33 @@ export default function AdminPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <Dialog open={!!selectedBlueprint} onOpenChange={(open) => !open && setSelectedBlueprint(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="outline" className="capitalize">
+                {selectedBlueprint?.tier}
+              </Badge>
+              <Badge variant="secondary">{selectedBlueprint?.category}</Badge>
+              <span className="text-sm text-muted-foreground ml-auto">
+                ${((selectedBlueprint?.price || 0) / 100).toFixed(2)}
+              </span>
+            </div>
+            <DialogTitle className="font-serif text-xl">
+              {selectedBlueprint?.title}
+            </DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              {selectedBlueprint?.description}
+            </p>
+          </DialogHeader>
+          <ScrollArea className="flex-1 pr-4">
+            <article className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-serif">
+              <ReactMarkdown>{selectedBlueprint?.content || ""}</ReactMarkdown>
+            </article>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
