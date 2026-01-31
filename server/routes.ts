@@ -6,6 +6,7 @@ import { isAuthenticated } from "./replit_integrations/auth";
 import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClient";
 import { WebhookHandlers } from "./webhookHandlers";
 import { analyzeBusinessTrends, generateBlueprintContent } from "./openai";
+import { triggerPostPurchaseSequence } from "./emailService";
 import { insertBlueprintSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -222,6 +223,20 @@ export async function registerRoutes(
         const purchase = await storage.getPurchaseBySession(sessionId);
         if (purchase && purchase.status !== "completed") {
           await storage.updatePurchase(purchase.id, { status: "completed" });
+          
+          // Trigger post-purchase email sequence
+          const blueprint = await storage.getBlueprint(purchase.blueprintId);
+          const userEmail = req.user?.claims?.email;
+          const firstName = req.user?.claims?.first_name || req.user?.claims?.given_name || "there";
+          
+          if (blueprint && userEmail) {
+            triggerPostPurchaseSequence(
+              userEmail,
+              blueprint.title,
+              blueprint.tier,
+              firstName
+            ).catch(err => console.error("[Email] Sequence error:", err));
+          }
         }
         res.json({ status: "completed" });
       } else {

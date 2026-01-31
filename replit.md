@@ -13,6 +13,7 @@ Blueprint Nexus is a SaaS digital marketplace for marketing and selling business
 - Created 8 sample blueprints across all tiers
 - Built user dashboard for purchased downloads
 - Added dark/light theme toggle
+- Integrated Resend email automation for post-purchase sequences
 
 ## User Preferences
 
