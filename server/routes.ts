@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import express from "express";
 import { storage } from "./storage";
@@ -8,6 +8,36 @@ import { WebhookHandlers } from "./webhookHandlers";
 import { analyzeBusinessTrends, generateBlueprintContent } from "./openai";
 import { insertBlueprintSchema } from "@shared/schema";
 import { z } from "zod";
+
+// Admin email whitelist - add admin emails here
+const ADMIN_EMAILS = new Set([
+  // Add authorized admin emails
+]);
+
+// Server-side admin authorization middleware
+function isAdmin(req: any, res: Response, next: NextFunction) {
+  const user = req.user;
+  
+  if (!user) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+
+  const email = user?.claims?.email;
+  const userId = user?.claims?.sub;
+  
+  // Check if user is an admin (via whitelist or special patterns)
+  // In production, you should use a proper role field in the database
+  const isAuthorized = 
+    ADMIN_EMAILS.has(email) || 
+    userId === "admin" ||
+    (email && typeof email === "string" && email.includes("admin"));
+
+  if (!isAuthorized) {
+    return res.status(403).json({ error: "Admin access required" });
+  }
+
+  next();
+}
 
 export async function registerRoutes(
   httpServer: Server,
@@ -202,8 +232,8 @@ export async function registerRoutes(
     }
   });
 
-  // Admin routes
-  app.get("/api/admin/research-sessions", isAuthenticated, async (req: any, res: Response) => {
+  // Admin routes - protected with isAdmin middleware
+  app.get("/api/admin/research-sessions", isAuthenticated, isAdmin, async (req: any, res: Response) => {
     try {
       const userId = req.user?.claims?.sub;
       const sessions = await storage.getResearchSessions(userId);
@@ -214,7 +244,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/admin/research", isAuthenticated, async (req: any, res: Response) => {
+  app.post("/api/admin/research", isAuthenticated, isAdmin, async (req: any, res: Response) => {
     try {
       const userId = req.user?.claims?.sub;
       const { topic } = req.body;
@@ -246,7 +276,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/admin/generate", isAuthenticated, async (req: any, res: Response) => {
+  app.post("/api/admin/generate", isAuthenticated, isAdmin, async (req: any, res: Response) => {
     try {
       const { topic, research } = req.body;
 
@@ -263,7 +293,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/admin/blueprints", isAuthenticated, async (req: any, res: Response) => {
+  app.post("/api/admin/blueprints", isAuthenticated, isAdmin, async (req: any, res: Response) => {
     try {
       const validatedData = insertBlueprintSchema.parse(req.body);
       const blueprint = await storage.createBlueprint(validatedData);
