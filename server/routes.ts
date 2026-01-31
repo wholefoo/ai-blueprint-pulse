@@ -26,6 +26,8 @@ function isAdmin(req: any, res: Response, next: NextFunction) {
   const email = user?.claims?.email as string | undefined;
   const userId = user?.claims?.sub as string | undefined;
   
+  console.log("[Admin Check] Email:", email, "UserId:", userId, "Claims:", JSON.stringify(user?.claims));
+  
   // Check if user is an admin (via whitelist or special patterns)
   // In production, you should use a proper role field in the database
   const isAuthorized = 
@@ -34,6 +36,7 @@ function isAdmin(req: any, res: Response, next: NextFunction) {
     (email && email.includes("admin"));
 
   if (!isAuthorized) {
+    console.log("[Admin Check] Not authorized. Email in whitelist:", ADMIN_EMAILS.includes(email || ""));
     return res.status(403).json({ error: "Admin access required" });
   }
 
