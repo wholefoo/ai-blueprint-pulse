@@ -103,11 +103,66 @@ export default function TermsPage() {
 
           <Card>
             <CardContent className="pt-6 prose prose-sm dark:prose-invert max-w-none">
-              <h2>7. Refund Policy</h2>
+              <h2>7. Digital Product & Refund Policy</h2>
+              
+              <h3>7.1 All Sales Final</h3>
               <p>
-                We offer a 30-day money-back guarantee on all Blueprint purchases. If you are 
-                unsatisfied with your purchase for any reason, contact our support team within 
-                30 days of purchase for a full refund.
+                Due to the immediate access and intangible nature of digital "Success Blueprints," 
+                all sales are generally final. Unlike physical goods, digital data cannot be "returned" 
+                once it has been downloaded or viewed. By completing your purchase, you acknowledge 
+                that you are gaining instant access to proprietary research and AI-synthesized 
+                intellectual property.
+              </p>
+
+              <h3>7.2 Quality Signal Guarantee</h3>
+              <p>
+                We stand by the caliber of our Research Engine. If you believe a purchased Blueprint 
+                is technically defective or fundamentally fails to address the specific niche and 
+                level selected at checkout, we offer a 48-hour correction window:
+              </p>
+              <ul>
+                <li>
+                  <strong>Correction:</strong> We will re-run the research query using updated 
+                  parameters to provide a more accurate guide at no additional cost.
+                </li>
+                <li>
+                  <strong>Credit:</strong> If a correction does not solve the issue, we may, 
+                  at our sole discretion, issue a "Blueprint Credit" for use on a future guide.
+                </li>
+              </ul>
+
+              <h3>7.3 Exclusions from Refunds</h3>
+              <p>Refunds or credits will not be issued for the following reasons:</p>
+              <ul>
+                <li>
+                  <strong>"Change of Mind":</strong> Deciding the business model isn't right for 
+                  you after viewing the roadmap.
+                </li>
+                <li>
+                  <strong>"Already Knew This":</strong> As these guides are synthesized from 
+                  real-time market data, they may reflect common industry trends you are already 
+                  aware of.
+                </li>
+                <li>
+                  <strong>Financial Performance:</strong> We provide the blueprint; we do not 
+                  provide the execution. Lack of business success or profit is not grounds for 
+                  a refund.
+                </li>
+              </ul>
+
+              <h3>7.4 Abuse Prevention</h3>
+              <p>
+                To protect the integrity of the platform, accounts that exhibit a pattern of 
+                multiple refund requests or "credit" claims will be flagged. Blueprint Nexus 
+                reserves the right to terminate access for users who attempt to "scrape" data 
+                via the refund process.
+              </p>
+
+              <h3>7.5 How to Initiate a Review</h3>
+              <p>
+                To request a guide correction or credit, please contact support within 48 hours 
+                of purchase with your Order ID and a specific description of the data gap or 
+                technical error in the guide.
               </p>
             </CardContent>
           </Card>

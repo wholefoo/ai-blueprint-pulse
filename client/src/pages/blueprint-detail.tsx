@@ -226,7 +226,7 @@ export default function BlueprintDetailPage() {
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Star className="h-4 w-4" />
-                      <span>30-day money-back guarantee</span>
+                      <span>48-hour quality guarantee</span>
                     </div>
                   </div>
                 </CardContent>
