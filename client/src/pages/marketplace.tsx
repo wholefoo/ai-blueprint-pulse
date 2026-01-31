@@ -1,0 +1,209 @@
+import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useSearch } from "wouter";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BlueprintCard } from "@/components/blueprint-card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Search, Filter, BookOpen, Rocket, Building2, LayoutGrid } from "lucide-react";
+import type { Blueprint, BlueprintTier } from "@shared/schema";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const tiers = [
+  { value: "all", label: "All Tiers", icon: LayoutGrid },
+  { value: "starter", label: "Starter", icon: BookOpen },
+  { value: "growth", label: "Growth", icon: Rocket },
+  { value: "enterprise", label: "Enterprise", icon: Building2 },
+];
+
+const categories = [
+  "All Categories",
+  "Marketing",
+  "Sales",
+  "Operations",
+  "Finance",
+  "Leadership",
+  "Technology",
+  "Strategy",
+];
+
+export default function MarketplacePage() {
+  const searchString = useSearch();
+  const urlParams = new URLSearchParams(searchString);
+  const initialTier = urlParams.get("tier") || "all";
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTier, setSelectedTier] = useState<string>(initialTier);
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [sortBy, setSortBy] = useState<string>("newest");
+
+  const { data: blueprints = [], isLoading } = useQuery<Blueprint[]>({
+    queryKey: ["/api/blueprints"],
+  });
+
+  const filteredBlueprints = useMemo(() => {
+    let result = [...blueprints];
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (b) =>
+          b.title.toLowerCase().includes(query) ||
+          b.description.toLowerCase().includes(query) ||
+          b.category.toLowerCase().includes(query)
+      );
+    }
+
+    if (selectedTier !== "all") {
+      result = result.filter((b) => b.tier === selectedTier);
+    }
+
+    if (selectedCategory !== "All Categories") {
+      result = result.filter((b) => b.category === selectedCategory);
+    }
+
+    switch (sortBy) {
+      case "price-low":
+        result.sort((a, b) => a.price - b.price);
+        break;
+      case "price-high":
+        result.sort((a, b) => b.price - a.price);
+        break;
+      case "newest":
+      default:
+        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+    }
+
+    return result;
+  }, [blueprints, searchQuery, selectedTier, selectedCategory, sortBy]);
+
+  const uniqueCategories = useMemo(() => {
+    const cats = new Set(blueprints.map((b) => b.category));
+    return ["All Categories", ...Array.from(cats)];
+  }, [blueprints]);
+
+  return (
+    <div className="py-8">
+      <div className="container">
+        <div className="mb-8">
+          <h1 className="font-serif text-3xl font-bold mb-2" data-testid="text-page-title">
+            Blueprint Marketplace
+          </h1>
+          <p className="text-muted-foreground">
+            Discover actionable guides to transform your business
+          </p>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-4 mb-8">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search blueprints..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+              data-testid="input-search"
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-[180px]" data-testid="select-category">
+                <Filter className="mr-2 h-4 w-4" />
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {uniqueCategories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[150px]" data-testid="select-sort">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest</SelectItem>
+                <SelectItem value="price-low">Price: Low to High</SelectItem>
+                <SelectItem value="price-high">Price: High to Low</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <Tabs value={selectedTier} onValueChange={setSelectedTier} className="mb-8">
+          <TabsList className="grid w-full grid-cols-4 max-w-lg">
+            {tiers.map((tier) => (
+              <TabsTrigger
+                key={tier.value}
+                value={tier.value}
+                className="flex items-center gap-2"
+                data-testid={`tab-${tier.value}`}
+              >
+                <tier.icon className="h-4 w-4" />
+                <span className="hidden sm:inline">{tier.label}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+
+        {isLoading ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="space-y-3">
+                <Skeleton className="h-48 rounded-lg" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            ))}
+          </div>
+        ) : filteredBlueprints.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="mx-auto h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Search className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="font-semibold text-lg mb-2">No blueprints found</h3>
+            <p className="text-muted-foreground mb-4">
+              Try adjusting your search or filter criteria
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedTier("all");
+                setSelectedCategory("All Categories");
+              }}
+              data-testid="button-clear-filters"
+            >
+              Clear all filters
+            </Button>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm text-muted-foreground" data-testid="text-results-count">
+                Showing {filteredBlueprints.length} blueprint{filteredBlueprints.length !== 1 ? "s" : ""}
+              </p>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredBlueprints.map((blueprint) => (
+                <BlueprintCard key={blueprint.id} blueprint={blueprint} />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
