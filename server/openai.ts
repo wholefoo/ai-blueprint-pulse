@@ -6,33 +6,91 @@ export const openai = new OpenAI({
 });
 
 export async function analyzeBusinessTrends(topic: string): Promise<string> {
-  const response = await openai.chat.completions.create({
+  // Step 1: Summarize top threats and opportunities (prompt chain step 1)
+  const threatOpportunityResponse = await openai.chat.completions.create({
     model: "gpt-5.2",
     messages: [
       {
         role: "system",
-        content: `You are a business trend analyst and researcher. Your task is to analyze current business trends and provide actionable insights. 
-        
-When given a topic, provide:
-1. Current market trends related to this topic
-2. Key challenges businesses face
-3. Emerging opportunities
-4. Best practices from successful companies
-5. Actionable recommendations
-
-Format your response in clear sections with bullet points for easy reading.`
+        content: `You are a business trend analyst specializing in identifying market threats and opportunities. Be concise and specific.`
       },
       {
         role: "user",
-        content: `Analyze current business trends for: ${topic}
+        content: `For the niche: "${topic}"
 
-Provide comprehensive insights including market analysis, challenges, opportunities, and recommendations.`
+Summarize the TOP 5 THREATS and TOP 5 OPPORTUNITIES for 2026.
+
+Format as:
+## Top 5 Threats
+1. [Threat]: [Brief explanation]
+...
+
+## Top 5 Opportunities  
+1. [Opportunity]: [Brief explanation]
+...
+
+Be specific to this niche and focus on actionable insights.`
       }
     ],
-    max_completion_tokens: 2048,
+    max_completion_tokens: 1024,
   });
 
-  return response.choices[0]?.message?.content || "Unable to generate analysis.";
+  const threatOpportunityAnalysis = threatOpportunityResponse.choices[0]?.message?.content || "";
+
+  // Step 2: Use the analysis to create actionable checklist (prompt chain step 2)
+  const checklistResponse = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    messages: [
+      {
+        role: "system",
+        content: `You are a business strategist who creates practical, actionable checklists. Based on research about threats and opportunities, create implementation guides that businesses can execute immediately.`
+      },
+      {
+        role: "user",
+        content: `Based on this analysis for "${topic}":
+
+${threatOpportunityAnalysis}
+
+Create a 10-STEP ACTIONABLE CHECKLIST that businesses can implement to:
+1. Mitigate the identified threats
+2. Capitalize on the opportunities
+
+Format as:
+## 10-Step Action Checklist
+
+### Immediate Actions (Week 1-2)
+1. [Action]: [What to do, why it matters, expected outcome]
+2. ...
+
+### Short-term Actions (Month 1-3)
+3. ...
+
+### Medium-term Actions (Month 3-6)
+...
+
+### Long-term Strategic Actions (6+ months)
+...
+
+Make each step specific, measurable, and achievable.`
+      }
+    ],
+    max_completion_tokens: 1536,
+  });
+
+  const actionableChecklist = checklistResponse.choices[0]?.message?.content || "";
+
+  // Combine both outputs into comprehensive research
+  return `# Business Research: ${topic}
+
+${threatOpportunityAnalysis}
+
+---
+
+${actionableChecklist}
+
+---
+
+*Research generated using prompt chain methodology for maximum actionability.*`;
 }
 
 export async function generateBlueprintContent(topic: string, research: string): Promise<{
