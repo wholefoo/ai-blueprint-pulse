@@ -39,7 +39,6 @@ const tiers = [
   {
     name: "Free Forever",
     icon: Gift,
-    price: "Free",
     description: "Get started with essential business insights",
     features: ["Curated free guides", "Basic templates", "Newsletter access", "Community forums"],
     color: "border-gray-200 dark:border-gray-700",
@@ -49,7 +48,6 @@ const tiers = [
   {
     name: "Starter",
     icon: BookOpen,
-    price: "$29",
     description: "Perfect for entrepreneurs just getting started",
     features: ["Core business fundamentals", "Basic market analysis", "Essential checklists", "Community access"],
     color: "border-emerald-200 dark:border-emerald-800",
@@ -59,7 +57,6 @@ const tiers = [
   {
     name: "Growth",
     icon: Rocket,
-    price: "$79",
     description: "For businesses ready to scale rapidly",
     features: ["Advanced scaling strategies", "Competitive analysis", "Growth frameworks", "Priority support"],
     color: "border-blue-200 dark:border-blue-800",
@@ -70,7 +67,6 @@ const tiers = [
   {
     name: "Enterprise",
     icon: Building2,
-    price: "$199",
     description: "Comprehensive guides for established businesses",
     features: ["Enterprise playbooks", "Market expansion guides", "Risk management", "Custom consultations"],
     color: "border-purple-200 dark:border-purple-800",
@@ -208,10 +204,7 @@ export default function LandingPage() {
                     <tier.icon className={`h-6 w-6 ${tier.iconColor}`} />
                   </div>
                   <h3 className="font-semibold text-xl mb-1">{tier.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-4">{tier.description}</p>
-                  <div className="text-3xl font-bold mb-6">
-                    {tier.price}
-                  </div>
+                  <p className="text-sm text-muted-foreground mb-6">{tier.description}</p>
                   <ul className="space-y-3 mb-6">
                     {tier.features.map((feature) => (
                       <li key={feature} className="flex items-center gap-2 text-sm">
