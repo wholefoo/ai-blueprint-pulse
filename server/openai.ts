@@ -196,7 +196,53 @@ Generate a high-value business blueprint following the exact structure specified
       }
     ],
     max_completion_tokens: 4096,
-    response_format: { type: "json_object" },
+    temperature: 0.4,
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        name: "blueprint",
+        strict: true,
+        schema: {
+          type: "object",
+          properties: {
+            title: {
+              type: "string",
+              description: "A compelling, specific title for the blueprint"
+            },
+            description: {
+              type: "string", 
+              description: "A one-sentence value proposition for marketing"
+            },
+            content: {
+              type: "string",
+              description: "The full blueprint in Markdown format with all 5 sections"
+            },
+            strategicOpportunity: {
+              type: "string",
+              description: "Section 1: The market gap and revenue lever"
+            },
+            implementationRoadmap: {
+              type: "string",
+              description: "Section 2: The 30/60/90 day implementation phases"
+            },
+            techStack: {
+              type: "string",
+              description: "Section 3: The 3-4 recommended tools for 2026"
+            },
+            xFactor: {
+              type: "string",
+              description: "Section 4: The enterprise scaling strategy"
+            },
+            immediateAction: {
+              type: "string",
+              description: "Section 5: The 60-minute action item"
+            }
+          },
+          required: ["title", "description", "content", "strategicOpportunity", "implementationRoadmap", "techStack", "xFactor", "immediateAction"],
+          additionalProperties: false
+        }
+      }
+    },
   });
 
   const content = response.choices[0]?.message?.content || "{}";
