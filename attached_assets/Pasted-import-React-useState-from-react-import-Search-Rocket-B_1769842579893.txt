@@ -1,0 +1,99 @@
+import React, { useState } from 'react';
+import { Search, Rocket, BarChart, ShieldCheck, Loader2, BookOpen } from 'lucide-react';
+
+export default function ResearchDashboard() {
+  const [niche, setNiche] = useState('');
+  const [level, setLevel] = useState('Beginner');
+  const [blueprint, setBlueprint] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const generateBlueprint = async () => {
+    setLoading(true);
+    setBlueprint('');
+    try {
+      const response = await fetch('/generate-blueprint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ niche, level }),
+      });
+      const data = await response.json();
+      if (data.success) setBlueprint(data.blueprint);
+    } catch (error) {
+      console.error("Error fetching blueprint:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 p-8 font-sans">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-900">Blueprint Research Dashboard</h1>
+          <p className="text-slate-500">Synthesize 2026 market trends into actionable guides.</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Controls Sidebar */}
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">Target Niche</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                <input 
+                  type="text" 
+                  className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="e.g. AI-Ops Agency"
+                  value={niche}
+                  onChange={(e) => setNiche(e.target.value)}
+                />
+              </div>
+
+              <label className="block text-sm font-semibold text-slate-700 mt-6 mb-2">Business Level</label>
+              <select 
+                className="w-full p-2 border border-slate-200 rounded-lg outline-none"
+                value={level}
+                onChange={(e) => setLevel(e.target.value)}
+              >
+                <option>Beginner</option>
+                <option>Growth</option>
+                <option>Enterprise</option>
+              </select>
+
+              <button 
+                onClick={generateBlueprint}
+                disabled={loading || !niche}
+                className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+              >
+                {loading ? <Loader2 className="animate-spin h-5 w-5" /> : <Rocket className="h-5 w-5" />}
+                Generate Blueprint
+              </button>
+            </div>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="lg:col-span-2 space-y-6">
+            {blueprint ? (
+              <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200 prose prose-slate max-w-none">
+                <div className="flex justify-between items-center mb-6 pb-4 border-b">
+                  <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">{level} Tier</span>
+                  <button className="text-sm text-slate-400 hover:text-blue-600 flex items-center gap-1">
+                    <BookOpen className="h-4 w-4" /> Save to Catalog
+                  </button>
+                </div>
+                {/* Render Markdown result here */}
+                <div dangerouslySetInnerHTML={{ __html: blueprint.replace(/\n/g, '<br />') }} />
+              </div>
+            ) : (
+              <div className="h-64 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400">
+                <BarChart className="h-12 w-12 mb-2 opacity-20" />
+                <p>Input a niche and click "Generate" to start research.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

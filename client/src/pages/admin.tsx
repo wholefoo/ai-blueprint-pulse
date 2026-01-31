@@ -22,19 +22,18 @@ import {
   Sparkles,
   Search,
   FileText,
-  Plus,
   Loader2,
-  TrendingUp,
   BookOpen,
   Rocket,
   Building2,
   Save,
   Eye,
+  BarChart,
 } from "lucide-react";
 import type { Blueprint, ResearchSession, BlueprintTier } from "@shared/schema";
 
 const tierOptions: { value: BlueprintTier; label: string; icon: typeof BookOpen }[] = [
-  { value: "starter", label: "Starter", icon: BookOpen },
+  { value: "starter", label: "Beginner", icon: BookOpen },
   { value: "growth", label: "Growth", icon: Rocket },
   { value: "enterprise", label: "Enterprise", icon: Building2 },
 ];
@@ -55,15 +54,15 @@ export default function AdminPage() {
 
   const [researchTopic, setResearchTopic] = useState("");
   const [researchResults, setResearchResults] = useState("");
-  const [generatedContent, setGeneratedContent] = useState("");
+  const [generatedBlueprint, setGeneratedBlueprint] = useState("");
 
   const [newBlueprint, setNewBlueprint] = useState({
     title: "",
     description: "",
     content: "",
-    tier: "starter" as BlueprintTier,
+    tier: "growth" as BlueprintTier,
     category: "Marketing",
-    price: 2900,
+    price: 4900,
   });
 
   const { data: blueprints = [], isLoading: blueprintsLoading } = useQuery<Blueprint[]>({
@@ -84,7 +83,7 @@ export default function AdminPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/research-sessions"] });
       toast({
         title: "Research Complete",
-        description: "Trend analysis is ready for review.",
+        description: "Real-time trend analysis is ready for review.",
       });
     },
     onError: (error: Error) => {
@@ -106,7 +105,7 @@ export default function AdminPage() {
       return res.json();
     },
     onSuccess: (data) => {
-      setGeneratedContent(data.content || "");
+      setGeneratedBlueprint(data.content || "");
       setNewBlueprint((prev) => ({
         ...prev,
         content: data.content || "",
@@ -115,7 +114,7 @@ export default function AdminPage() {
       }));
       toast({
         title: "Blueprint Generated",
-        description: "Your blueprint content has been created.",
+        description: "Your professional blueprint is ready.",
       });
     },
     onError: (error: Error) => {
@@ -138,13 +137,13 @@ export default function AdminPage() {
         title: "",
         description: "",
         content: "",
-        tier: "starter",
+        tier: "growth",
         category: "Marketing",
-        price: 2900,
+        price: 4900,
       });
       setResearchTopic("");
       setResearchResults("");
-      setGeneratedContent("");
+      setGeneratedBlueprint("");
       toast({
         title: "Blueprint Saved",
         description: "Your blueprint has been published to the marketplace.",
@@ -160,14 +159,14 @@ export default function AdminPage() {
   });
 
   return (
-    <div className="py-8">
-      <div className="container max-w-6xl">
+    <div className="min-h-screen bg-background py-8">
+      <div className="container max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="font-serif text-3xl font-bold" data-testid="text-page-title">
-            Admin Dashboard
+          <h1 className="text-3xl font-bold text-foreground" data-testid="text-page-title">
+            Blueprint Research Dashboard
           </h1>
           <p className="text-muted-foreground mt-1">
-            Research trends and generate business blueprints
+            Synthesize 2026 market trends into actionable guides.
           </p>
         </div>
 
@@ -184,103 +183,27 @@ export default function AdminPage() {
           </TabsList>
 
           <TabsContent value="research" className="space-y-6">
-            <div className="grid lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Search className="h-5 w-5" />
-                    Trend Research
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="topic">Research Topic</Label>
-                    <Input
-                      id="topic"
-                      placeholder="e.g., AI automation for small businesses"
-                      value={researchTopic}
-                      onChange={(e) => setResearchTopic(e.target.value)}
-                      data-testid="input-research-topic"
-                    />
-                  </div>
-                  <Button
-                    onClick={() => researchMutation.mutate(researchTopic)}
-                    disabled={!researchTopic || researchMutation.isPending}
-                    className="w-full"
-                    data-testid="button-research"
-                  >
-                    {researchMutation.isPending ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <TrendingUp className="mr-2 h-4 w-4" />
-                    )}
-                    Analyze Trends
-                  </Button>
-
-                  {researchResults && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Controls Sidebar */}
+              <div className="space-y-6">
+                <Card>
+                  <CardContent className="pt-6 space-y-6">
                     <div className="space-y-2">
-                      <Label>Research Results</Label>
-                      <ScrollArea className="h-48 rounded-md border p-3">
-                        <div className="text-sm whitespace-pre-wrap" data-testid="text-research-results">
-                          {researchResults}
-                        </div>
-                      </ScrollArea>
+                      <Label className="text-sm font-semibold">Target Niche</Label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          className="pl-10"
+                          placeholder="e.g., AI-Ops Agency"
+                          value={researchTopic}
+                          onChange={(e) => setResearchTopic(e.target.value)}
+                          data-testid="input-research-topic"
+                        />
+                      </div>
                     </div>
-                  )}
 
-                  {researchResults && (
-                    <Button
-                      onClick={() => generateMutation.mutate()}
-                      disabled={generateMutation.isPending}
-                      variant="secondary"
-                      className="w-full"
-                      data-testid="button-generate"
-                    >
-                      {generateMutation.isPending ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <Sparkles className="mr-2 h-4 w-4" />
-                      )}
-                      Generate Blueprint
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    Blueprint Details
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Title</Label>
-                    <Input
-                      id="title"
-                      placeholder="Blueprint title"
-                      value={newBlueprint.title}
-                      onChange={(e) => setNewBlueprint((prev) => ({ ...prev, title: e.target.value }))}
-                      data-testid="input-title"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      placeholder="Brief description of this blueprint"
-                      value={newBlueprint.description}
-                      onChange={(e) => setNewBlueprint((prev) => ({ ...prev, description: e.target.value }))}
-                      rows={3}
-                      data-testid="input-description"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Tier</Label>
+                      <Label className="text-sm font-semibold">Business Level</Label>
                       <Select
                         value={newBlueprint.tier}
                         onValueChange={(value: BlueprintTier) => setNewBlueprint((prev) => ({ ...prev, tier: value }))}
@@ -301,68 +224,175 @@ export default function AdminPage() {
                       </Select>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label>Category</Label>
-                      <Select
-                        value={newBlueprint.category}
-                        onValueChange={(value) => setNewBlueprint((prev) => ({ ...prev, category: value }))}
-                      >
-                        <SelectTrigger data-testid="select-category">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categoryOptions.map((cat) => (
-                            <SelectItem key={cat} value={cat}>
-                              {cat}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+                    <Button
+                      onClick={() => researchMutation.mutate(researchTopic)}
+                      disabled={!researchTopic || researchMutation.isPending}
+                      className="w-full"
+                      data-testid="button-research"
+                    >
+                      {researchMutation.isPending ? (
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      ) : (
+                        <Rocket className="mr-2 h-5 w-5" />
+                      )}
+                      Generate Blueprint
+                    </Button>
+                  </CardContent>
+                </Card>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="price">Price (cents)</Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      value={newBlueprint.price}
-                      onChange={(e) => setNewBlueprint((prev) => ({ ...prev, price: parseInt(e.target.value) || 0 }))}
-                      data-testid="input-price"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Display price: ${(newBlueprint.price / 100).toFixed(2)}
+                {researchResults && (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <BarChart className="h-4 w-4" />
+                        Research Data
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ScrollArea className="h-48">
+                        <div className="text-xs text-muted-foreground whitespace-pre-wrap" data-testid="text-research-results">
+                          {researchResults.slice(0, 500)}...
+                        </div>
+                      </ScrollArea>
+                      <Button
+                        onClick={() => generateMutation.mutate()}
+                        disabled={generateMutation.isPending}
+                        variant="secondary"
+                        className="w-full mt-4"
+                        data-testid="button-generate"
+                      >
+                        {generateMutation.isPending ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Sparkles className="mr-2 h-4 w-4" />
+                        )}
+                        Refine Blueprint
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+
+              {/* Main Content Area */}
+              <div className="lg:col-span-2 space-y-6">
+                {generatedBlueprint ? (
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="flex justify-between items-center mb-6 pb-4 border-b">
+                        <Badge className="uppercase tracking-widest text-xs">
+                          {tierOptions.find(t => t.value === newBlueprint.tier)?.label} Tier
+                        </Badge>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => saveMutation.mutate()}
+                          disabled={!newBlueprint.title || saveMutation.isPending}
+                          className="text-muted-foreground hover:text-primary"
+                          data-testid="button-save-catalog"
+                        >
+                          {saveMutation.isPending ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <BookOpen className="mr-2 h-4 w-4" />
+                          )}
+                          Save to Catalog
+                        </Button>
+                      </div>
+                      
+                      <div className="space-y-4 mb-6">
+                        <Input
+                          placeholder="Blueprint Title"
+                          value={newBlueprint.title}
+                          onChange={(e) => setNewBlueprint((prev) => ({ ...prev, title: e.target.value }))}
+                          className="text-lg font-semibold border-0 border-b rounded-none px-0 focus-visible:ring-0"
+                          data-testid="input-title"
+                        />
+                        <Input
+                          placeholder="One-sentence value proposition"
+                          value={newBlueprint.description}
+                          onChange={(e) => setNewBlueprint((prev) => ({ ...prev, description: e.target.value }))}
+                          className="text-sm text-muted-foreground border-0 border-b rounded-none px-0 focus-visible:ring-0"
+                          data-testid="input-description"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="space-y-2">
+                          <Label className="text-xs">Category</Label>
+                          <Select
+                            value={newBlueprint.category}
+                            onValueChange={(value) => setNewBlueprint((prev) => ({ ...prev, category: value }))}
+                          >
+                            <SelectTrigger data-testid="select-category">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {categoryOptions.map((cat) => (
+                                <SelectItem key={cat} value={cat}>
+                                  {cat}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs">Price</Label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-2.5 text-muted-foreground">$</span>
+                            <Input
+                              type="number"
+                              value={(newBlueprint.price / 100)}
+                              onChange={(e) => setNewBlueprint((prev) => ({ ...prev, price: Math.round(parseFloat(e.target.value) * 100) || 0 }))}
+                              className="pl-7"
+                              data-testid="input-price"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <ScrollArea className="h-96 rounded-lg border p-4">
+                        <div className="prose prose-sm dark:prose-invert max-w-none">
+                          <div 
+                            className="whitespace-pre-wrap text-sm" 
+                            data-testid="text-blueprint-content"
+                            dangerouslySetInnerHTML={{ 
+                              __html: generatedBlueprint
+                                .replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold mt-6 mb-2">$1</h2>')
+                                .replace(/^### (.+)$/gm, '<h3 class="text-base font-semibold mt-4 mb-2">$1</h3>')
+                                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                                .replace(/\n/g, '<br />')
+                            }}
+                          />
+                        </div>
+                      </ScrollArea>
+
+                      <Button
+                        onClick={() => saveMutation.mutate()}
+                        disabled={!newBlueprint.title || !newBlueprint.content || saveMutation.isPending}
+                        className="w-full mt-6"
+                        data-testid="button-save"
+                      >
+                        {saveMutation.isPending ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Save className="mr-2 h-4 w-4" />
+                        )}
+                        Publish to Marketplace
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="h-96 border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-muted-foreground">
+                    <BarChart className="h-12 w-12 mb-4 opacity-20" />
+                    <p className="text-center">
+                      Input a niche and click "Generate" to start research.
+                    </p>
+                    <p className="text-xs text-muted-foreground/60 mt-2">
+                      Powered by Tavily web search + GPT-5.2
                     </p>
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="content">Content (Markdown)</Label>
-                    <Textarea
-                      id="content"
-                      placeholder="Blueprint content in Markdown format..."
-                      value={newBlueprint.content}
-                      onChange={(e) => setNewBlueprint((prev) => ({ ...prev, content: e.target.value }))}
-                      rows={10}
-                      className="font-mono text-sm"
-                      data-testid="input-content"
-                    />
-                  </div>
-
-                  <Button
-                    onClick={() => saveMutation.mutate()}
-                    disabled={!newBlueprint.title || !newBlueprint.content || saveMutation.isPending}
-                    className="w-full"
-                    data-testid="button-save"
-                  >
-                    {saveMutation.isPending ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Save className="mr-2 h-4 w-4" />
-                    )}
-                    Save Blueprint
-                  </Button>
-                </CardContent>
-              </Card>
+                )}
+              </div>
             </div>
           </TabsContent>
 
