@@ -35,9 +35,10 @@ import {
   Save,
   Eye,
   BarChart,
-  X,
+  Download,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import jsPDF from "jspdf";
 import type { Blueprint, ResearchSession, BlueprintTier } from "@shared/schema";
 
 const tierOptions: { value: BlueprintTier; label: string; icon: typeof BookOpen }[] = [
@@ -55,6 +56,90 @@ const categoryOptions = [
   "Technology",
   "Strategy",
 ];
+
+function generatePDF(blueprint: Blueprint) {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 20;
+  const contentWidth = pageWidth - margin * 2;
+  let yPosition = margin;
+
+  // Helper to add text with word wrap and page breaks
+  const addText = (text: string, fontSize: number, isBold = false, color: [number, number, number] = [0, 0, 0]) => {
+    doc.setFontSize(fontSize);
+    doc.setFont("helvetica", isBold ? "bold" : "normal");
+    doc.setTextColor(...color);
+    
+    const lines = doc.splitTextToSize(text, contentWidth);
+    for (const line of lines) {
+      if (yPosition > pageHeight - margin) {
+        doc.addPage();
+        yPosition = margin;
+      }
+      doc.text(line, margin, yPosition);
+      yPosition += fontSize * 0.5;
+    }
+    yPosition += 4;
+  };
+
+  // Header
+  doc.setFillColor(28, 43, 71); // Navy
+  doc.rect(0, 0, pageWidth, 40, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(10);
+  doc.text(`${blueprint.tier.toUpperCase()} TIER | ${blueprint.category}`, margin, 15);
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  const titleLines = doc.splitTextToSize(blueprint.title, contentWidth);
+  doc.text(titleLines, margin, 28);
+  
+  yPosition = 50;
+  
+  // Description
+  addText(blueprint.description, 11, false, [100, 100, 100]);
+  yPosition += 6;
+
+  // Process markdown content
+  const content = blueprint.content || "";
+  const lines = content.split("\n");
+  
+  for (const line of lines) {
+    if (line.startsWith("# ")) {
+      yPosition += 8;
+      addText(line.substring(2), 16, true, [28, 43, 71]);
+    } else if (line.startsWith("## ")) {
+      yPosition += 6;
+      addText(line.substring(3), 14, true, [28, 43, 71]);
+    } else if (line.startsWith("### ")) {
+      yPosition += 4;
+      addText(line.substring(4), 12, true, [50, 50, 50]);
+    } else if (line.startsWith("- ") || line.startsWith("* ")) {
+      addText("• " + line.substring(2), 10, false);
+    } else if (line.match(/^\d+\. /)) {
+      addText(line, 10, false);
+    } else if (line.startsWith("**") && line.endsWith("**")) {
+      addText(line.replace(/\*\*/g, ""), 10, true);
+    } else if (line.trim()) {
+      addText(line, 10, false);
+    } else {
+      yPosition += 4;
+    }
+  }
+
+  // Footer on each page
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Blueprint Nexus | Page ${i} of ${pageCount}`, margin, pageHeight - 10);
+  }
+
+  // Download
+  const filename = blueprint.title.toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".pdf";
+  doc.save(filename);
+}
 
 export default function AdminPage() {
   const { toast } = useToast();
@@ -462,16 +547,26 @@ export default function AdminPage() {
       </div>
 
       <Dialog open={!!selectedBlueprint} onOpenChange={(open) => !open && setSelectedBlueprint(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-          <DialogHeader>
-            <div className="flex items-center gap-2 mb-2">
+        <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
               <Badge variant="outline" className="capitalize">
                 {selectedBlueprint?.tier}
               </Badge>
               <Badge variant="secondary">{selectedBlueprint?.category}</Badge>
-              <span className="text-sm text-muted-foreground ml-auto">
+              <span className="text-sm text-muted-foreground">
                 ${((selectedBlueprint?.price || 0) / 100).toFixed(2)}
               </span>
+              <Button
+                variant="default"
+                size="sm"
+                className="ml-auto"
+                onClick={() => selectedBlueprint && generatePDF(selectedBlueprint)}
+                data-testid="button-download-pdf"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download PDF
+              </Button>
             </div>
             <DialogTitle className="font-serif text-xl">
               {selectedBlueprint?.title}
@@ -480,11 +575,11 @@ export default function AdminPage() {
               {selectedBlueprint?.description}
             </p>
           </DialogHeader>
-          <ScrollArea className="flex-1 pr-4">
+          <div className="flex-1 overflow-y-auto min-h-0 pr-2">
             <article className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-serif">
               <ReactMarkdown>{selectedBlueprint?.content || ""}</ReactMarkdown>
             </article>
-          </ScrollArea>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
