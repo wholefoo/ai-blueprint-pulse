@@ -39,6 +39,7 @@ import {
   Pencil,
   Check,
   X,
+  Target,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import jsPDF from "jspdf";
@@ -450,9 +451,55 @@ export default function AdminPage() {
                         <Skeleton className="h-4 w-full" />
                       </div>
                     ) : discoverResults ? (
-                      <div className="max-h-[600px] overflow-y-auto pr-2">
+                      <div className="max-h-[600px] overflow-y-auto pr-2 space-y-6">
+                        {/* Parse and display niche buttons */}
+                        {(() => {
+                          const nicheMatch = discoverResults.match(/---NICHES---\n([\s\S]*?)---END_NICHES---/);
+                          if (nicheMatch) {
+                            const niches = nicheMatch[1]
+                              .split('\n')
+                              .map(n => n.trim())
+                              .filter(n => n.length > 0);
+                            
+                            if (niches.length > 0) {
+                              return (
+                                <Card className="border-primary/20 bg-primary/5">
+                                  <CardHeader className="pb-3">
+                                    <CardTitle className="text-base flex items-center gap-2">
+                                      <Target className="h-4 w-4" />
+                                      Click a Niche to Research
+                                    </CardTitle>
+                                  </CardHeader>
+                                  <CardContent className="pt-0">
+                                    <div className="flex flex-wrap gap-2">
+                                      {niches.map((niche, idx) => (
+                                        <Button
+                                          key={idx}
+                                          variant="outline"
+                                          size="sm"
+                                          className="text-xs"
+                                          onClick={() => {
+                                            setResearchTopic(niche);
+                                            setActiveTab("research");
+                                          }}
+                                          data-testid={`button-niche-${idx}`}
+                                        >
+                                          {niche}
+                                        </Button>
+                                      ))}
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              );
+                            }
+                          }
+                          return null;
+                        })()}
+                        
                         <article className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-serif">
-                          <ReactMarkdown>{discoverResults}</ReactMarkdown>
+                          <ReactMarkdown>
+                            {discoverResults.replace(/---NICHES---[\s\S]*?---END_NICHES---/, '')}
+                          </ReactMarkdown>
                         </article>
                       </div>
                     ) : (

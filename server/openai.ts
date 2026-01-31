@@ -91,7 +91,17 @@ For each, include:
 1. [Specific action to validate these opportunities]
 2. [Another action]
 
-Identify at least 5 high-demand topics from the research.`
+Identify at least 5 high-demand topics from the research.
+
+IMPORTANT: At the very end, include a section exactly like this with 5-8 specific niche topics (these will become clickable buttons):
+
+---NICHES---
+[Niche 1 name - be specific, e.g., "AI-Powered Lead Generation for Real Estate"]
+[Niche 2 name]
+[Niche 3 name]
+[Niche 4 name]
+[Niche 5 name]
+---END_NICHES---`
       }
     ],
     max_completion_tokens: 2048,
