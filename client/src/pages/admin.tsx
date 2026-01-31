@@ -36,6 +36,9 @@ import {
   Eye,
   BarChart,
   Download,
+  Pencil,
+  Check,
+  X,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import jsPDF from "jspdf";
@@ -57,6 +60,19 @@ const categoryOptions = [
   "Strategy",
 ];
 
+// Helper to strip markdown formatting from text
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*\*(.*?)\*\*\*/g, "$1") // bold+italic
+    .replace(/\*\*(.*?)\*\*/g, "$1") // bold
+    .replace(/\*(.*?)\*/g, "$1") // italic
+    .replace(/__(.*?)__/g, "$1") // bold underscore
+    .replace(/_(.*?)_/g, "$1") // italic underscore
+    .replace(/`(.*?)`/g, "$1") // inline code
+    .replace(/\[(.*?)\]\(.*?\)/g, "$1") // links
+    .replace(/~~(.*?)~~/g, "$1"); // strikethrough
+}
+
 function generatePDF(blueprint: Blueprint) {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -67,11 +83,12 @@ function generatePDF(blueprint: Blueprint) {
 
   // Helper to add text with word wrap and page breaks
   const addText = (text: string, fontSize: number, isBold = false, color: [number, number, number] = [0, 0, 0]) => {
+    const cleanText = stripMarkdown(text);
     doc.setFontSize(fontSize);
     doc.setFont("helvetica", isBold ? "bold" : "normal");
     doc.setTextColor(...color);
     
-    const lines = doc.splitTextToSize(text, contentWidth);
+    const lines = doc.splitTextToSize(cleanText, contentWidth);
     for (const line of lines) {
       if (yPosition > pageHeight - margin) {
         doc.addPage();
@@ -105,6 +122,7 @@ function generatePDF(blueprint: Blueprint) {
   const lines = content.split("\n");
   
   for (const line of lines) {
+    const trimmed = line.trim();
     if (line.startsWith("# ")) {
       yPosition += 8;
       addText(line.substring(2), 16, true, [28, 43, 71]);
@@ -114,14 +132,23 @@ function generatePDF(blueprint: Blueprint) {
     } else if (line.startsWith("### ")) {
       yPosition += 4;
       addText(line.substring(4), 12, true, [50, 50, 50]);
+    } else if (line.startsWith("#### ")) {
+      yPosition += 3;
+      addText(line.substring(5), 11, true, [70, 70, 70]);
     } else if (line.startsWith("- ") || line.startsWith("* ")) {
       addText("• " + line.substring(2), 10, false);
     } else if (line.match(/^\d+\. /)) {
       addText(line, 10, false);
-    } else if (line.startsWith("**") && line.endsWith("**")) {
-      addText(line.replace(/\*\*/g, ""), 10, true);
-    } else if (line.trim()) {
-      addText(line, 10, false);
+    } else if (trimmed.startsWith("|") && trimmed.endsWith("|")) {
+      // Table row - convert to plain text
+      const cells = trimmed.split("|").filter(c => c.trim() && !c.match(/^[-:]+$/));
+      if (cells.length > 0) {
+        addText(cells.map(c => c.trim()).join(" | "), 9, false);
+      }
+    } else if (trimmed.match(/^[-:]+\|/)) {
+      // Table separator - skip
+    } else if (trimmed) {
+      addText(trimmed, 10, false);
     } else {
       yPosition += 4;
     }
@@ -145,6 +172,8 @@ export default function AdminPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("discover");
   const [selectedBlueprint, setSelectedBlueprint] = useState<Blueprint | null>(null);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
 
   // Trend Discovery state
   const [discoverCategory, setDiscoverCategory] = useState("general");
@@ -272,6 +301,30 @@ export default function AdminPage() {
     onError: (error: Error) => {
       toast({
         title: "Save Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update blueprint title mutation
+  const updateTitleMutation = useMutation({
+    mutationFn: async ({ id, title }: { id: number; title: string }) => {
+      const res = await apiRequest("PATCH", `/api/admin/blueprints/${id}`, { title });
+      return res.json();
+    },
+    onSuccess: (updatedBlueprint) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/blueprints"] });
+      setSelectedBlueprint(updatedBlueprint);
+      setIsEditingTitle(false);
+      toast({
+        title: "Title Updated",
+        description: "Blueprint title has been updated.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Update Failed",
         description: error.message,
         variant: "destructive",
       });
@@ -684,7 +737,12 @@ export default function AdminPage() {
         </Tabs>
       </div>
 
-      <Dialog open={!!selectedBlueprint} onOpenChange={(open) => !open && setSelectedBlueprint(null)}>
+      <Dialog open={!!selectedBlueprint} onOpenChange={(open) => {
+          if (!open) {
+            setSelectedBlueprint(null);
+            setIsEditingTitle(false);
+          }
+        }}>
         <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
           <DialogHeader className="flex-shrink-0">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -706,9 +764,67 @@ export default function AdminPage() {
                 Download PDF
               </Button>
             </div>
-            <DialogTitle className="font-serif text-xl">
-              {selectedBlueprint?.title}
-            </DialogTitle>
+            {isEditingTitle ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="font-serif text-xl h-auto py-1"
+                  data-testid="input-edit-title"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && selectedBlueprint) {
+                      updateTitleMutation.mutate({ id: selectedBlueprint.id, title: editTitle });
+                    } else if (e.key === "Escape") {
+                      setIsEditingTitle(false);
+                    }
+                  }}
+                />
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    if (selectedBlueprint) {
+                      updateTitleMutation.mutate({ id: selectedBlueprint.id, title: editTitle });
+                    }
+                  }}
+                  disabled={updateTitleMutation.isPending}
+                  data-testid="button-save-title"
+                >
+                  {updateTitleMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Check className="h-4 w-4" />
+                  )}
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => setIsEditingTitle(false)}
+                  data-testid="button-cancel-edit"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 group">
+                <DialogTitle className="font-serif text-xl">
+                  {selectedBlueprint?.title}
+                </DialogTitle>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => {
+                    setEditTitle(selectedBlueprint?.title || "");
+                    setIsEditingTitle(true);
+                  }}
+                  data-testid="button-edit-title"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
             <p className="text-sm text-muted-foreground">
               {selectedBlueprint?.description}
             </p>

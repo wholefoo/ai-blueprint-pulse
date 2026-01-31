@@ -348,5 +348,21 @@ export async function registerRoutes(
     }
   });
 
+  // Update blueprint (admin only)
+  app.patch("/api/admin/blueprints/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updates = req.body;
+      const blueprint = await storage.updateBlueprint(id, updates);
+      if (!blueprint) {
+        return res.status(404).json({ error: "Blueprint not found" });
+      }
+      res.json(blueprint);
+    } catch (error) {
+      console.error("Error updating blueprint:", error);
+      res.status(500).json({ error: "Failed to update blueprint" });
+    }
+  });
+
   return httpServer;
 }
