@@ -2,7 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import express from "express";
 import { storage } from "./storage";
-import { isAuthenticated } from "./replit_integrations/auth";
+import { isAuthenticated, setupAuth, registerAuthRoutes } from "./replit_integrations/auth";
 import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClient";
 import { WebhookHandlers } from "./webhookHandlers";
 import { analyzeBusinessTrends, generateBlueprintContent } from "./openai";
@@ -44,6 +44,10 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  
+  // Setup Replit Auth (session, passport, login/logout routes)
+  await setupAuth(app);
+  registerAuthRoutes(app);
   
   // Stripe webhook - MUST be before express.json()
   app.post(
