@@ -134,6 +134,29 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
             ))}
+
+            <Card className="bg-muted/30 border-dashed mt-8">
+              <CardContent className="py-6">
+                <h4 className="font-semibold text-sm mb-3">License & Usage Rights</h4>
+                <ul className="text-xs text-muted-foreground space-y-2">
+                  <li>
+                    <strong>Personal/Internal Use Only:</strong> Purchase grants you a non-exclusive, 
+                    non-transferable license to use this information for your own business or internal 
+                    company growth.
+                  </li>
+                  <li>
+                    <strong>No Resale:</strong> You may not repackage, white-label, or resell the contents 
+                    of this blueprint as your own consulting or educational product without an Enterprise-tier 
+                    partnership agreement.
+                  </li>
+                  <li>
+                    <strong>AI Disclosure:</strong> This guide was synthesized using the Blueprint Nexus 
+                    Research Engine. While we strive for accuracy, business trends shift rapidly; this 
+                    content is for strategic guidance and does not guarantee specific financial results.
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>

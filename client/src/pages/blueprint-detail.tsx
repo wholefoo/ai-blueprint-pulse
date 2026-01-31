@@ -165,6 +165,23 @@ export default function BlueprintDetailPage() {
                   </div>
                 </CardContent>
               </Card>
+
+              <Card className="bg-muted/50">
+                <CardContent className="pt-6">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    <strong>AI Disclosure:</strong> Synthesized by the Blueprint Nexus AI-Ops Engine using 
+                    real-time data from January 2026. Market Dynamics Notice: Blueprints are snapshots of 
+                    digital trends at a specific point in time. Success in online business depends on 
+                    execution, market volatility, and external factors beyond the scope of this research tool. 
+                    Blueprint Nexus provides "Blueprints," not "Guarantees."
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    © 2026 Blueprint Nexus. All Rights Reserved. This Success Blueprint is the proprietary 
+                    intellectual property of Blueprint Nexus. Unauthorized reproduction, resale, or 
+                    distribution is strictly prohibited.
+                  </p>
+                </CardContent>
+              </Card>
             </div>
 
             <div className="space-y-4">

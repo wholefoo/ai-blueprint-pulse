@@ -64,19 +64,14 @@ export function Footer() {
             <h4 className="font-semibold mb-4">Legal</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Privacy Policy
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground transition-colors">
+                <Link href="/terms" className="hover:text-foreground transition-colors">
                   Terms of Service
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-foreground transition-colors">
+                <Link href="/terms" className="hover:text-foreground transition-colors">
                   Refund Policy
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -84,6 +79,9 @@ export function Footer() {
 
         <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} Blueprint Nexus. All rights reserved.</p>
+          <p className="mt-2 text-xs">
+            Synthesized by the Blueprint Nexus AI-Ops Engine using real-time data.
+          </p>
         </div>
       </div>
     </footer>
