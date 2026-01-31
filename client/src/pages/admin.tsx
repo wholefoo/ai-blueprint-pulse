@@ -101,6 +101,7 @@ export default function AdminPage() {
       const res = await apiRequest("POST", "/api/admin/generate", {
         topic: researchTopic,
         research: researchResults,
+        tier: newBlueprint.tier,
       });
       return res.json();
     },

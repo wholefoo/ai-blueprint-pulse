@@ -93,40 +93,74 @@ ${actionableChecklist}
 *Research generated using prompt chain methodology for maximum actionability.*`;
 }
 
-export async function generateBlueprintContent(topic: string, research: string): Promise<{
+export async function generateBlueprintContent(topic: string, research: string, tier: "starter" | "growth" | "enterprise" = "growth"): Promise<{
   title: string;
   description: string;
   content: string;
 }> {
+  // Map tier to level descriptor
+  const tierLevel = {
+    starter: "Beginner",
+    growth: "Growth", 
+    enterprise: "Enterprise"
+  }[tier];
+
+  const systemPrompt = `### ROLE
+You are a Senior Business Growth Strategist and Market Analyst for "Blueprint Nexus." Your expertise lies in distilling complex market data into hyper-concise, high-signal, and actionable business blueprints for entrepreneurs ranging from beginners to enterprise leaders.
+
+### CONTEXT
+The user will provide you with raw "Research Trends" and a "Target Business Level." Your task is to synthesize this data into a "Business Success Blueprint" that follows a rigid, professional structure.
+
+### CONTEXTUAL CONSTRAINTS
+1. TONE: Professional, authoritative, and direct. No "fluff," no generic introductions, and no "as an AI..." statements.
+2. DATA-DRIVEN: Every recommendation must be linked to the provided 2026 research trends.
+3. ACTIONABILITY: Every section must include a "Success Metric" or a specific "Next Step."
+4. PERSPECTIVE: Focus on "low-overhead, high-leverage" strategies suitable for the modern online economy.
+
+### OUTPUT STRUCTURE (JSON with Markdown content)
+Return a JSON object with:
+- "title": A compelling, specific title for this blueprint (no generic titles)
+- "description": A one-sentence value proposition for this business model (for marketing)
+- "content": The full blueprint in Markdown using EXACTLY these headers:
+
+## [GUIDE TITLE]
+*A one-sentence value proposition for this business model.*
+
+### 1. The Strategic Opportunity
+- Explain the gap in the current market (2026 focus).
+- Identify the core revenue lever.
+
+### 2. Implementation Roadmap (30/60/90 Day)
+- **Phase 1 (Setup):** [Specific Action] -> [Metric for Success]
+- **Phase 2 (Growth):** [Specific Action] -> [Metric for Success]
+- **Phase 3 (Scale):** [Specific Action] -> [Metric for Success]
+
+### 3. High-Leverage Tech Stack
+- List 3-4 specific tools required for 2026 (AI agents, automation layers, etc.).
+
+### 4. Enterprise-Level "X-Factor"
+- One high-level strategy for scaling this from a solopreneur venture to a $1M+ ARR entity.
+
+### 5. Immediate Action Item
+- A single, bolded instruction the user can do in the next 60 minutes.`;
+
   const response = await openai.chat.completions.create({
     model: "gpt-5.2",
     messages: [
       {
         role: "system",
-        content: `You are an expert business guide writer. Create comprehensive, actionable business blueprints based on research data.
-
-Your blueprints should:
-1. Be practical and immediately actionable
-2. Include step-by-step implementation guides
-3. Provide templates and checklists where relevant
-4. Include real-world examples and case studies
-5. Be written in professional but accessible language
-
-Format your output as valid JSON with:
-- title: A compelling, specific title for the blueprint
-- description: A 2-3 sentence summary (for marketing)
-- content: The full blueprint in Markdown format with proper headers, lists, and sections`
+        content: systemPrompt
       },
       {
         role: "user",
-        content: `Create a comprehensive business blueprint based on this research:
+        content: `Level: ${tierLevel}
 
-Topic: ${topic}
-
-Research Findings:
+Research Data:
 ${research}
 
-Generate a complete, actionable guide that business owners can implement immediately.`
+Topic Focus: ${topic}
+
+Generate a high-value business blueprint following the exact structure specified. Make it actionable and data-driven based on the 2026 research provided.`
       }
     ],
     max_completion_tokens: 4096,

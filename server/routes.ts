@@ -10,9 +10,9 @@ import { insertBlueprintSchema } from "@shared/schema";
 import { z } from "zod";
 
 // Admin email whitelist - add admin emails here
-const ADMIN_EMAILS = new Set([
+const ADMIN_EMAILS: string[] = [
   // Add authorized admin emails
-]);
+];
 
 // Server-side admin authorization middleware
 function isAdmin(req: any, res: Response, next: NextFunction) {
@@ -22,15 +22,15 @@ function isAdmin(req: any, res: Response, next: NextFunction) {
     return res.status(401).json({ error: "Authentication required" });
   }
 
-  const email = user?.claims?.email;
-  const userId = user?.claims?.sub;
+  const email = user?.claims?.email as string | undefined;
+  const userId = user?.claims?.sub as string | undefined;
   
   // Check if user is an admin (via whitelist or special patterns)
   // In production, you should use a proper role field in the database
   const isAuthorized = 
-    ADMIN_EMAILS.has(email) || 
+    (email && ADMIN_EMAILS.includes(email)) || 
     userId === "admin" ||
-    (email && typeof email === "string" && email.includes("admin"));
+    (email && email.includes("admin"));
 
   if (!isAuthorized) {
     return res.status(403).json({ error: "Admin access required" });
@@ -89,7 +89,8 @@ export async function registerRoutes(
 
   app.get("/api/blueprints/:id", async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
+      const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const id = parseInt(idParam);
       const blueprint = await storage.getBlueprint(id);
       
       if (!blueprint) {
@@ -278,13 +279,17 @@ export async function registerRoutes(
 
   app.post("/api/admin/generate", isAuthenticated, isAdmin, async (req: any, res: Response) => {
     try {
-      const { topic, research } = req.body;
+      const { topic, research, tier = "growth" } = req.body;
 
       if (!topic || !research) {
         return res.status(400).json({ error: "Topic and research are required" });
       }
 
-      const generated = await generateBlueprintContent(topic, research);
+      // Validate tier
+      const validTiers = ["starter", "growth", "enterprise"] as const;
+      const selectedTier = validTiers.includes(tier) ? tier : "growth";
+
+      const generated = await generateBlueprintContent(topic, research, selectedTier);
 
       res.json(generated);
     } catch (error) {
