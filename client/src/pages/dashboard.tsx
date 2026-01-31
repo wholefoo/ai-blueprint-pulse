@@ -12,6 +12,7 @@ import {
   ArrowRight,
   Calendar,
   FileText,
+  Eye,
 } from "lucide-react";
 import type { Purchase, Blueprint } from "@shared/schema";
 
@@ -123,12 +124,20 @@ export default function DashboardPage() {
                       <div className="text-lg font-bold">
                         ${(purchase.amount / 100).toFixed(2)}
                       </div>
-                      <Button size="sm" asChild data-testid={`button-download-${purchase.id}`}>
-                        <a href={`/api/blueprints/${purchase.blueprintId}/download`} download>
-                          <Download className="mr-2 h-4 w-4" />
-                          Download
-                        </a>
-                      </Button>
+                      <div className="flex gap-2">
+                        <Link href={`/blueprint/${purchase.blueprintId}/view`}>
+                          <Button size="sm" variant="outline" data-testid={`button-view-${purchase.id}`}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View
+                          </Button>
+                        </Link>
+                        <Button size="sm" asChild data-testid={`button-download-${purchase.id}`}>
+                          <a href={`/api/blueprints/${purchase.blueprintId}/download`} download>
+                            <Download className="mr-2 h-4 w-4" />
+                            Download
+                          </a>
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>

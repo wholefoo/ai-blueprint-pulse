@@ -10,6 +10,7 @@ import NotFound from "@/pages/not-found";
 import LandingPage from "@/pages/landing";
 import MarketplacePage from "@/pages/marketplace";
 import BlueprintDetailPage from "@/pages/blueprint-detail";
+import BlueprintViewPage from "@/pages/blueprint-view";
 import DashboardPage from "@/pages/dashboard";
 import AdminPage from "@/pages/admin";
 import ProfilePage from "@/pages/profile";
@@ -73,6 +74,9 @@ function Router() {
       <Route path="/" component={LandingPage} />
       <Route path="/marketplace" component={MarketplacePage} />
       <Route path="/blueprint/:id" component={BlueprintDetailPage} />
+      <Route path="/blueprint/:id/view">
+        <ProtectedRoute component={BlueprintViewPage} />
+      </Route>
       <Route path="/dashboard">
         <ProtectedRoute component={DashboardPage} />
       </Route>
