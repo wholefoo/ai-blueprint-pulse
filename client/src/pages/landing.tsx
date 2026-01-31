@@ -13,7 +13,8 @@ import {
   CheckCircle2,
   BookOpen,
   Rocket,
-  Building2
+  Building2,
+  Gift
 } from "lucide-react";
 
 const features = [
@@ -35,6 +36,16 @@ const features = [
 ];
 
 const tiers = [
+  {
+    name: "Free Forever",
+    icon: Gift,
+    price: "Free",
+    description: "Get started with essential business insights",
+    features: ["Curated free guides", "Basic templates", "Newsletter access", "Community forums"],
+    color: "border-gray-200 dark:border-gray-700",
+    iconBg: "bg-gray-500/10",
+    iconColor: "text-gray-600 dark:text-gray-400",
+  },
   {
     name: "Starter",
     icon: BookOpen,
@@ -200,7 +211,6 @@ export default function LandingPage() {
                   <p className="text-sm text-muted-foreground mb-4">{tier.description}</p>
                   <div className="text-3xl font-bold mb-6">
                     {tier.price}
-                    <span className="text-base font-normal text-muted-foreground">/guide</span>
                   </div>
                   <ul className="space-y-3 mb-6">
                     {tier.features.map((feature) => (
