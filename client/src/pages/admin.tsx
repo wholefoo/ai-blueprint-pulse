@@ -143,8 +143,12 @@ function generatePDF(blueprint: Blueprint) {
 
 export default function AdminPage() {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("research");
+  const [activeTab, setActiveTab] = useState("discover");
   const [selectedBlueprint, setSelectedBlueprint] = useState<Blueprint | null>(null);
+
+  // Trend Discovery state
+  const [discoverCategory, setDiscoverCategory] = useState("general");
+  const [discoverResults, setDiscoverResults] = useState("");
 
   const [researchTopic, setResearchTopic] = useState("");
   const [researchResults, setResearchResults] = useState("");
@@ -165,6 +169,28 @@ export default function AdminPage() {
 
   const { data: sessions = [], isLoading: sessionsLoading } = useQuery<ResearchSession[]>({
     queryKey: ["/api/admin/research-sessions"],
+  });
+
+  // Trend Discovery mutation
+  const discoverMutation = useMutation({
+    mutationFn: async (category: string) => {
+      const res = await apiRequest("POST", "/api/admin/discover", { category });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setDiscoverResults(data.results || "");
+      toast({
+        title: "Discovery Complete",
+        description: "Found trending needs and opportunities from online communities.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Discovery Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const researchMutation = useMutation({
@@ -266,6 +292,10 @@ export default function AdminPage() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6">
+            <TabsTrigger value="discover" className="flex items-center gap-2">
+              <Search className="h-4 w-4" />
+              Discover Trends
+            </TabsTrigger>
             <TabsTrigger value="research" className="flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
               Research & Generate
@@ -275,6 +305,114 @@ export default function AdminPage() {
               All Blueprints
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="discover" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Discovery Controls */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Search className="h-5 w-5" />
+                    Trend Discovery
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Search online communities (Reddit, forums, industry sites) to discover unmet needs and blueprint opportunities.
+                  </p>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="discover-category">Industry Category</Label>
+                    <Select
+                      value={discoverCategory}
+                      onValueChange={setDiscoverCategory}
+                    >
+                      <SelectTrigger data-testid="select-discover-category">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="general">General Business</SelectItem>
+                        <SelectItem value="ecommerce">E-Commerce</SelectItem>
+                        <SelectItem value="saas">SaaS / Software</SelectItem>
+                        <SelectItem value="marketing">Marketing & Advertising</SelectItem>
+                        <SelectItem value="finance">Finance & Investing</SelectItem>
+                        <SelectItem value="real estate">Real Estate</SelectItem>
+                        <SelectItem value="health">Health & Wellness</SelectItem>
+                        <SelectItem value="ai automation">AI & Automation</SelectItem>
+                        <SelectItem value="freelance consulting">Freelance & Consulting</SelectItem>
+                        <SelectItem value="content creator">Content Creators</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <Button
+                    onClick={() => discoverMutation.mutate(discoverCategory)}
+                    disabled={discoverMutation.isPending}
+                    className="w-full"
+                    data-testid="button-discover-trends"
+                  >
+                    {discoverMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Searching Communities...
+                      </>
+                    ) : (
+                      <>
+                        <Search className="h-4 w-4 mr-2" />
+                        Discover Trending Needs
+                      </>
+                    )}
+                  </Button>
+
+                  {discoverResults && (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setActiveTab("research");
+                      }}
+                      data-testid="button-go-to-research"
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Research a Topic
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Discovery Results */}
+              <div className="lg:col-span-2">
+                <Card className="h-full">
+                  <CardHeader>
+                    <CardTitle>Community Intelligence</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {discoverMutation.isPending ? (
+                      <div className="space-y-4">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-4 w-5/6" />
+                        <Skeleton className="h-32 w-full" />
+                        <Skeleton className="h-4 w-2/3" />
+                        <Skeleton className="h-4 w-full" />
+                      </div>
+                    ) : discoverResults ? (
+                      <div className="max-h-[600px] overflow-y-auto pr-2">
+                        <article className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-serif">
+                          <ReactMarkdown>{discoverResults}</ReactMarkdown>
+                        </article>
+                      </div>
+                    ) : (
+                      <div className="text-center py-12 text-muted-foreground">
+                        <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p>Select a category and click "Discover Trending Needs" to find opportunities in online communities.</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
 
           <TabsContent value="research" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

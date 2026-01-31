@@ -5,7 +5,7 @@ import { storage } from "./storage";
 import { isAuthenticated, setupAuth, registerAuthRoutes } from "./replit_integrations/auth";
 import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClient";
 import { WebhookHandlers } from "./webhookHandlers";
-import { analyzeBusinessTrends, generateBlueprintContent } from "./openai";
+import { analyzeBusinessTrends, generateBlueprintContent, discoverTrendingNeeds } from "./openai";
 import { triggerPostPurchaseSequence } from "./emailService";
 import { insertBlueprintSchema } from "@shared/schema";
 import { z } from "zod";
@@ -296,6 +296,20 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error performing research:", error);
       res.status(500).json({ error: "Failed to perform research" });
+    }
+  });
+
+  // Trend Discovery - find needs in online communities
+  app.post("/api/admin/discover", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const { category = "general" } = req.body;
+
+      const results = await discoverTrendingNeeds(category);
+
+      res.json({ results });
+    } catch (error) {
+      console.error("Error discovering trends:", error);
+      res.status(500).json({ error: "Failed to discover trends" });
     }
   });
 

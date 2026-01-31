@@ -9,6 +9,111 @@ export const openai = new OpenAI({
 // Initialize Tavily for real-time web search
 const tvly = tavily({ apiKey: process.env.TAVILY_API_KEY || "" });
 
+export async function discoverTrendingNeeds(category: string = "general"): Promise<string> {
+  // Search multiple sources for trending pain points and unmet needs
+  const searchQueries = [
+    `"I wish there was" OR "I need help with" ${category} business 2026 site:reddit.com`,
+    `trending business problems ${category} entrepreneurs struggling with 2026`,
+    `${category} industry pain points what's missing market gap 2026`,
+    `"looking for solution" OR "anyone know how to" ${category} business automation AI`,
+  ];
+
+  let allResults: Array<{ title: string; content: string; url: string }> = [];
+
+  for (const query of searchQueries) {
+    try {
+      const searchResponse = await tvly.search(query, {
+        searchDepth: "advanced",
+        maxResults: 3,
+      });
+      allResults = allResults.concat(
+        searchResponse.results.map((r: { title?: string; content?: string; url?: string }) => ({
+          title: r.title || "Source",
+          content: r.content || "",
+          url: r.url || "N/A",
+        }))
+      );
+    } catch (error) {
+      console.error("Tavily search error for query:", query, error);
+    }
+  }
+
+  if (allResults.length === 0) {
+    return "Unable to fetch trend data. Please try again.";
+  }
+
+  // Format raw findings
+  const rawFindings = allResults
+    .map((r) => `**${r.title}**\n${r.content}\nSource: ${r.url}`)
+    .join("\n\n---\n\n");
+
+  // Use AI to analyze and synthesize the findings
+  const analysisResponse = await openai.chat.completions.create({
+    model: "gpt-5.2",
+    messages: [
+      {
+        role: "system",
+        content: `You are a market research analyst specializing in identifying profitable business opportunities. Analyze online community discussions to find unmet needs that could be addressed with premium business guides/blueprints.
+
+Focus on:
+1. Pain points people are expressing
+2. Questions being asked repeatedly
+3. Gaps in existing solutions
+4. Emerging trends and shifts
+5. Underserved niches
+
+Be specific and actionable. Each opportunity should be something that could become a sellable blueprint.`
+      },
+      {
+        role: "user",
+        content: `Analyze these online community discussions and search results to identify BUSINESS BLUEPRINT OPPORTUNITIES:
+
+${rawFindings}
+
+Provide your analysis in this format:
+
+## Discovered Needs & Opportunities
+
+### High-Demand Topics (Strong Blueprint Potential)
+For each, include:
+- **Topic**: [Specific topic name]
+- **Pain Point**: [What problem are people facing?]
+- **Evidence**: [Quote or summary from the research]
+- **Blueprint Idea**: [What guide could solve this?]
+- **Target Audience**: [Who would buy this?]
+- **Estimated Tier**: [Starter/Growth/Enterprise]
+
+### Emerging Trends to Watch
+- [Trend 1]: [Why it matters]
+- [Trend 2]: [Why it matters]
+
+### Recommended Next Steps
+1. [Specific action to validate these opportunities]
+2. [Another action]
+
+Identify at least 5 high-demand topics from the research.`
+      }
+    ],
+    max_completion_tokens: 2048,
+  });
+
+  const analysis = analysisResponse.choices[0]?.message?.content || "";
+
+  return `# Trend Discovery Report: ${category.charAt(0).toUpperCase() + category.slice(1)}
+
+## Raw Community Intelligence
+
+${rawFindings}
+
+---
+
+${analysis}
+
+---
+
+*Report generated using real-time community data from Reddit, forums, and industry sources.*`;
+}
+
 export async function analyzeBusinessTrends(topic: string): Promise<string> {
   // Step 0: Fetch real-time trends using Tavily web search
   let webResearchContext = "";
