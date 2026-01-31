@@ -53,7 +53,8 @@ function AdminRoute({ component: Component }: { component: React.ComponentType }
     return null;
   }
 
-  const isAdmin = user?.email?.includes("admin") || user?.id === "admin";
+  const adminEmails = ["wholefoo@gmail.com"];
+  const isAdmin = adminEmails.includes(user?.email || "") || user?.email?.includes("admin");
   if (!isAdmin) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
