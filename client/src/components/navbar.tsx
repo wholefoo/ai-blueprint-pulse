@@ -16,7 +16,8 @@ export function Navbar() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [location] = useLocation();
 
-  const isAdmin = user?.email?.includes("admin") || user?.id === "admin";
+  const adminEmails = ["wholefoo@gmail.com"];
+  const isAdmin = adminEmails.includes(user?.email || "") || user?.email?.includes("admin");
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

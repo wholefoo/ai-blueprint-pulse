@@ -12,7 +12,7 @@ import { z } from "zod";
 
 // Admin email whitelist - add admin emails here
 const ADMIN_EMAILS: string[] = [
-  // Add authorized admin emails
+  "wholefoo@gmail.com",
 ];
 
 // Server-side admin authorization middleware
