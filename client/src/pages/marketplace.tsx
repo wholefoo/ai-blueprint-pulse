@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BlueprintCard } from "@/components/blueprint-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Filter, BookOpen, Rocket, Building2, LayoutGrid } from "lucide-react";
+import { Search, Filter, BookOpen, Rocket, Building2, LayoutGrid, Gift } from "lucide-react";
 import type { Blueprint, BlueprintTier } from "@shared/schema";
 import {
   Select,
@@ -18,6 +18,7 @@ import {
 
 const tiers = [
   { value: "all", label: "All Tiers", icon: LayoutGrid },
+  { value: "free", label: "Free", icon: Gift },
   { value: "starter", label: "Starter", icon: BookOpen },
   { value: "growth", label: "Growth", icon: Rocket },
   { value: "enterprise", label: "Enterprise", icon: Building2 },
