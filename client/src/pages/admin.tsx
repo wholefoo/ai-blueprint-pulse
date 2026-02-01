@@ -52,6 +52,7 @@ const tierOptions: { value: BlueprintTier; label: string; icon: typeof BookOpen 
   { value: "growth", label: "Growth", icon: Rocket },
   { value: "enterprise", label: "Enterprise", icon: Building2 },
   { value: "pressing", label: "Most Pressing", icon: Zap },
+  { value: "boring", label: "Boring but Necessary", icon: FileText },
 ];
 
 const categoryOptions = [
@@ -414,6 +415,7 @@ export default function AdminPage() {
                         <SelectItem value="professional services">Professional Services</SelectItem>
                         <SelectItem value="crypto web3">Crypto & Web3</SelectItem>
                         <SelectItem value="pressing needs">Most Pressing Business Needs</SelectItem>
+                        <SelectItem value="boring necessary">Extremely Boring Highly Necessary</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

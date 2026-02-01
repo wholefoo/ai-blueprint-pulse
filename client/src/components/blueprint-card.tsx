@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BookOpen, Rocket, Building2, Gift, Zap } from "lucide-react";
+import { ArrowRight, BookOpen, Rocket, Building2, Gift, Zap, FileText } from "lucide-react";
 import type { Blueprint } from "@shared/schema";
 
 interface BlueprintCardProps {
@@ -34,6 +34,11 @@ const tierConfig = {
     label: "Most Pressing",
     icon: Zap,
     color: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  },
+  boring: {
+    label: "Boring but Necessary",
+    icon: FileText,
+    color: "bg-slate-500/10 text-slate-600 dark:text-slate-400",
   },
 };
 

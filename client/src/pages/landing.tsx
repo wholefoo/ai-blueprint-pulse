@@ -14,7 +14,8 @@ import {
   BookOpen,
   Rocket,
   Building2,
-  Gift
+  Gift,
+  FileText
 } from "lucide-react";
 
 const features = [
@@ -86,6 +87,16 @@ const tiers = [
     color: "border-amber-200 dark:border-amber-800",
     iconBg: "bg-amber-500/10",
     iconColor: "text-amber-600 dark:text-amber-400",
+  },
+  {
+    name: "Boring but Necessary",
+    slug: "boring",
+    icon: FileText,
+    description: "Essential foundations that every business needs",
+    features: ["Compliance frameworks", "Documentation systems", "Process standardization", "Risk mitigation basics"],
+    color: "border-slate-200 dark:border-slate-700",
+    iconBg: "bg-slate-500/10",
+    iconColor: "text-slate-600 dark:text-slate-400",
   },
 ];
 
