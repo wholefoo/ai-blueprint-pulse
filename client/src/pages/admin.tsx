@@ -40,6 +40,7 @@ import {
   Check,
   X,
   Target,
+  Zap,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import jsPDF from "jspdf";
@@ -50,6 +51,7 @@ const tierOptions: { value: BlueprintTier; label: string; icon: typeof BookOpen 
   { value: "starter", label: "Beginner", icon: BookOpen },
   { value: "growth", label: "Growth", icon: Rocket },
   { value: "enterprise", label: "Enterprise", icon: Building2 },
+  { value: "pressing", label: "Most Pressing", icon: Zap },
 ];
 
 const categoryOptions = [
@@ -411,6 +413,7 @@ export default function AdminPage() {
                         <SelectItem value="media entertainment">Media & Entertainment</SelectItem>
                         <SelectItem value="professional services">Professional Services</SelectItem>
                         <SelectItem value="crypto web3">Crypto & Web3</SelectItem>
+                        <SelectItem value="pressing needs">Most Pressing Business Needs</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

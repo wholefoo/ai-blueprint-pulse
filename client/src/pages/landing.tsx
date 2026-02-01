@@ -77,6 +77,16 @@ const tiers = [
     iconBg: "bg-purple-500/10",
     iconColor: "text-purple-600 dark:text-purple-400",
   },
+  {
+    name: "Most Pressing",
+    slug: "pressing",
+    icon: Zap,
+    description: "Urgent solutions for critical business challenges",
+    features: ["Time-sensitive strategies", "Crisis management", "Quick-win tactics", "Immediate action plans"],
+    color: "border-amber-200 dark:border-amber-800",
+    iconBg: "bg-amber-500/10",
+    iconColor: "text-amber-600 dark:text-amber-400",
+  },
 ];
 
 const stats = [
