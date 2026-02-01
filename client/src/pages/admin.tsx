@@ -56,6 +56,7 @@ const tierOptions: { value: BlueprintTier; label: string; icon: typeof BookOpen 
 ];
 
 const categoryOptions = [
+  // General categories
   "Marketing",
   "Sales",
   "Operations",
@@ -63,6 +64,28 @@ const categoryOptions = [
   "Leadership",
   "Technology",
   "Strategy",
+  // Starter tier niches
+  "Core Business Fundamentals",
+  "Basic Market Analysis",
+  "Essential Checklists",
+  // Growth tier niches
+  "Advanced Scaling Strategies",
+  "Competitive Analysis",
+  "Growth Frameworks",
+  // Enterprise tier niches
+  "Enterprise Playbooks",
+  "Market Expansion Guides",
+  "Risk Management",
+  // Most Pressing tier niches
+  "Time-Sensitive Strategies",
+  "Crisis Management",
+  "Quick-Win Tactics",
+  "Immediate Action Plans",
+  // Boring but Necessary tier niches
+  "Compliance Frameworks",
+  "Documentation Systems",
+  "Process Standardization",
+  "Risk Mitigation Basics",
 ];
 
 // Helper to strip markdown formatting from text
