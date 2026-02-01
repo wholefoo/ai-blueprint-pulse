@@ -176,6 +176,26 @@ export async function registerRoutes(
         return res.status(400).json({ error: "You already own this blueprint" });
       }
 
+      // Handle free blueprints - no Stripe needed
+      if (blueprint.price === 0) {
+        await storage.createPurchase({
+          userId,
+          blueprintId,
+          amount: 0,
+          stripeSessionId: `free_${Date.now()}`,
+          status: "completed",
+        });
+        
+        // Send email for free blueprint
+        const userEmail = req.user?.claims?.email;
+        if (userEmail) {
+          const { triggerPostPurchaseSequence } = await import("./emailService");
+          triggerPostPurchaseSequence(userEmail, blueprint.title);
+        }
+        
+        return res.json({ free: true, blueprintId });
+      }
+
       const stripe = await getUncachableStripeClient();
       
       const session = await stripe.checkout.sessions.create({

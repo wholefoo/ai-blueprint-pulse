@@ -47,7 +47,14 @@ export default function BlueprintDetailPage() {
       return res.json();
     },
     onSuccess: (data) => {
-      if (data.url) {
+      if (data.free) {
+        // Free blueprint - purchase completed immediately
+        toast({
+          title: "Success!",
+          description: "Your free blueprint is ready to download.",
+        });
+        queryClient.invalidateQueries({ queryKey: ["/api/purchases"] });
+      } else if (data.url) {
         window.location.href = data.url;
       }
     },
