@@ -70,6 +70,16 @@ async function initStripe() {
 }
 
 (async () => {
+  // Redirect www to non-www for custom domain
+  app.use((req, res, next) => {
+    const host = req.get('host') || '';
+    if (host.startsWith('www.')) {
+      const newHost = host.replace(/^www\./, '');
+      return res.redirect(301, `https://${newHost}${req.originalUrl}`);
+    }
+    next();
+  });
+
   // Initialize Stripe schema and sync (non-blocking)
   initStripe().catch(console.error);
 
