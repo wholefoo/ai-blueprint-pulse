@@ -174,20 +174,32 @@ export async function registerRoutes(
       // Helper to clean markdown formatting from text
       const cleanMarkdown = (text: string): string => {
         return text
-          .replace(/\*\*(.*?)\*\*/g, "$1")  // Bold
-          .replace(/\*(.*?)\*/g, "$1")       // Italic
-          .replace(/__(.*?)__/g, "$1")       // Bold alt
-          .replace(/_(.*?)_/g, "$1")         // Italic alt
-          .replace(/`(.*?)`/g, "$1")         // Inline code
-          .replace(/\[(.*?)\]\(.*?\)/g, "$1") // Links - keep text
-          .replace(/!\[.*?\]\(.*?\)/g, "")   // Images - remove
-          .replace(/~~(.*?)~~/g, "$1")       // Strikethrough
-          .replace(/>\s?/g, "")              // Blockquotes
-          .replace(/#{1,6}\s?/g, "");        // Any remaining headers
+          .replace(/\*\*\*(.*?)\*\*\*/g, "$1") // Bold+Italic
+          .replace(/\*\*(.*?)\*\*/g, "$1")     // Bold
+          .replace(/\*(.*?)\*/g, "$1")         // Italic
+          .replace(/___(.*?)___/g, "$1")       // Bold+Italic alt
+          .replace(/__(.*?)__/g, "$1")         // Bold alt
+          .replace(/(?<!\w)_(.*?)_(?!\w)/g, "$1") // Italic alt (word boundaries)
+          .replace(/```[\s\S]*?```/g, "")      // Code blocks
+          .replace(/`([^`]+)`/g, "$1")         // Inline code
+          .replace(/\[(.*?)\]\([^)]*\)/g, "$1") // Links - keep text
+          .replace(/!\[[^\]]*\]\([^)]*\)/g, "") // Images - remove
+          .replace(/~~(.*?)~~/g, "$1")         // Strikethrough
+          .replace(/^>\s?/gm, "")              // Blockquotes
+          .replace(/^#{1,6}\s+/gm, "")         // Headers at line start
+          .replace(/\|/g, " ")                 // Table pipes
+          .replace(/^[-:]+$/gm, "")            // Table separator lines
+          .replace(/\s{2,}/g, " ")             // Multiple spaces to single
+          .trim();
       };
 
       // Process content - convert markdown to formatted text
-      const content = blueprint.content;
+      // First, clean multi-line markdown elements from entire content
+      let content = blueprint.content
+        .replace(/```[\s\S]*?```/g, "")           // Remove code blocks
+        .replace(/\|[^\n]+\|/g, (match) => match.replace(/\|/g, " ")) // Clean table rows
+        .replace(/^[-:|]+$/gm, "");               // Remove table separators
+      
       const lines = content.split("\n");
 
       for (const line of lines) {
