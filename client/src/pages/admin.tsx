@@ -437,8 +437,28 @@ export default function AdminPage() {
                         <SelectItem value="media entertainment">Media & Entertainment</SelectItem>
                         <SelectItem value="professional services">Professional Services</SelectItem>
                         <SelectItem value="crypto web3">Crypto & Web3</SelectItem>
-                        <SelectItem value="pressing needs">Most Pressing Business Needs</SelectItem>
-                        <SelectItem value="boring necessary">Extremely Boring Highly Necessary</SelectItem>
+                        <SelectItem value="---starter" disabled>── Starter Tier Niches ──</SelectItem>
+                        <SelectItem value="core business fundamentals">Core Business Fundamentals</SelectItem>
+                        <SelectItem value="basic market analysis">Basic Market Analysis</SelectItem>
+                        <SelectItem value="essential checklists">Essential Checklists</SelectItem>
+                        <SelectItem value="---growth" disabled>── Growth Tier Niches ──</SelectItem>
+                        <SelectItem value="advanced scaling strategies">Advanced Scaling Strategies</SelectItem>
+                        <SelectItem value="competitive analysis">Competitive Analysis</SelectItem>
+                        <SelectItem value="growth frameworks">Growth Frameworks</SelectItem>
+                        <SelectItem value="---enterprise" disabled>── Enterprise Tier Niches ──</SelectItem>
+                        <SelectItem value="enterprise playbooks">Enterprise Playbooks</SelectItem>
+                        <SelectItem value="market expansion guides">Market Expansion Guides</SelectItem>
+                        <SelectItem value="risk management">Risk Management</SelectItem>
+                        <SelectItem value="---pressing" disabled>── Most Pressing Niches ──</SelectItem>
+                        <SelectItem value="time-sensitive strategies">Time-Sensitive Strategies</SelectItem>
+                        <SelectItem value="crisis management">Crisis Management</SelectItem>
+                        <SelectItem value="quick-win tactics">Quick-Win Tactics</SelectItem>
+                        <SelectItem value="immediate action plans">Immediate Action Plans</SelectItem>
+                        <SelectItem value="---boring" disabled>── Boring but Necessary Niches ──</SelectItem>
+                        <SelectItem value="compliance frameworks">Compliance Frameworks</SelectItem>
+                        <SelectItem value="documentation systems">Documentation Systems</SelectItem>
+                        <SelectItem value="process standardization">Process Standardization</SelectItem>
+                        <SelectItem value="risk mitigation basics">Risk Mitigation Basics</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
