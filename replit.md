@@ -1,8 +1,8 @@
-# Blueprint Nexus
+# AI Blueprint Pulse
 
 ## Overview
 
-Blueprint Nexus is a SaaS digital marketplace for marketing and selling business success guides. Users can browse, purchase, and download actionable business blueprints organized by tier (Starter, Growth, Enterprise). The platform includes AI-powered research tools for administrators to generate new blueprint content, Stripe payment integration, and Replit authentication.
+AI Blueprint Pulse is a SaaS digital marketplace for marketing and selling business success guides. Users can browse, purchase, and download actionable business blueprints organized by tier (Starter, Growth, Enterprise). The platform includes AI-powered research tools for administrators to generate new blueprint content, Stripe payment integration, and Replit authentication.
 
 **Design Theme**: Fintech-inspired aesthetic with deep navy primary colors and clean white backgrounds using Inter typography.
 

@@ -293,7 +293,7 @@ export async function registerRoutes(
         doc.setPage(i);
         doc.setFontSize(9);
         doc.setTextColor(150, 150, 150);
-        doc.text(`Blueprint Nexus | Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: "center" });
+        doc.text(`AI Blueprint Pulse | Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: "center" });
       }
 
       const pdfBuffer = Buffer.from(doc.output("arraybuffer"));

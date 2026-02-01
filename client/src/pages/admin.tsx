@@ -188,7 +188,7 @@ function generatePDF(blueprint: Blueprint) {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
-    doc.text(`Blueprint Nexus | Page ${i} of ${pageCount}`, margin, pageHeight - 10);
+    doc.text(`AI Blueprint Pulse | Page ${i} of ${pageCount}`, margin, pageHeight - 10);
   }
 
   // Download

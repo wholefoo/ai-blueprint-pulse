@@ -180,7 +180,7 @@ export default function LandingPage() {
       <section className="py-24">
         <div className="container">
           <div className="text-center mb-16">
-            <h2 className="font-serif text-3xl font-bold">Why Blueprint Nexus?</h2>
+            <h2 className="font-serif text-3xl font-bold">Why AI Blueprint Pulse?</h2>
             <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
               We combine cutting-edge AI research with real-world business expertise to create guides that actually work.
             </p>

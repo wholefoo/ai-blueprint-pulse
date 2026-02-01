@@ -11,7 +11,7 @@ export function Footer() {
               <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
                 <Compass className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-lg font-semibold">Blueprint Nexus</span>
+              <span className="text-lg font-semibold">AI Blueprint Pulse</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Actionable business guides powered by AI research and expert insights.
@@ -78,9 +78,9 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Blueprint Nexus. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} AI Blueprint Pulse. All rights reserved.</p>
           <p className="mt-2 text-xs">
-            Synthesized by the Blueprint Nexus AI-Ops Engine using real-time data.
+            Synthesized by the AI Blueprint Pulse AI-Ops Engine using real-time data.
           </p>
         </div>
       </div>

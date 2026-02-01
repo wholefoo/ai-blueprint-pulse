@@ -28,7 +28,7 @@ export function Navbar() {
               <Compass className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="text-lg font-semibold tracking-tight" data-testid="text-brand-name">
-              Blueprint Nexus
+              AI Blueprint Pulse
             </span>
           </Link>
 

@@ -1,4 +1,4 @@
-// Resend Email Service for Blueprint Nexus
+// Resend Email Service for AI Blueprint Pulse
 // Integration: resend connection
 
 import { Resend } from 'resend';
@@ -54,13 +54,13 @@ export async function sendDeliveryEmail(
     const { client, fromEmail } = await getUncachableResendClient();
     
     await client.emails.send({
-      from: fromEmail || 'Blueprint Nexus <noreply@blueprintnexus.com>',
+      from: fromEmail || 'AI Blueprint Pulse <noreply@blueprintnexus.com>',
       to: customerEmail,
       subject: `Your ${blueprintTitle} Blueprint has arrived!`,
       html: `
         <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #1C2B47 0%, #2A3F5F 100%); padding: 30px; border-radius: 12px; margin-bottom: 20px;">
-            <h1 style="color: white; margin: 0; font-size: 24px;">Blueprint Nexus</h1>
+            <h1 style="color: white; margin: 0; font-size: 24px;">AI Blueprint Pulse</h1>
           </div>
           
           <h2 style="color: #1C2B47;">Hi ${firstName},</h2>
@@ -90,14 +90,14 @@ export async function sendDeliveryEmail(
           
           <p style="color: #4A5568; line-height: 1.6;">
             To your success,<br/>
-            <strong>The Blueprint Nexus Team</strong>
+            <strong>The AI Blueprint Pulse Team</strong>
           </p>
           
           <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 30px 0;" />
           
           <p style="color: #A0AEC0; font-size: 12px; text-align: center;">
-            Synthesized by the Blueprint Nexus AI-Ops Engine using real-time data.<br/>
-            © 2026 Blueprint Nexus. All Rights Reserved.
+            Synthesized by the AI Blueprint Pulse AI-Ops Engine using real-time data.<br/>
+            © 2026 AI Blueprint Pulse. All Rights Reserved.
           </p>
         </div>
       `
@@ -120,13 +120,13 @@ export async function sendTechStackEmail(
     const { client, fromEmail } = await getUncachableResendClient();
     
     await client.emails.send({
-      from: fromEmail || 'Blueprint Nexus <noreply@blueprintnexus.com>',
+      from: fromEmail || 'AI Blueprint Pulse <noreply@blueprintnexus.com>',
       to: customerEmail,
       subject: `The tools you need for ${blueprintTitle} scaling`,
       html: `
         <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #1C2B47 0%, #2A3F5F 100%); padding: 30px; border-radius: 12px; margin-bottom: 20px;">
-            <h1 style="color: white; margin: 0; font-size: 24px;">Blueprint Nexus</h1>
+            <h1 style="color: white; margin: 0; font-size: 24px;">AI Blueprint Pulse</h1>
           </div>
           
           <h2 style="color: #1C2B47;">Hi there,</h2>
@@ -155,13 +155,13 @@ export async function sendTechStackEmail(
           
           <p style="color: #4A5568; line-height: 1.6;">
             Best,<br/>
-            <strong>The Blueprint Nexus Team</strong>
+            <strong>The AI Blueprint Pulse Team</strong>
           </p>
           
           <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 30px 0;" />
           
           <p style="color: #A0AEC0; font-size: 12px; text-align: center;">
-            © 2026 Blueprint Nexus. All Rights Reserved.
+            © 2026 AI Blueprint Pulse. All Rights Reserved.
           </p>
         </div>
       `
@@ -187,13 +187,13 @@ export async function sendLevelUpEmail(
       : '';
     
     await client.emails.send({
-      from: fromEmail || 'Blueprint Nexus <noreply@blueprintnexus.com>',
+      from: fromEmail || 'AI Blueprint Pulse <noreply@blueprintnexus.com>',
       to: customerEmail,
       subject: `Ready for the next tier?`,
       html: `
         <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #1C2B47 0%, #2A3F5F 100%); padding: 30px; border-radius: 12px; margin-bottom: 20px;">
-            <h1 style="color: white; margin: 0; font-size: 24px;">Blueprint Nexus</h1>
+            <h1 style="color: white; margin: 0; font-size: 24px;">AI Blueprint Pulse</h1>
           </div>
           
           <h2 style="color: #1C2B47;">Hi there,</h2>
@@ -223,13 +223,13 @@ export async function sendLevelUpEmail(
           
           <p style="color: #4A5568; line-height: 1.6;">
             Keep building,<br/>
-            <strong>The Blueprint Nexus Team</strong>
+            <strong>The AI Blueprint Pulse Team</strong>
           </p>
           
           <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 30px 0;" />
           
           <p style="color: #A0AEC0; font-size: 12px; text-align: center;">
-            © 2026 Blueprint Nexus. All Rights Reserved.
+            © 2026 AI Blueprint Pulse. All Rights Reserved.
           </p>
         </div>
       `
