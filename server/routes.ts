@@ -198,7 +198,10 @@ export async function registerRoutes(
       let content = blueprint.content
         .replace(/```[\s\S]*?```/g, "")           // Remove code blocks
         .replace(/\|[^\n]+\|/g, (match) => match.replace(/\|/g, " ")) // Clean table rows
-        .replace(/^[-:|]+$/gm, "");               // Remove table separators
+        .replace(/^[-:|]+$/gm, "")                // Remove table separators
+        .replace(/!'/g, "→")                      // Convert !' to arrow
+        .replace(/->/g, "→")                      // Convert -> to arrow
+        .replace(/=>/g, "→");                     // Convert => to arrow
       
       const lines = content.split("\n");
 
@@ -255,6 +258,26 @@ export async function registerRoutes(
           doc.setFontSize(11);
           doc.setFont("helvetica", "bold");
           const headerText = cleanMarkdown(trimmedLine.replace(/^#### /, ""));
+          const headerLines = doc.splitTextToSize(headerText, maxWidth);
+          doc.text(headerLines, margin, y);
+          y += headerLines.length * 5 + 3;
+        }
+        // H5 Headers
+        else if (trimmedLine.startsWith("##### ")) {
+          checkPageBreak(10);
+          doc.setFontSize(11);
+          doc.setFont("helvetica", "bold");
+          const headerText = cleanMarkdown(trimmedLine.replace(/^##### /, ""));
+          const headerLines = doc.splitTextToSize(headerText, maxWidth);
+          doc.text(headerLines, margin, y);
+          y += headerLines.length * 5 + 3;
+        }
+        // H6 Headers
+        else if (trimmedLine.startsWith("###### ")) {
+          checkPageBreak(10);
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "bold");
+          const headerText = cleanMarkdown(trimmedLine.replace(/^###### /, ""));
           const headerLines = doc.splitTextToSize(headerText, maxWidth);
           doc.text(headerLines, margin, y);
           y += headerLines.length * 5 + 3;
