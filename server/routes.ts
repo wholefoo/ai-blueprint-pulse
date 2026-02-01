@@ -171,6 +171,21 @@ export async function registerRoutes(
       doc.line(margin, y, pageWidth - margin, y);
       y += 10;
 
+      // Helper to clean markdown formatting from text
+      const cleanMarkdown = (text: string): string => {
+        return text
+          .replace(/\*\*(.*?)\*\*/g, "$1")  // Bold
+          .replace(/\*(.*?)\*/g, "$1")       // Italic
+          .replace(/__(.*?)__/g, "$1")       // Bold alt
+          .replace(/_(.*?)_/g, "$1")         // Italic alt
+          .replace(/`(.*?)`/g, "$1")         // Inline code
+          .replace(/\[(.*?)\]\(.*?\)/g, "$1") // Links - keep text
+          .replace(/!\[.*?\]\(.*?\)/g, "")   // Images - remove
+          .replace(/~~(.*?)~~/g, "$1")       // Strikethrough
+          .replace(/>\s?/g, "")              // Blockquotes
+          .replace(/#{1,6}\s?/g, "");        // Any remaining headers
+      };
+
       // Process content - convert markdown to formatted text
       const content = blueprint.content;
       const lines = content.split("\n");
@@ -183,65 +198,92 @@ export async function registerRoutes(
           continue;
         }
 
-        // Headers
+        // Horizontal rules
+        if (/^[-*_]{3,}$/.test(trimmedLine)) {
+          checkPageBreak(10);
+          doc.setDrawColor(200, 200, 200);
+          doc.line(margin, y, pageWidth - margin, y);
+          y += 8;
+          continue;
+        }
+
+        // H1 Headers
         if (trimmedLine.startsWith("# ")) {
           checkPageBreak(15);
           doc.setFontSize(18);
           doc.setFont("helvetica", "bold");
-          const headerText = trimmedLine.replace(/^# /, "");
+          const headerText = cleanMarkdown(trimmedLine.replace(/^# /, ""));
           const headerLines = doc.splitTextToSize(headerText, maxWidth);
           doc.text(headerLines, margin, y);
           y += headerLines.length * 8 + 6;
-        } else if (trimmedLine.startsWith("## ")) {
+        } 
+        // H2 Headers
+        else if (trimmedLine.startsWith("## ")) {
           checkPageBreak(12);
           doc.setFontSize(14);
           doc.setFont("helvetica", "bold");
-          const headerText = trimmedLine.replace(/^## /, "");
+          const headerText = cleanMarkdown(trimmedLine.replace(/^## /, ""));
           const headerLines = doc.splitTextToSize(headerText, maxWidth);
           doc.text(headerLines, margin, y);
           y += headerLines.length * 6 + 4;
-        } else if (trimmedLine.startsWith("### ")) {
+        } 
+        // H3 Headers
+        else if (trimmedLine.startsWith("### ")) {
           checkPageBreak(10);
           doc.setFontSize(12);
           doc.setFont("helvetica", "bold");
-          const headerText = trimmedLine.replace(/^### /, "");
+          const headerText = cleanMarkdown(trimmedLine.replace(/^### /, ""));
           const headerLines = doc.splitTextToSize(headerText, maxWidth);
           doc.text(headerLines, margin, y);
           y += headerLines.length * 5 + 3;
-        } else if (trimmedLine.startsWith("- ") || trimmedLine.startsWith("* ")) {
-          // Bullet points
+        }
+        // H4 Headers
+        else if (trimmedLine.startsWith("#### ")) {
+          checkPageBreak(10);
+          doc.setFontSize(11);
+          doc.setFont("helvetica", "bold");
+          const headerText = cleanMarkdown(trimmedLine.replace(/^#### /, ""));
+          const headerLines = doc.splitTextToSize(headerText, maxWidth);
+          doc.text(headerLines, margin, y);
+          y += headerLines.length * 5 + 3;
+        }
+        // Bullet points
+        else if (trimmedLine.startsWith("- ") || trimmedLine.startsWith("* ")) {
           doc.setFontSize(11);
           doc.setFont("helvetica", "normal");
-          const bulletText = trimmedLine.replace(/^[-*] /, "");
+          const bulletText = cleanMarkdown(trimmedLine.replace(/^[-*]\s+/, ""));
           const bulletLines = doc.splitTextToSize(bulletText, maxWidth - 8);
           checkPageBreak(bulletLines.length * 5);
           doc.text("•", margin, y);
           doc.text(bulletLines, margin + 6, y);
           y += bulletLines.length * 5 + 2;
-        } else if (/^\d+\./.test(trimmedLine)) {
-          // Numbered lists
+        } 
+        // Numbered lists
+        else if (/^\d+[\.\)]\s/.test(trimmedLine)) {
           doc.setFontSize(11);
           doc.setFont("helvetica", "normal");
-          const numMatch = trimmedLine.match(/^(\d+\.)\s*(.*)/);
+          const numMatch = trimmedLine.match(/^(\d+[\.\)])\s*(.*)/);
           if (numMatch) {
             const numberPart = numMatch[1];
-            const textPart = numMatch[2];
+            const textPart = cleanMarkdown(numMatch[2]);
             const numberedLines = doc.splitTextToSize(textPart, maxWidth - 10);
             checkPageBreak(numberedLines.length * 5);
             doc.text(numberPart, margin, y);
             doc.text(numberedLines, margin + 8, y);
             y += numberedLines.length * 5 + 2;
           }
-        } else {
-          // Regular paragraph
+        } 
+        // Regular paragraph
+        else {
           doc.setFontSize(11);
           doc.setFont("helvetica", "normal");
-          // Remove markdown bold/italic
-          const cleanText = trimmedLine.replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1");
-          const paraLines = doc.splitTextToSize(cleanText, maxWidth);
-          checkPageBreak(paraLines.length * 5);
-          doc.text(paraLines, margin, y);
-          y += paraLines.length * 5 + 3;
+          const cleanText = cleanMarkdown(trimmedLine);
+          if (cleanText.trim()) {
+            const paraLines = doc.splitTextToSize(cleanText, maxWidth);
+            checkPageBreak(paraLines.length * 5);
+            doc.text(paraLines, margin, y);
+            y += paraLines.length * 5 + 3;
+          }
         }
       }
 
