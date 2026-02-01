@@ -101,10 +101,10 @@ const tiers = [
 ];
 
 const stats = [
-  { value: "10,000+", label: "Guides Sold" },
-  { value: "95%", label: "Success Rate" },
-  { value: "50+", label: "Industries" },
-  { value: "24/7", label: "Access" },
+  { value: "AI-Powered", label: "Research Engine" },
+  { value: "Real-Time", label: "Market Data" },
+  { value: "6 Tiers", label: "Blueprint Levels" },
+  { value: "24/7", label: "Instant Access" },
 ];
 
 export default function LandingPage() {
