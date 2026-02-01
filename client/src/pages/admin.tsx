@@ -396,6 +396,21 @@ export default function AdminPage() {
                         <SelectItem value="ai automation">AI & Automation</SelectItem>
                         <SelectItem value="freelance consulting">Freelance & Consulting</SelectItem>
                         <SelectItem value="content creator">Content Creators</SelectItem>
+                        <SelectItem value="education">Education & Online Courses</SelectItem>
+                        <SelectItem value="food beverage">Food & Beverage</SelectItem>
+                        <SelectItem value="hospitality">Hospitality & Travel</SelectItem>
+                        <SelectItem value="legal">Legal Services</SelectItem>
+                        <SelectItem value="manufacturing">Manufacturing & Supply Chain</SelectItem>
+                        <SelectItem value="nonprofit">Nonprofit & Social Impact</SelectItem>
+                        <SelectItem value="retail">Retail & Brick-and-Mortar</SelectItem>
+                        <SelectItem value="technology">Technology & IT Services</SelectItem>
+                        <SelectItem value="construction">Construction & Trades</SelectItem>
+                        <SelectItem value="beauty">Beauty & Personal Care</SelectItem>
+                        <SelectItem value="fitness">Fitness & Sports</SelectItem>
+                        <SelectItem value="coaching">Coaching & Personal Development</SelectItem>
+                        <SelectItem value="media entertainment">Media & Entertainment</SelectItem>
+                        <SelectItem value="professional services">Professional Services</SelectItem>
+                        <SelectItem value="crypto web3">Crypto & Web3</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
