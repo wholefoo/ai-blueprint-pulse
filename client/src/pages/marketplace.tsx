@@ -22,8 +22,8 @@ const tiers = [
   { value: "starter", label: "Starter", icon: BookOpen },
   { value: "growth", label: "Growth", icon: Rocket },
   { value: "enterprise", label: "Enterprise", icon: Building2 },
-  { value: "pressing", label: "Most Pressing", icon: Zap },
-  { value: "boring", label: "Boring but Necessary", icon: FileText },
+  { value: "pressing", label: "Urgent", icon: Zap },
+  { value: "boring", label: "Necessary", icon: FileText },
 ];
 
 const categories = [
