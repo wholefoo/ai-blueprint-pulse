@@ -15,8 +15,15 @@ import {
   Rocket,
   Building2,
   Gift,
-  FileText
+  FileText,
+  HelpCircle
 } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const features = [
   {
@@ -105,6 +112,33 @@ const stats = [
   { value: "Real-Time", label: "Market Data" },
   { value: "6 Tiers", label: "Blueprint Levels" },
   { value: "24/7", label: "Instant Access" },
+];
+
+const faqs = [
+  {
+    question: "What exactly is a 'Success Blueprint'?",
+    answer: "A Success Blueprint is a comprehensive, AI-researched business guide that provides actionable strategies, frameworks, and step-by-step instructions for specific business challenges. Each blueprint is synthesized using real-time market data and proven methodologies, giving you a clear roadmap to implement immediately."
+  },
+  {
+    question: "How is AI Blueprint Pulse different from other business courses?",
+    answer: "Unlike static courses that become outdated, our blueprints are generated using real-time AI research that analyzes current market trends, competitor strategies, and emerging opportunities. You get actionable intelligence based on what's working right now, not strategies from years ago."
+  },
+  {
+    question: "Do I get lifetime access to purchased blueprints?",
+    answer: "Yes! Once you purchase a blueprint, it's yours forever. You can download it as a professionally formatted PDF and access it anytime from your dashboard. There are no recurring fees or subscription requirements for purchased content."
+  },
+  {
+    question: "What's the difference between the tier levels?",
+    answer: "Our tiers are designed for different business stages: Free gets you started with essentials, Starter covers fundamentals for new entrepreneurs, Growth provides scaling strategies for established businesses, Enterprise offers comprehensive playbooks for larger operations, Most Pressing addresses urgent challenges, and Boring but Necessary covers essential compliance and operations foundations."
+  },
+  {
+    question: "Can I get a refund if I'm not satisfied?",
+    answer: "Due to the digital nature of our products, all sales are generally final. However, if you believe a blueprint is technically defective or fundamentally fails to address the topic described, we offer a 48-hour correction window where we'll re-run the research or provide a credit for a future guide."
+  },
+  {
+    question: "How often is new content added?",
+    answer: "We continuously add new blueprints based on market demands and emerging business trends. Our AI research engine is constantly analyzing opportunities, so you'll see fresh content added regularly across all tier levels."
+  },
 ];
 
 export default function LandingPage() {
@@ -255,6 +289,35 @@ export default function LandingPage() {
       </section>
 
       <section className="py-24">
+        <div className="container">
+          <div className="mx-auto max-w-3xl">
+            <div className="text-center mb-12">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
+                <HelpCircle className="h-6 w-6 text-primary" />
+              </div>
+              <h2 className="font-serif text-3xl font-bold">Frequently Asked Questions</h2>
+              <p className="mt-4 text-muted-foreground">
+                Everything you need to know about AI Blueprint Pulse and our success guides.
+              </p>
+            </div>
+            
+            <Accordion type="single" collapsible className="w-full">
+              {faqs.map((faq, index) => (
+                <AccordionItem key={index} value={`item-${index}`}>
+                  <AccordionTrigger className="text-left" data-testid={`faq-question-${index}`}>
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-muted/30">
         <div className="container">
           <div className="mx-auto max-w-3xl text-center">
             <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 mb-6">
