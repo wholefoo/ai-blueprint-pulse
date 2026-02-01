@@ -40,22 +40,22 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4">Company</h4>
+            <h4 className="font-semibold mb-4">Resources</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  About Us
-                </a>
+                <Link href="/marketplace" className="hover:text-foreground transition-colors">
+                  Browse All Guides
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Contact
-                </a>
+                <Link href="/marketplace?tier=free" className="hover:text-foreground transition-colors">
+                  Free Guides
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Careers
-                </a>
+                <Link href="/dashboard" className="hover:text-foreground transition-colors">
+                  My Purchases
+                </Link>
               </li>
             </ul>
           </div>
@@ -69,7 +69,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="hover:text-foreground transition-colors">
+                <Link href="/terms#refunds" className="hover:text-foreground transition-colors">
                   Refund Policy
                 </Link>
               </li>
