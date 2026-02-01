@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearch } from "wouter";
 import { Input } from "@/components/ui/input";
@@ -40,12 +40,17 @@ const categories = [
 export default function MarketplacePage() {
   const searchString = useSearch();
   const urlParams = new URLSearchParams(searchString);
-  const initialTier = urlParams.get("tier") || "all";
+  const tierFromUrl = urlParams.get("tier") || "all";
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTier, setSelectedTier] = useState<string>(initialTier);
+  const [selectedTier, setSelectedTier] = useState<string>(tierFromUrl);
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [sortBy, setSortBy] = useState<string>("newest");
+
+  // Update tier when URL changes (e.g., from footer links)
+  useEffect(() => {
+    setSelectedTier(tierFromUrl);
+  }, [tierFromUrl]);
 
   const { data: blueprints = [], isLoading } = useQuery<Blueprint[]>({
     queryKey: ["/api/blueprints"],
