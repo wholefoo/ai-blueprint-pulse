@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Rocket, Building2 } from "lucide-react";
+import { BookOpen, Rocket, Building2, Gift } from "lucide-react";
 import type { BlueprintTier } from "@shared/schema";
 
 interface TierBadgeProps {
@@ -7,7 +7,13 @@ interface TierBadgeProps {
   size?: "sm" | "md" | "lg";
 }
 
-const tierConfig = {
+const tierConfig: Record<BlueprintTier, { label: string; icon: typeof BookOpen; description: string; color: string }> = {
+  free: {
+    label: "Free",
+    icon: Gift,
+    description: "Free forever",
+    color: "bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700",
+  },
   starter: {
     label: "Starter",
     icon: BookOpen,
