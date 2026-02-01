@@ -112,7 +112,7 @@ export async function registerRoutes(
     }
   });
 
-  // Download blueprint (requires purchase or public preview)
+  // Download blueprint as PDF (requires purchase)
   app.get("/api/blueprints/:id/download", isAuthenticated, async (req: any, res: Response) => {
     try {
       const id = parseInt(req.params.id);
@@ -128,9 +128,137 @@ export async function registerRoutes(
         return res.status(403).json({ error: "You must purchase this blueprint to download" });
       }
 
-      res.setHeader("Content-Type", "text/markdown");
-      res.setHeader("Content-Disposition", `attachment; filename="${blueprint.title.replace(/[^a-z0-9]/gi, '_')}.md"`);
-      res.send(blueprint.content);
+      // Generate PDF from markdown content
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 20;
+      const maxWidth = pageWidth - margin * 2;
+      let y = margin;
+
+      // Helper to add new page if needed
+      const checkPageBreak = (height: number) => {
+        if (y + height > pageHeight - margin) {
+          doc.addPage();
+          y = margin;
+        }
+      };
+
+      // Title
+      doc.setFontSize(24);
+      doc.setFont("helvetica", "bold");
+      const titleLines = doc.splitTextToSize(blueprint.title, maxWidth);
+      checkPageBreak(titleLines.length * 10);
+      doc.text(titleLines, margin, y);
+      y += titleLines.length * 10 + 5;
+
+      // Tier and Category
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Tier: ${blueprint.tier.charAt(0).toUpperCase() + blueprint.tier.slice(1)} | Category: ${blueprint.category}`, margin, y);
+      y += 10;
+      doc.setTextColor(0, 0, 0);
+
+      // Horizontal line
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 10;
+
+      // Process content - convert markdown to formatted text
+      const content = blueprint.content;
+      const lines = content.split("\n");
+
+      for (const line of lines) {
+        const trimmedLine = line.trim();
+        
+        if (!trimmedLine) {
+          y += 4;
+          continue;
+        }
+
+        // Headers
+        if (trimmedLine.startsWith("# ")) {
+          checkPageBreak(15);
+          doc.setFontSize(18);
+          doc.setFont("helvetica", "bold");
+          const headerText = trimmedLine.replace(/^# /, "");
+          const headerLines = doc.splitTextToSize(headerText, maxWidth);
+          doc.text(headerLines, margin, y);
+          y += headerLines.length * 8 + 6;
+        } else if (trimmedLine.startsWith("## ")) {
+          checkPageBreak(12);
+          doc.setFontSize(14);
+          doc.setFont("helvetica", "bold");
+          const headerText = trimmedLine.replace(/^## /, "");
+          const headerLines = doc.splitTextToSize(headerText, maxWidth);
+          doc.text(headerLines, margin, y);
+          y += headerLines.length * 6 + 4;
+        } else if (trimmedLine.startsWith("### ")) {
+          checkPageBreak(10);
+          doc.setFontSize(12);
+          doc.setFont("helvetica", "bold");
+          const headerText = trimmedLine.replace(/^### /, "");
+          const headerLines = doc.splitTextToSize(headerText, maxWidth);
+          doc.text(headerLines, margin, y);
+          y += headerLines.length * 5 + 3;
+        } else if (trimmedLine.startsWith("- ") || trimmedLine.startsWith("* ")) {
+          // Bullet points
+          doc.setFontSize(11);
+          doc.setFont("helvetica", "normal");
+          const bulletText = trimmedLine.replace(/^[-*] /, "");
+          const bulletLines = doc.splitTextToSize(bulletText, maxWidth - 8);
+          checkPageBreak(bulletLines.length * 5);
+          doc.text("•", margin, y);
+          doc.text(bulletLines, margin + 6, y);
+          y += bulletLines.length * 5 + 2;
+        } else if (/^\d+\./.test(trimmedLine)) {
+          // Numbered lists
+          doc.setFontSize(11);
+          doc.setFont("helvetica", "normal");
+          const numMatch = trimmedLine.match(/^(\d+\.)\s*(.*)/);
+          if (numMatch) {
+            const numberPart = numMatch[1];
+            const textPart = numMatch[2];
+            const numberedLines = doc.splitTextToSize(textPart, maxWidth - 10);
+            checkPageBreak(numberedLines.length * 5);
+            doc.text(numberPart, margin, y);
+            doc.text(numberedLines, margin + 8, y);
+            y += numberedLines.length * 5 + 2;
+          }
+        } else {
+          // Regular paragraph
+          doc.setFontSize(11);
+          doc.setFont("helvetica", "normal");
+          // Remove markdown bold/italic
+          const cleanText = trimmedLine.replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1");
+          const paraLines = doc.splitTextToSize(cleanText, maxWidth);
+          checkPageBreak(paraLines.length * 5);
+          doc.text(paraLines, margin, y);
+          y += paraLines.length * 5 + 3;
+        }
+      }
+
+      // Footer on last page
+      const totalPages = doc.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(9);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`Blueprint Nexus | Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: "center" });
+      }
+
+      const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
+      
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="${blueprint.title.replace(/[^a-z0-9]/gi, '_')}.pdf"`);
+      res.send(pdfBuffer);
     } catch (error) {
       console.error("Error downloading blueprint:", error);
       res.status(500).json({ error: "Failed to download blueprint" });
@@ -190,7 +318,7 @@ export async function registerRoutes(
         const userEmail = req.user?.claims?.email;
         if (userEmail) {
           const { triggerPostPurchaseSequence } = await import("./emailService");
-          triggerPostPurchaseSequence(userEmail, blueprint.title);
+          triggerPostPurchaseSequence(userEmail, blueprint.title, blueprint.tier);
         }
         
         return res.json({ free: true, blueprintId });
