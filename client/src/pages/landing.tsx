@@ -139,6 +139,10 @@ const faqs = [
     question: "How often is new content added?",
     answer: "We continuously add new blueprints based on market demands and emerging business trends. Our AI research engine is constantly analyzing opportunities, so you'll see fresh content added regularly across all tier levels."
   },
+  {
+    question: "What makes actionable blueprints so powerful?",
+    answer: "Actionable blueprints eliminate the gap between knowledge and execution. Instead of generic advice, you get specific steps, templates, frameworks, and implementation timelines tailored to your business stage. Each blueprint is designed so you can start implementing within hours of reading—not weeks of planning. This bias toward action is what separates successful entrepreneurs from those stuck in 'research mode' forever."
+  },
 ];
 
 export default function LandingPage() {
