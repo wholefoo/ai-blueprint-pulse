@@ -329,7 +329,7 @@ export default function LandingPage() {
             </div>
             <h2 className="font-serif text-3xl font-bold mb-4">Ready to Accelerate Your Success?</h2>
             <p className="text-muted-foreground mb-8">
-              Join thousands of entrepreneurs and business leaders who have transformed their operations with our blueprints.
+              Join action taker entrepreneurs and business leaders who have transformed their operations with our blueprints.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link href="/marketplace">
