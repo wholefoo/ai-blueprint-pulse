@@ -38,6 +38,7 @@ const features = [
 const tiers = [
   {
     name: "Free Forever",
+    slug: "free",
     icon: Gift,
     description: "Get started with essential business insights",
     features: ["Curated free guides", "Basic templates", "Newsletter access", "Community forums"],
@@ -47,6 +48,7 @@ const tiers = [
   },
   {
     name: "Starter",
+    slug: "starter",
     icon: BookOpen,
     description: "Perfect for entrepreneurs just getting started",
     features: ["Core business fundamentals", "Basic market analysis", "Essential checklists", "Community access"],
@@ -56,6 +58,7 @@ const tiers = [
   },
   {
     name: "Growth",
+    slug: "growth",
     icon: Rocket,
     description: "For businesses ready to scale rapidly",
     features: ["Advanced scaling strategies", "Competitive analysis", "Growth frameworks", "Priority support"],
@@ -66,6 +69,7 @@ const tiers = [
   },
   {
     name: "Enterprise",
+    slug: "enterprise",
     icon: Building2,
     description: "Comprehensive guides for established businesses",
     features: ["Enterprise playbooks", "Market expansion guides", "Risk management", "Custom consultations"],
@@ -213,7 +217,7 @@ export default function LandingPage() {
                       </li>
                     ))}
                   </ul>
-                  <Link href={`/marketplace?tier=${tier.name.toLowerCase()}`}>
+                  <Link href={`/marketplace?tier=${tier.slug}`}>
                     <Button 
                       className="w-full" 
                       variant={tier.popular ? "default" : "outline"}
