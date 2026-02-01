@@ -8,7 +8,7 @@ export * from "./models/auth";
 export * from "./models/chat";
 
 // Blueprint tiers
-export const blueprintTiers = ["starter", "growth", "enterprise"] as const;
+export const blueprintTiers = ["free", "starter", "growth", "enterprise"] as const;
 export type BlueprintTier = typeof blueprintTiers[number];
 
 // Blueprints table - the core product

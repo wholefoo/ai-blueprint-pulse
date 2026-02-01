@@ -46,6 +46,7 @@ import jsPDF from "jspdf";
 import type { Blueprint, ResearchSession, BlueprintTier } from "@shared/schema";
 
 const tierOptions: { value: BlueprintTier; label: string; icon: typeof BookOpen }[] = [
+  { value: "free", label: "Free", icon: BookOpen },
   { value: "starter", label: "Beginner", icon: BookOpen },
   { value: "growth", label: "Growth", icon: Rocket },
   { value: "enterprise", label: "Enterprise", icon: Building2 },
