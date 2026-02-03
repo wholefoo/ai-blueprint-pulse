@@ -39,6 +39,17 @@ export const purchases = pgTable("purchases", {
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
+// PDF download tracking
+export const pdfDownloads = pgTable("pdf_downloads", {
+  id: serial("id").primaryKey(),
+  blueprintId: integer("blueprint_id").notNull().references(() => blueprints.id),
+  userId: varchar("user_id"),
+  userEmail: text("user_email"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
 // Research sessions for admin AI tool
 export const researchSessions = pgTable("research_sessions", {
   id: serial("id").primaryKey(),
@@ -54,6 +65,14 @@ export const researchSessions = pgTable("research_sessions", {
 // Relations
 export const blueprintsRelations = relations(blueprints, ({ many }) => ({
   purchases: many(purchases),
+  downloads: many(pdfDownloads),
+}));
+
+export const pdfDownloadsRelations = relations(pdfDownloads, ({ one }) => ({
+  blueprint: one(blueprints, {
+    fields: [pdfDownloads.blueprintId],
+    references: [blueprints.id],
+  }),
 }));
 
 export const purchasesRelations = relations(purchases, ({ one }) => ({
@@ -79,6 +98,11 @@ export const insertResearchSessionSchema = createInsertSchema(researchSessions).
   createdAt: true,
 });
 
+export const insertPdfDownloadSchema = createInsertSchema(pdfDownloads).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type Blueprint = typeof blueprints.$inferSelect;
 export type InsertBlueprint = z.infer<typeof insertBlueprintSchema>;
@@ -86,3 +110,5 @@ export type Purchase = typeof purchases.$inferSelect;
 export type InsertPurchase = z.infer<typeof insertPurchaseSchema>;
 export type ResearchSession = typeof researchSessions.$inferSelect;
 export type InsertResearchSession = z.infer<typeof insertResearchSessionSchema>;
+export type PdfDownload = typeof pdfDownloads.$inferSelect;
+export type InsertPdfDownload = z.infer<typeof insertPdfDownloadSchema>;

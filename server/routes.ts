@@ -128,6 +128,19 @@ export async function registerRoutes(
         return res.status(403).json({ error: "You must purchase this blueprint to download" });
       }
 
+      // Log the download
+      try {
+        await storage.createPdfDownload({
+          blueprintId: id,
+          userId: userId,
+          userEmail: req.user?.claims?.email || null,
+          ipAddress: req.ip || req.headers['x-forwarded-for']?.toString() || null,
+          userAgent: req.headers['user-agent'] || null,
+        });
+      } catch (logError) {
+        console.error("Failed to log download:", logError);
+      }
+
       // Generate PDF from markdown content
       const { jsPDF } = await import("jspdf");
       const doc = new jsPDF({
@@ -586,6 +599,27 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error updating blueprint:", error);
       res.status(500).json({ error: "Failed to update blueprint" });
+    }
+  });
+
+  // Admin download tracking
+  app.get("/api/admin/downloads", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const downloads = await storage.getPdfDownloads();
+      res.json(downloads);
+    } catch (error) {
+      console.error("Error fetching downloads:", error);
+      res.status(500).json({ error: "Failed to fetch downloads" });
+    }
+  });
+
+  app.get("/api/admin/downloads/stats", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const stats = await storage.getPdfDownloadStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching download stats:", error);
+      res.status(500).json({ error: "Failed to fetch download stats" });
     }
   });
 

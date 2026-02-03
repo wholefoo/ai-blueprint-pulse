@@ -1,15 +1,18 @@
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { db } from "./db";
 import {
   blueprints,
   purchases,
   researchSessions,
+  pdfDownloads,
   type Blueprint,
   type InsertBlueprint,
   type Purchase,
   type InsertPurchase,
   type ResearchSession,
   type InsertResearchSession,
+  type PdfDownload,
+  type InsertPdfDownload,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -30,6 +33,10 @@ export interface IStorage {
   getResearchSessions(userId: string): Promise<ResearchSession[]>;
   createResearchSession(session: InsertResearchSession): Promise<ResearchSession>;
   updateResearchSession(id: number, session: Partial<InsertResearchSession>): Promise<ResearchSession | undefined>;
+
+  createPdfDownload(download: InsertPdfDownload): Promise<PdfDownload>;
+  getPdfDownloads(): Promise<(PdfDownload & { blueprint?: Blueprint })[]>;
+  getPdfDownloadStats(): Promise<{ totalDownloads: number; uniqueUsers: number; byBlueprint: { blueprintId: number; title: string; count: number }[] }>;
 }
 
 class DatabaseStorage implements IStorage {
@@ -112,6 +119,50 @@ class DatabaseStorage implements IStorage {
   async updateResearchSession(id: number, session: Partial<InsertResearchSession>): Promise<ResearchSession | undefined> {
     const [updated] = await db.update(researchSessions).set(session).where(eq(researchSessions.id, id)).returning();
     return updated;
+  }
+
+  async createPdfDownload(download: InsertPdfDownload): Promise<PdfDownload> {
+    const [created] = await db.insert(pdfDownloads).values(download).returning();
+    return created;
+  }
+
+  async getPdfDownloads(): Promise<(PdfDownload & { blueprint?: Blueprint })[]> {
+    const downloads = await db.select().from(pdfDownloads).orderBy(desc(pdfDownloads.createdAt)).limit(100);
+    const result: (PdfDownload & { blueprint?: Blueprint })[] = [];
+    
+    for (const download of downloads) {
+      const blueprint = await this.getBlueprint(download.blueprintId);
+      result.push({ ...download, blueprint });
+    }
+    
+    return result;
+  }
+
+  async getPdfDownloadStats(): Promise<{ totalDownloads: number; uniqueUsers: number; byBlueprint: { blueprintId: number; title: string; count: number }[] }> {
+    const allDownloads = await db.select().from(pdfDownloads);
+    const totalDownloads = allDownloads.length;
+    
+    const uniqueEmails = new Set(allDownloads.filter(d => d.userEmail).map(d => d.userEmail));
+    const uniqueUsers = uniqueEmails.size;
+    
+    const countsByBlueprint: Record<number, number> = {};
+    for (const download of allDownloads) {
+      countsByBlueprint[download.blueprintId] = (countsByBlueprint[download.blueprintId] || 0) + 1;
+    }
+    
+    const byBlueprint: { blueprintId: number; title: string; count: number }[] = [];
+    for (const [blueprintId, count] of Object.entries(countsByBlueprint)) {
+      const blueprint = await this.getBlueprint(parseInt(blueprintId));
+      byBlueprint.push({
+        blueprintId: parseInt(blueprintId),
+        title: blueprint?.title || "Unknown",
+        count,
+      });
+    }
+    
+    byBlueprint.sort((a, b) => b.count - a.count);
+    
+    return { totalDownloads, uniqueUsers, byBlueprint };
   }
 }
 

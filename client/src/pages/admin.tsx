@@ -196,6 +196,151 @@ function generatePDF(blueprint: Blueprint) {
   doc.save(filename);
 }
 
+interface DownloadStats {
+  totalDownloads: number;
+  uniqueUsers: number;
+  byBlueprint: { blueprintId: number; title: string; count: number }[];
+}
+
+interface PdfDownloadWithBlueprint {
+  id: number;
+  blueprintId: number;
+  userId: string | null;
+  userEmail: string | null;
+  ipAddress: string | null;
+  userAgent: string | null;
+  createdAt: string;
+  blueprint?: Blueprint;
+}
+
+function DownloadsSection() {
+  const { data: stats, isLoading: statsLoading } = useQuery<DownloadStats>({
+    queryKey: ["/api/admin/downloads/stats"],
+  });
+
+  const { data: downloads = [], isLoading: downloadsLoading } = useQuery<PdfDownloadWithBlueprint[]>({
+    queryKey: ["/api/admin/downloads"],
+  });
+
+  if (statsLoading || downloadsLoading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Downloads
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{stats?.totalDownloads || 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Unique Users
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{stats?.uniqueUsers || 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Top Blueprint
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-lg font-medium truncate">
+              {stats?.byBlueprint?.[0]?.title || "No downloads yet"}
+            </div>
+            {stats?.byBlueprint?.[0] && (
+              <div className="text-sm text-muted-foreground">
+                {stats.byBlueprint[0].count} downloads
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart className="h-5 w-5" />
+            Downloads by Blueprint
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {stats?.byBlueprint && stats.byBlueprint.length > 0 ? (
+            <div className="space-y-3">
+              {stats.byBlueprint.map((item) => (
+                <div key={item.blueprintId} className="flex items-center gap-3">
+                  <div className="flex-1 truncate">{item.title}</div>
+                  <Badge variant="secondary">{item.count}</Badge>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground text-center py-4">
+              No downloads recorded yet
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Download className="h-5 w-5" />
+            Recent Downloads
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {downloads.length > 0 ? (
+            <ScrollArea className="h-[400px]">
+              <div className="space-y-2">
+                {downloads.map((download) => (
+                  <div
+                    key={download.id}
+                    className="flex items-center justify-between p-3 rounded-md bg-muted/50"
+                    data-testid={`download-row-${download.id}`}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">
+                        {download.blueprint?.title || `Blueprint #${download.blueprintId}`}
+                      </div>
+                      <div className="text-sm text-muted-foreground truncate">
+                        {download.userEmail || "Anonymous"}
+                      </div>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {new Date(download.createdAt).toLocaleString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          ) : (
+            <p className="text-muted-foreground text-center py-4">
+              No downloads recorded yet
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("discover");
@@ -384,6 +529,10 @@ export default function AdminPage() {
             <TabsTrigger value="blueprints" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               All Blueprints
+            </TabsTrigger>
+            <TabsTrigger value="downloads" className="flex items-center gap-2">
+              <Download className="h-4 w-4" />
+              Downloads
             </TabsTrigger>
           </TabsList>
 
@@ -844,6 +993,10 @@ export default function AdminPage() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="downloads" className="space-y-6">
+            <DownloadsSection />
           </TabsContent>
         </Tabs>
       </div>
