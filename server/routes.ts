@@ -720,30 +720,39 @@ export async function registerRoutes(
     }
   });
 
+  const nexusCallbackSchema = z.object({
+    jobId: z.union([z.number(), z.string().transform(Number)]),
+    status: z.enum(nexusJobStatuses),
+    data: z.union([z.string(), z.record(z.unknown()), z.null()]).optional(),
+  });
+
   app.post("/api/nexus/callback", async (req: Request, res: Response) => {
     try {
       const apiKey = process.env.N8N_API_KEY;
       const incomingKey = req.headers["x-api-key"];
 
       if (apiKey && incomingKey !== apiKey) {
+        const ip = req.ip || req.socket.remoteAddress || "unknown";
+        console.warn(`[Nexus] Unauthorized callback attempt from IP: ${ip}`);
         return res.status(401).json({ error: "Invalid API key" });
       }
 
-      const { jobId, status, data } = req.body;
-
-      if (!jobId || !status) {
-        return res.status(400).json({ error: "jobId and status are required" });
+      const parsed = nexusCallbackSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: "Invalid callback payload",
+          details: parsed.error.errors.map(e => e.message),
+        });
       }
 
-      const validStatuses = nexusJobStatuses as readonly string[];
-      if (!validStatuses.includes(status)) {
-        return res.status(400).json({ error: `Invalid status. Must be one of: ${nexusJobStatuses.join(", ")}` });
-      }
+      const { jobId, status, data } = parsed.data;
+      const ip = req.ip || req.socket.remoteAddress || "unknown";
+      console.log(`[Nexus] Callback received: job=${jobId}, status=${status}, from=${ip}`);
 
       const updated = await handleNexusCallback(
-        parseInt(jobId),
-        status as NexusJobStatus,
-        typeof data === "string" ? data : JSON.stringify(data)
+        jobId,
+        status,
+        data == null ? undefined : typeof data === "string" ? data : JSON.stringify(data)
       );
 
       if (!updated) {

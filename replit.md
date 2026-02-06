@@ -7,6 +7,12 @@ AI Blueprint Pulse is a SaaS digital marketplace for marketing and selling busin
 **Design Theme**: Fintech-inspired aesthetic with deep navy primary colors and clean white backgrounds using Inter typography.
 
 ## Recent Changes (February 2026)
+- Built NexusResearchService: job tracking system for business research via n8n webhook
+  - Database-backed job tracking with status flow: queued -> sending -> researching -> analyzing -> generating -> completed/failed/capacity
+  - Retry logic (3 attempts) for 502/504 gateway errors with "System at Capacity" messaging
+  - x-api-key header authentication on all n8n webhook requests
+  - Callback endpoint (POST /api/nexus/callback) for n8n to update job status
+  - Nexus Status dashboard in admin with progress bars, real-time polling, stage indicators, and job history
 - Added PDF download tracking with admin analytics dashboard
 - Integrated n8n webhook for external blueprint research workflows
 - Enhanced PDF markdown cleanup (H5/H6 headers, arrow notation, code blocks, tables)

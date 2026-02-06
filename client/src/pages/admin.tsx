@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import {
@@ -53,10 +54,16 @@ import {
   Target,
   Zap,
   Send,
+  Activity,
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  RefreshCw,
+  Radio,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import jsPDF from "jspdf";
-import type { Blueprint, ResearchSession, BlueprintTier } from "@shared/schema";
+import type { Blueprint, ResearchSession, BlueprintTier, NexusResearchJob, NexusJobStatus } from "@shared/schema";
 
 const tierOptions: { value: BlueprintTier; label: string; icon: typeof BookOpen }[] = [
   { value: "free", label: "Free", icon: BookOpen },
@@ -225,127 +232,351 @@ interface PdfDownloadWithBlueprint {
   blueprint?: Blueprint;
 }
 
-const n8nResearchSchema = z.object({
-  orderId: z.string().min(1, "Order ID is required"),
-  customerEmail: z.string().email("Valid email is required"),
-  targetBusinessSector: z.string().min(1, "Business sector is required"),
+const nexusSubmitSchema = z.object({
+  businessIdea: z.string().min(3, "Business idea must be at least 3 characters"),
+  sector: z.string().optional(),
 });
 
-type N8nResearchFormValues = z.infer<typeof n8nResearchSchema>;
+type NexusSubmitFormValues = z.infer<typeof nexusSubmitSchema>;
 
-function N8nResearchTrigger() {
+const STATUS_CONFIG: Record<NexusJobStatus, { label: string; color: string; icon: typeof Clock }> = {
+  queued: { label: "Queued", color: "text-muted-foreground", icon: Clock },
+  sending: { label: "Connecting", color: "text-blue-500", icon: Send },
+  researching: { label: "Researching", color: "text-indigo-500", icon: Search },
+  analyzing: { label: "Analyzing", color: "text-violet-500", icon: Activity },
+  generating: { label: "Generating", color: "text-purple-500", icon: Sparkles },
+  completed: { label: "Completed", color: "text-green-500", icon: CheckCircle2 },
+  failed: { label: "Failed", color: "text-destructive", icon: AlertTriangle },
+  capacity: { label: "At Capacity", color: "text-orange-500", icon: AlertTriangle },
+};
+
+const STAGE_ORDER: NexusJobStatus[] = ["queued", "sending", "researching", "analyzing", "generating", "completed"];
+
+function NexusStatusDashboard() {
   const { toast } = useToast();
+  const [activeJobId, setActiveJobId] = useState<number | null>(null);
 
-  const form = useForm<N8nResearchFormValues>({
-    resolver: zodResolver(n8nResearchSchema),
+  const form = useForm<NexusSubmitFormValues>({
+    resolver: zodResolver(nexusSubmitSchema),
     defaultValues: {
-      orderId: "",
-      customerEmail: "",
-      targetBusinessSector: "",
+      businessIdea: "",
+      sector: "",
     },
   });
 
-  const triggerMutation = useMutation({
-    mutationFn: async (data: N8nResearchFormValues) => {
-      const res = await apiRequest("POST", "/api/admin/n8n/trigger-research", data);
+  const { data: jobs = [], isLoading: jobsLoading } = useQuery<NexusResearchJob[]>({
+    queryKey: ["/api/nexus/research"],
+    refetchInterval: 5000,
+  });
+
+  const { data: activeJob } = useQuery<NexusResearchJob>({
+    queryKey: ["/api/nexus/research", activeJobId],
+    enabled: !!activeJobId,
+    refetchInterval: (query) => {
+      const job = query.state.data as NexusResearchJob | undefined;
+      if (!job) return 3000;
+      if (["completed", "failed", "capacity"].includes(job.status)) return false;
+      return 2000;
+    },
+  });
+
+  useEffect(() => {
+    if (!activeJobId && jobs.length > 0) {
+      const inProgress = jobs.find(
+        (j) => !["completed", "failed", "capacity"].includes(j.status)
+      );
+      if (inProgress) setActiveJobId(inProgress.id);
+    }
+  }, [jobs, activeJobId]);
+
+  const submitMutation = useMutation({
+    mutationFn: async (data: NexusSubmitFormValues) => {
+      const res = await apiRequest("POST", "/api/nexus/research", data);
       return res.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data: NexusResearchJob) => {
+      setActiveJobId(data.id);
+      queryClient.invalidateQueries({ queryKey: ["/api/nexus/research"] });
       toast({
-        title: "Research Started!",
-        description: data.message || "The n8n workflow has been triggered successfully.",
+        title: "Research Submitted",
+        description: "Your business idea has been sent for research.",
       });
       form.reset();
     },
     onError: (error: Error) => {
       toast({
-        title: "Research Trigger Failed",
-        description: error.message || "Please contact support.",
+        title: "Submission Failed",
+        description: error.message,
         variant: "destructive",
       });
     },
   });
 
-  const onSubmit = (values: N8nResearchFormValues) => {
-    triggerMutation.mutate(values);
+  const onSubmit = (values: NexusSubmitFormValues) => {
+    submitMutation.mutate(values);
   };
 
+  const isTerminal = (status: NexusJobStatus) =>
+    ["completed", "failed", "capacity"].includes(status);
+
   return (
-    <Card data-testid="card-n8n-research">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2" data-testid="text-n8n-research-title">
-          <Send className="h-5 w-5" />
-          n8n Blueprint Research
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground" data-testid="text-n8n-research-description">
-          Trigger an external research workflow via your n8n instance. Provide the order details and business sector to start automated research.
-        </p>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="orderId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Order ID</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. ORD-12345" {...field} data-testid="input-n8n-order-id" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+    <div className="space-y-6">
+      <Card data-testid="card-nexus-submit">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2" data-testid="text-nexus-title">
+            <Radio className="h-5 w-5" />
+            Nexus Research Engine
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground" data-testid="text-nexus-description">
+            Submit a business idea for deep-dive research via the Nexus workflow engine. The system will gather market intelligence, analyze competitive landscapes, and generate actionable insights.
+          </p>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="businessIdea"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Business Idea</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Describe the business idea to research..."
+                          className="resize-none"
+                          rows={3}
+                          {...field}
+                          data-testid="input-nexus-business-idea"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="sector"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Industry Sector (optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g. SaaS, E-commerce, FinTech"
+                          {...field}
+                          data-testid="input-nexus-sector"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <Button
+                type="submit"
+                disabled={submitMutation.isPending}
+                data-testid="button-submit-nexus-research"
+              >
+                {submitMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <Rocket className="h-4 w-4 mr-2" />
+                    Launch Research
+                  </>
                 )}
-              />
-              <FormField
-                control={form.control}
-                name="customerEmail"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Customer Email</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="customer@example.com" {...field} data-testid="input-n8n-customer-email" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="targetBusinessSector"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Target Business Sector</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. SaaS, E-commerce" {...field} data-testid="input-n8n-business-sector" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <Button
-              type="submit"
-              disabled={triggerMutation.isPending}
-              data-testid="button-trigger-n8n-research"
-            >
-              {triggerMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  Trigger Research
-                </>
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+
+      {activeJob && (
+        <Card data-testid="card-nexus-active-job">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                Nexus Status
+              </div>
+              {!isTerminal(activeJob.status as NexusJobStatus) && (
+                <Badge variant="outline" className="animate-pulse" data-testid="badge-nexus-live">
+                  <Radio className="h-3 w-3 mr-1" />
+                  Live
+                </Badge>
               )}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <span className="text-sm font-medium truncate max-w-[60%]" data-testid="text-nexus-idea">
+                  {activeJob.businessIdea}
+                </span>
+                <span className="text-sm text-muted-foreground" data-testid="text-nexus-progress-pct">
+                  {activeJob.progress}%
+                </span>
+              </div>
+              <Progress value={activeJob.progress} className="h-3" data-testid="progress-nexus" />
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap" data-testid="status-stages">
+              {STAGE_ORDER.map((stage, idx) => {
+                const config = STATUS_CONFIG[stage];
+                const StageIcon = config.icon;
+                const currentIdx = STAGE_ORDER.indexOf(activeJob.status as NexusJobStatus);
+                const stageIdx = idx;
+                const isActive = activeJob.status === stage;
+                const isPast = currentIdx > stageIdx;
+                const isFuture = currentIdx < stageIdx;
+
+                return (
+                  <div key={stage} className="flex items-center gap-1">
+                    {idx > 0 && (
+                      <div
+                        className={`w-4 h-0.5 ${isPast ? "bg-green-500" : "bg-muted"}`}
+                      />
+                    )}
+                    <div
+                      className={`flex items-center gap-1 text-xs px-2 py-1 rounded-md ${
+                        isActive
+                          ? "bg-primary/10 font-medium " + config.color
+                          : isPast
+                          ? "text-green-500"
+                          : "text-muted-foreground/50"
+                      }`}
+                      data-testid={`stage-${stage}`}
+                    >
+                      <StageIcon className={`h-3 w-3 ${isActive ? "animate-pulse" : ""}`} />
+                      <span className="hidden sm:inline">{config.label}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center gap-2 text-sm" data-testid="text-nexus-status-message">
+              {(() => {
+                const config = STATUS_CONFIG[activeJob.status as NexusJobStatus] || STATUS_CONFIG.queued;
+                const StatusIcon = config.icon;
+                return (
+                  <>
+                    <StatusIcon className={`h-4 w-4 ${config.color}`} />
+                    <span className={config.color}>
+                      {activeJob.statusMessage || config.label}
+                    </span>
+                  </>
+                );
+              })()}
+            </div>
+
+            {activeJob.status === "capacity" && (
+              <div className="rounded-md bg-orange-500/10 p-4 text-sm" data-testid="alert-capacity">
+                <div className="flex items-center gap-2 font-medium text-orange-500 mb-1">
+                  <AlertTriangle className="h-4 w-4" />
+                  System at Capacity
+                </div>
+                <p className="text-muted-foreground">
+                  The research engine is currently overloaded. The system attempted {activeJob.retryCount} time(s) but received gateway errors.
+                  Please try again later.
+                </p>
+              </div>
+            )}
+
+            {activeJob.status === "failed" && activeJob.errorMessage && (
+              <div className="rounded-md bg-destructive/10 p-4 text-sm" data-testid="alert-failed">
+                <div className="flex items-center gap-2 font-medium text-destructive mb-1">
+                  <AlertTriangle className="h-4 w-4" />
+                  Research Failed
+                </div>
+                <p className="text-muted-foreground">{activeJob.errorMessage}</p>
+              </div>
+            )}
+
+            {activeJob.status === "completed" && activeJob.resultData && (
+              <div className="space-y-2" data-testid="nexus-results">
+                <Label className="text-sm font-semibold">Research Results</Label>
+                <ScrollArea className="h-64 rounded-md border p-4">
+                  <article className="prose prose-sm dark:prose-invert max-w-none">
+                    <ReactMarkdown>{activeJob.resultData}</ReactMarkdown>
+                  </article>
+                </ScrollArea>
+              </div>
+            )}
+
+            {activeJob.retryCount > 0 && !isTerminal(activeJob.status as NexusJobStatus) && (
+              <p className="text-xs text-muted-foreground" data-testid="text-retry-count">
+                Attempt {activeJob.retryCount} of 3
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      <Card data-testid="card-nexus-history">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            Research History
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {jobsLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-16" />
+              ))}
+            </div>
+          ) : jobs.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground" data-testid="text-no-jobs">
+              <Radio className="h-12 w-12 mx-auto mb-4 opacity-20" />
+              <p>No research jobs yet. Submit a business idea above to get started.</p>
+            </div>
+          ) : (
+            <ScrollArea className="h-[400px]">
+              <div className="space-y-2">
+                {jobs.map((job) => {
+                  const config = STATUS_CONFIG[job.status as NexusJobStatus] || STATUS_CONFIG.queued;
+                  const JobIcon = config.icon;
+                  return (
+                    <div
+                      key={job.id}
+                      className={`flex items-center justify-between gap-3 p-3 rounded-md hover-elevate cursor-pointer ${
+                        activeJobId === job.id ? "bg-primary/5 ring-1 ring-primary/20" : "bg-muted/50"
+                      }`}
+                      onClick={() => setActiveJobId(job.id)}
+                      data-testid={`nexus-job-${job.id}`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <JobIcon className={`h-4 w-4 ${config.color}`} />
+                          <span className={`text-xs font-medium ${config.color}`}>{config.label}</span>
+                          {job.sector && (
+                            <Badge variant="secondary" className="text-xs">{job.sector}</Badge>
+                          )}
+                        </div>
+                        <p className="text-sm truncate">{job.businessIdea}</p>
+                      </div>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <div className="w-16">
+                          <Progress value={job.progress} className="h-1.5" />
+                        </div>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          {new Date(job.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </ScrollArea>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
@@ -665,6 +896,10 @@ export default function AdminPage() {
             <TabsTrigger value="blueprints" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               All Blueprints
+            </TabsTrigger>
+            <TabsTrigger value="nexus" className="flex items-center gap-2" data-testid="tab-nexus">
+              <Radio className="h-4 w-4" />
+              Nexus Status
             </TabsTrigger>
             <TabsTrigger value="downloads" className="flex items-center gap-2">
               <Download className="h-4 w-4" />
@@ -1076,7 +1311,10 @@ export default function AdminPage() {
               </div>
             </div>
 
-            <N8nResearchTrigger />
+          </TabsContent>
+
+          <TabsContent value="nexus" className="space-y-6">
+            <NexusStatusDashboard />
           </TabsContent>
 
           <TabsContent value="blueprints">
