@@ -623,5 +623,51 @@ export async function registerRoutes(
     }
   });
 
+  // N8N Blueprint Research Integration
+  app.post("/api/admin/n8n/trigger-research", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const { orderId, customerEmail, targetBusinessSector } = req.body;
+
+      if (!orderId || !customerEmail || !targetBusinessSector) {
+        return res.status(400).json({ error: "orderId, customerEmail, and targetBusinessSector are required" });
+      }
+
+      const webhookUrl = process.env.N8N_WEBHOOK_URL;
+      const apiKey = process.env.N8N_API_KEY;
+
+      if (!webhookUrl) {
+        return res.status(500).json({ error: "N8N webhook URL not configured" });
+      }
+
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(apiKey ? { "x-api-key": apiKey } : {}),
+        },
+        body: JSON.stringify({
+          orderId,
+          customerEmail,
+          targetBusinessSector,
+        }),
+      });
+
+      if (response.ok) {
+        res.json({ success: true, message: "Research Started!" });
+      } else {
+        const errorText = await response.text();
+        console.error("N8N webhook failed:", response.status, errorText);
+        res.status(502).json({ 
+          error: "Failed to trigger research workflow. Please contact support.",
+        });
+      }
+    } catch (error) {
+      console.error("Error triggering N8N research:", error);
+      res.status(500).json({ 
+        error: "Failed to connect to research service. Please contact support.",
+      });
+    }
+  });
+
   return httpServer;
 }

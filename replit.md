@@ -6,7 +6,12 @@ AI Blueprint Pulse is a SaaS digital marketplace for marketing and selling busin
 
 **Design Theme**: Fintech-inspired aesthetic with deep navy primary colors and clean white backgrounds using Inter typography.
 
-## Recent Changes (January 2026)
+## Recent Changes (February 2026)
+- Added PDF download tracking with admin analytics dashboard
+- Integrated n8n webhook for external blueprint research workflows
+- Enhanced PDF markdown cleanup (H5/H6 headers, arrow notation, code blocks, tables)
+
+## Previous Changes (January 2026)
 - Completed full-stack implementation of marketplace, checkout, and admin features
 - Implemented Stripe payment integration with checkout sessions
 - Added OpenAI-powered research and blueprint generation tools

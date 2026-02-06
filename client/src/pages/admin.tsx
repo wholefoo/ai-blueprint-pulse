@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +14,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Dialog,
   DialogContent,
@@ -41,6 +52,7 @@ import {
   X,
   Target,
   Zap,
+  Send,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import jsPDF from "jspdf";
@@ -211,6 +223,130 @@ interface PdfDownloadWithBlueprint {
   userAgent: string | null;
   createdAt: string;
   blueprint?: Blueprint;
+}
+
+const n8nResearchSchema = z.object({
+  orderId: z.string().min(1, "Order ID is required"),
+  customerEmail: z.string().email("Valid email is required"),
+  targetBusinessSector: z.string().min(1, "Business sector is required"),
+});
+
+type N8nResearchFormValues = z.infer<typeof n8nResearchSchema>;
+
+function N8nResearchTrigger() {
+  const { toast } = useToast();
+
+  const form = useForm<N8nResearchFormValues>({
+    resolver: zodResolver(n8nResearchSchema),
+    defaultValues: {
+      orderId: "",
+      customerEmail: "",
+      targetBusinessSector: "",
+    },
+  });
+
+  const triggerMutation = useMutation({
+    mutationFn: async (data: N8nResearchFormValues) => {
+      const res = await apiRequest("POST", "/api/admin/n8n/trigger-research", data);
+      return res.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Research Started!",
+        description: data.message || "The n8n workflow has been triggered successfully.",
+      });
+      form.reset();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Research Trigger Failed",
+        description: error.message || "Please contact support.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const onSubmit = (values: N8nResearchFormValues) => {
+    triggerMutation.mutate(values);
+  };
+
+  return (
+    <Card data-testid="card-n8n-research">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2" data-testid="text-n8n-research-title">
+          <Send className="h-5 w-5" />
+          n8n Blueprint Research
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-sm text-muted-foreground" data-testid="text-n8n-research-description">
+          Trigger an external research workflow via your n8n instance. Provide the order details and business sector to start automated research.
+        </p>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="orderId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Order ID</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. ORD-12345" {...field} data-testid="input-n8n-order-id" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="customerEmail"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Customer Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="customer@example.com" {...field} data-testid="input-n8n-customer-email" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="targetBusinessSector"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Target Business Sector</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. SaaS, E-commerce" {...field} data-testid="input-n8n-business-sector" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <Button
+              type="submit"
+              disabled={triggerMutation.isPending}
+              data-testid="button-trigger-n8n-research"
+            >
+              {triggerMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Trigger Research
+                </>
+              )}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
 }
 
 function DownloadsSection() {
@@ -939,6 +1075,8 @@ export default function AdminPage() {
                 )}
               </div>
             </div>
+
+            <N8nResearchTrigger />
           </TabsContent>
 
           <TabsContent value="blueprints">
