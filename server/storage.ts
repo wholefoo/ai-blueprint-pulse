@@ -5,6 +5,7 @@ import {
   purchases,
   researchSessions,
   pdfDownloads,
+  nexusResearchJobs,
   type Blueprint,
   type InsertBlueprint,
   type Purchase,
@@ -13,6 +14,9 @@ import {
   type InsertResearchSession,
   type PdfDownload,
   type InsertPdfDownload,
+  type NexusResearchJob,
+  type InsertNexusResearchJob,
+  type NexusJobStatus,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -37,6 +41,11 @@ export interface IStorage {
   createPdfDownload(download: InsertPdfDownload): Promise<PdfDownload>;
   getPdfDownloads(): Promise<(PdfDownload & { blueprint?: Blueprint })[]>;
   getPdfDownloadStats(): Promise<{ totalDownloads: number; uniqueUsers: number; byBlueprint: { blueprintId: number; title: string; count: number }[] }>;
+
+  createNexusJob(job: InsertNexusResearchJob): Promise<NexusResearchJob>;
+  getNexusJob(id: number): Promise<NexusResearchJob | undefined>;
+  getNexusJobs(userId: string): Promise<NexusResearchJob[]>;
+  updateNexusJob(id: number, updates: Partial<NexusResearchJob>): Promise<NexusResearchJob | undefined>;
 }
 
 class DatabaseStorage implements IStorage {
@@ -163,6 +172,25 @@ class DatabaseStorage implements IStorage {
     byBlueprint.sort((a, b) => b.count - a.count);
     
     return { totalDownloads, uniqueUsers, byBlueprint };
+  }
+
+  async createNexusJob(job: InsertNexusResearchJob): Promise<NexusResearchJob> {
+    const [created] = await db.insert(nexusResearchJobs).values(job).returning();
+    return created;
+  }
+
+  async getNexusJob(id: number): Promise<NexusResearchJob | undefined> {
+    const [job] = await db.select().from(nexusResearchJobs).where(eq(nexusResearchJobs.id, id));
+    return job;
+  }
+
+  async getNexusJobs(userId: string): Promise<NexusResearchJob[]> {
+    return db.select().from(nexusResearchJobs).where(eq(nexusResearchJobs.userId, userId)).orderBy(desc(nexusResearchJobs.createdAt));
+  }
+
+  async updateNexusJob(id: number, updates: Partial<NexusResearchJob>): Promise<NexusResearchJob | undefined> {
+    const [updated] = await db.update(nexusResearchJobs).set(updates).where(eq(nexusResearchJobs.id, id)).returning();
+    return updated;
   }
 }
 

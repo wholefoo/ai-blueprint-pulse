@@ -7,7 +7,9 @@ import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClie
 import { WebhookHandlers } from "./webhookHandlers";
 import { analyzeBusinessTrends, generateBlueprintContent, discoverTrendingNeeds } from "./openai";
 import { triggerPostPurchaseSequence } from "./emailService";
-import { insertBlueprintSchema } from "@shared/schema";
+import { submitNexusResearch, handleNexusCallback, getNexusJobStatus, getUserNexusJobs } from "./nexusResearchService";
+import { insertBlueprintSchema, nexusJobStatuses } from "@shared/schema";
+import type { NexusJobStatus } from "@shared/schema";
 import { z } from "zod";
 
 // Admin email whitelist - add admin emails here
@@ -623,7 +625,7 @@ export async function registerRoutes(
     }
   });
 
-  // N8N Blueprint Research Integration
+  // N8N Blueprint Research Integration (legacy)
   app.post("/api/admin/n8n/trigger-research", isAuthenticated, isAdmin, async (req: any, res: Response) => {
     try {
       const { orderId, customerEmail, targetBusinessSector } = req.body;
@@ -666,6 +668,92 @@ export async function registerRoutes(
       res.status(500).json({ 
         error: "Failed to connect to research service. Please contact support.",
       });
+    }
+  });
+
+  // ===== Nexus Research Service API =====
+
+  app.post("/api/nexus/research", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const { businessIdea, sector } = req.body;
+
+      if (!businessIdea || typeof businessIdea !== "string" || businessIdea.trim().length < 3) {
+        return res.status(400).json({ error: "A business idea with at least 3 characters is required" });
+      }
+
+      const userId = req.user?.claims?.sub;
+      const job = await submitNexusResearch(userId, businessIdea.trim(), sector?.trim());
+      res.status(201).json(job);
+    } catch (error) {
+      console.error("[Nexus] Error submitting research:", error);
+      res.status(500).json({ error: "Failed to submit research job" });
+    }
+  });
+
+  app.get("/api/nexus/research", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const jobs = await getUserNexusJobs(userId);
+      res.json(jobs);
+    } catch (error) {
+      console.error("[Nexus] Error fetching jobs:", error);
+      res.status(500).json({ error: "Failed to fetch research jobs" });
+    }
+  });
+
+  app.get("/api/nexus/research/:jobId", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const jobId = parseInt(req.params.jobId);
+      if (isNaN(jobId)) {
+        return res.status(400).json({ error: "Invalid job ID" });
+      }
+
+      const job = await getNexusJobStatus(jobId);
+      if (!job) {
+        return res.status(404).json({ error: "Job not found" });
+      }
+
+      res.json(job);
+    } catch (error) {
+      console.error("[Nexus] Error fetching job status:", error);
+      res.status(500).json({ error: "Failed to fetch job status" });
+    }
+  });
+
+  app.post("/api/nexus/callback", async (req: Request, res: Response) => {
+    try {
+      const apiKey = process.env.N8N_API_KEY;
+      const incomingKey = req.headers["x-api-key"];
+
+      if (apiKey && incomingKey !== apiKey) {
+        return res.status(401).json({ error: "Invalid API key" });
+      }
+
+      const { jobId, status, data } = req.body;
+
+      if (!jobId || !status) {
+        return res.status(400).json({ error: "jobId and status are required" });
+      }
+
+      const validStatuses = nexusJobStatuses as readonly string[];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ error: `Invalid status. Must be one of: ${nexusJobStatuses.join(", ")}` });
+      }
+
+      const updated = await handleNexusCallback(
+        parseInt(jobId),
+        status as NexusJobStatus,
+        typeof data === "string" ? data : JSON.stringify(data)
+      );
+
+      if (!updated) {
+        return res.status(404).json({ error: "Job not found" });
+      }
+
+      res.json({ success: true, job: updated });
+    } catch (error) {
+      console.error("[Nexus] Callback error:", error);
+      res.status(500).json({ error: "Callback processing failed" });
     }
   });
 
