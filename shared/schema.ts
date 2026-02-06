@@ -62,6 +62,27 @@ export const researchSessions = pgTable("research_sessions", {
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
+// Nexus research job statuses
+export const nexusJobStatuses = ["queued", "sending", "researching", "analyzing", "generating", "completed", "failed", "capacity"] as const;
+export type NexusJobStatus = typeof nexusJobStatuses[number];
+
+// Nexus research jobs - tracks n8n research workflows
+export const nexusResearchJobs = pgTable("nexus_research_jobs", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  businessIdea: text("business_idea").notNull(),
+  sector: text("sector"),
+  status: text("status").notNull().default("queued").$type<NexusJobStatus>(),
+  progress: integer("progress").notNull().default(0),
+  statusMessage: text("status_message"),
+  retryCount: integer("retry_count").notNull().default(0),
+  webhookResponse: text("webhook_response"),
+  resultData: text("result_data"),
+  errorMessage: text("error_message"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
 // Relations
 export const blueprintsRelations = relations(blueprints, ({ many }) => ({
   purchases: many(purchases),
@@ -103,6 +124,12 @@ export const insertPdfDownloadSchema = createInsertSchema(pdfDownloads).omit({
   createdAt: true,
 });
 
+export const insertNexusResearchJobSchema = createInsertSchema(nexusResearchJobs).omit({
+  id: true,
+  createdAt: true,
+  completedAt: true,
+});
+
 // Types
 export type Blueprint = typeof blueprints.$inferSelect;
 export type InsertBlueprint = z.infer<typeof insertBlueprintSchema>;
@@ -112,3 +139,5 @@ export type ResearchSession = typeof researchSessions.$inferSelect;
 export type InsertResearchSession = z.infer<typeof insertResearchSessionSchema>;
 export type PdfDownload = typeof pdfDownloads.$inferSelect;
 export type InsertPdfDownload = z.infer<typeof insertPdfDownloadSchema>;
+export type NexusResearchJob = typeof nexusResearchJobs.$inferSelect;
+export type InsertNexusResearchJob = z.infer<typeof insertNexusResearchJobSchema>;
