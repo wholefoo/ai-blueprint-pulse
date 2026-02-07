@@ -72,6 +72,7 @@ const tierOptions: { value: BlueprintTier; label: string; icon: typeof BookOpen 
   { value: "enterprise", label: "Enterprise", icon: Building2 },
   { value: "pressing", label: "Most Pressing", icon: Zap },
   { value: "boring", label: "Boring but Necessary", icon: FileText },
+  { value: "painpoints", label: "Pain Points", icon: AlertTriangle },
 ];
 
 const categoryOptions = [

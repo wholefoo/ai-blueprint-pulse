@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Rocket, Building2, Gift } from "lucide-react";
+import { BookOpen, Rocket, Building2, Gift, Zap, FileText, AlertTriangle } from "lucide-react";
 import type { BlueprintTier } from "@shared/schema";
 
 interface TierBadgeProps {
@@ -31,6 +31,24 @@ const tierConfig: Record<BlueprintTier, { label: string; icon: typeof BookOpen; 
     icon: Building2,
     description: "Advanced strategies",
     color: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-800",
+  },
+  pressing: {
+    label: "Most Pressing",
+    icon: Zap,
+    description: "Urgent business needs",
+    color: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800",
+  },
+  boring: {
+    label: "Boring but Necessary",
+    icon: FileText,
+    description: "Essential foundations",
+    color: "bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800",
+  },
+  painpoints: {
+    label: "Pain Points",
+    icon: AlertTriangle,
+    description: "Solving key challenges",
+    color: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800",
   },
 };
 

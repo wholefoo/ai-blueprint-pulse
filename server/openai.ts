@@ -264,6 +264,12 @@ export async function generateBlueprintContent(topic: string, research: string, 
       wordCount: "8,000-12,000",
       complexity: "Executive-level strategic frameworks. Include governance, risk management, and board-level considerations.",
       pricing: "$199-499"
+    },
+    painpoints: {
+      level: "Pain Points",
+      wordCount: "4,000-6,000",
+      complexity: "Identify and solve critical business pain points. Focus on common frustrations, root causes, and practical solutions with actionable remedies.",
+      pricing: "$49-99"
     }
   }[tier];
 
