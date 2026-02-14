@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Rocket, Building2, Gift, Zap, FileText, AlertTriangle } from "lucide-react";
+import { BookOpen, Rocket, Building2, Gift, Zap, FileText, AlertTriangle, Lightbulb, Flame } from "lucide-react";
 import type { BlueprintTier } from "@shared/schema";
 
 interface TierBadgeProps {
@@ -49,6 +49,18 @@ const tierConfig: Record<BlueprintTier, { label: string; icon: typeof BookOpen; 
     icon: AlertTriangle,
     description: "Solving key challenges",
     color: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800",
+  },
+  ethicalhacks: {
+    label: "Ethical Hacks",
+    icon: Lightbulb,
+    description: "Smart shortcuts and strategies",
+    color: "bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-200 dark:border-teal-800",
+  },
+  trendingusecases: {
+    label: "Trending Use Cases",
+    icon: Flame,
+    description: "Hot emerging opportunities",
+    color: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800",
   },
 };
 

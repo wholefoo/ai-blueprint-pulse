@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BlueprintCard } from "@/components/blueprint-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Filter, BookOpen, Rocket, Building2, LayoutGrid, Gift, Zap, FileText, AlertTriangle } from "lucide-react";
+import { Search, Filter, BookOpen, Rocket, Building2, LayoutGrid, Gift, Zap, FileText, AlertTriangle, Lightbulb, Flame } from "lucide-react";
 import type { Blueprint, BlueprintTier } from "@shared/schema";
 import {
   Select,
@@ -25,6 +25,8 @@ const tiers = [
   { value: "pressing", label: "Urgent", icon: Zap },
   { value: "boring", label: "Necessary", icon: FileText },
   { value: "painpoints", label: "Pain Points", icon: AlertTriangle },
+  { value: "ethicalhacks", label: "Hacks", icon: Lightbulb },
+  { value: "trendingusecases", label: "Trends", icon: Flame },
 ];
 
 const categories = [

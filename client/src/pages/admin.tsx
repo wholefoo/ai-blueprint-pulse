@@ -67,6 +67,8 @@ import {
   ThumbsUp,
   ChevronDown,
   ChevronUp,
+  Lightbulb,
+  Flame,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import jsPDF from "jspdf";
@@ -80,6 +82,8 @@ const tierOptions: { value: BlueprintTier; label: string; icon: typeof BookOpen 
   { value: "pressing", label: "Most Pressing", icon: Zap },
   { value: "boring", label: "Boring but Necessary", icon: FileText },
   { value: "painpoints", label: "Pain Points", icon: AlertTriangle },
+  { value: "ethicalhacks", label: "Ethical Hacks", icon: Lightbulb },
+  { value: "trendingusecases", label: "Trending Use Cases", icon: Flame },
 ];
 
 const categoryOptions = [

@@ -270,6 +270,18 @@ export async function generateBlueprintContent(topic: string, research: string, 
       wordCount: "4,000-6,000",
       complexity: "Identify and solve critical business pain points. Focus on common frustrations, root causes, and practical solutions with actionable remedies.",
       pricing: "$49-99"
+    },
+    ethicalhacks: {
+      level: "Ethical Hacks",
+      wordCount: "3,000-5,000",
+      complexity: "Smart, ethical shortcuts and creative strategies that give businesses an edge. Focus on lesser-known tactics, growth hacks, and innovative approaches that are effective yet responsible.",
+      pricing: "$39-79"
+    },
+    trendingusecases: {
+      level: "Trending Use Cases",
+      wordCount: "4,000-6,000",
+      complexity: "Explore emerging trends and hot use cases gaining traction in the market. Focus on real-world examples, early adopter advantages, and how to capitalize on current momentum.",
+      pricing: "$49-99"
     }
   }[tier];
 
