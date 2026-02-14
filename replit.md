@@ -7,6 +7,16 @@ AI Blueprint Pulse is a SaaS digital marketplace for marketing and selling busin
 **Design Theme**: Fintech-inspired aesthetic with deep navy primary colors and clean white backgrounds using Inter typography.
 
 ## Recent Changes (February 2026)
+- Added Blueprint Studio (client-facing) at /studio
+  - Credit-based system: users purchase credits (1/$10, 5/$40, 10/$75) via Stripe checkout
+  - AI blueprint generation: users enter topic, tier, category to generate business guides
+  - DOCX download: generated blueprints downloadable as Word documents with full resale rights
+  - Discover & Analyze tabs: trending needs discovery and topic analysis (mirrors admin research tools)
+  - My Blueprints tab: list of all generated blueprints with download buttons
+  - Credits tab: balance display, purchase packages, transaction history
+  - Database tables: blueprint_credits, credit_transactions, generated_blueprints
+  - Security: userId verification on credit claims, credit refund on generation failure
+  - API routes: /api/credits/*, /api/studio/*
 - Built NexusResearchService: job tracking system for business research via n8n webhook
   - Database-backed job tracking with status flow: queued -> sending -> researching -> analyzing -> generating -> completed/failed/capacity
   - Retry logic (3 attempts) for 502/504 gateway errors with "System at Capacity" messaging
