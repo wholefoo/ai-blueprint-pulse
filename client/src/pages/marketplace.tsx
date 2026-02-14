@@ -154,15 +154,15 @@ export default function MarketplacePage() {
         </div>
 
         <Tabs value={selectedTier} onValueChange={setSelectedTier} className="mb-8">
-          <TabsList className="grid w-full grid-cols-4 max-w-lg">
+          <TabsList className="inline-flex h-auto flex-wrap gap-1 p-1">
             {tiers.map((tier) => (
               <TabsTrigger
                 key={tier.value}
                 value={tier.value}
-                className="flex items-center gap-2"
+                className="flex items-center gap-1.5 px-3"
                 data-testid={`tab-${tier.value}`}
               >
-                <tier.icon className="h-4 w-4" />
+                <tier.icon className="h-4 w-4 flex-shrink-0" />
                 <span className="hidden sm:inline">{tier.label}</span>
               </TabsTrigger>
             ))}
