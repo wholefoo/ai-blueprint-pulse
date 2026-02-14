@@ -19,7 +19,8 @@ import {
   HelpCircle,
   AlertTriangle,
   Lightbulb,
-  Flame
+  Flame,
+  MessageSquareText
 } from "lucide-react";
 import {
   Accordion,
@@ -138,12 +139,22 @@ const tiers = [
     iconBg: "bg-rose-500/10",
     iconColor: "text-rose-600 dark:text-rose-400",
   },
+  {
+    name: "Power Prompts",
+    slug: "powerprompts",
+    icon: MessageSquareText,
+    description: "High-impact AI prompts to supercharge your business",
+    features: ["Ready-to-use AI prompts", "Business automation scripts", "Content generation templates", "Decision-making frameworks"],
+    color: "border-violet-200 dark:border-violet-800",
+    iconBg: "bg-violet-500/10",
+    iconColor: "text-violet-600 dark:text-violet-400",
+  },
 ];
 
 const stats = [
   { value: "AI-Powered", label: "Research Engine" },
   { value: "Real-Time", label: "Market Data" },
-  { value: "9 Tiers", label: "Blueprint Levels" },
+  { value: "10 Tiers", label: "Blueprint Levels" },
   { value: "24/7", label: "Instant Access" },
 ];
 

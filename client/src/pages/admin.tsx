@@ -84,6 +84,7 @@ const tierOptions: { value: BlueprintTier; label: string; icon: typeof BookOpen 
   { value: "painpoints", label: "Pain Points", icon: AlertTriangle },
   { value: "ethicalhacks", label: "Ethical Hacks", icon: Lightbulb },
   { value: "trendingusecases", label: "Trending Use Cases", icon: Flame },
+  { value: "powerprompts", label: "Power Prompts", icon: Lightbulb },
 ];
 
 const categoryOptions = [

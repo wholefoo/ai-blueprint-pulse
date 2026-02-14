@@ -38,6 +38,9 @@ import {
   AlertTriangle,
   Lightbulb,
   Flame,
+  MessageSquareText,
+  Copy,
+  Check,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import type { BlueprintTier, GeneratedBlueprint } from "@shared/schema";
@@ -50,6 +53,7 @@ const tierOptions: { value: string; label: string; icon: typeof BookOpen }[] = [
   { value: "painpoints", label: "Pain Points", icon: AlertTriangle },
   { value: "ethicalhacks", label: "Ethical Hacks", icon: Lightbulb },
   { value: "trendingusecases", label: "Trending Use Cases", icon: Flame },
+  { value: "powerprompts", label: "Power Prompts", icon: MessageSquareText },
 ];
 
 const categoryOptions = [
@@ -77,6 +81,9 @@ export default function StudioPage() {
   const [discoverCategory, setDiscoverCategory] = useState("general");
   const [analyzeTopic, setAnalyzeTopic] = useState("");
   const [previewBlueprint, setPreviewBlueprint] = useState<GeneratedBlueprint | null>(null);
+  const [promptTopic, setPromptTopic] = useState("");
+  const [promptCategory, setPromptCategory] = useState("Marketing");
+  const [copiedPromptId, setCopiedPromptId] = useState<number | null>(null);
 
   const creditsQuery = useQuery<{ balance: number; totalPurchased: number; totalUsed: number }>({
     queryKey: ["/api/credits"],
@@ -173,6 +180,33 @@ export default function StudioPage() {
     },
   });
 
+  const promptMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/studio/generate", {
+        topic: promptTopic,
+        tier: "powerprompts",
+        category: promptCategory,
+      });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      toast({ title: "Prompts Generated", description: "Your power prompts are ready." });
+      queryClient.invalidateQueries({ queryKey: ["/api/studio/blueprints"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/credits"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/credits/transactions"] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Generation Failed", description: error.message || "Failed to generate prompts.", variant: "destructive" });
+    },
+  });
+
+  const handleCopyPrompt = (text: string, id: number) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedPromptId(id);
+      setTimeout(() => setCopiedPromptId(null), 2000);
+    });
+  };
+
   const handleDownload = async (blueprintId: number, title: string) => {
     try {
       const res = await fetch(`/api/studio/blueprints/${blueprintId}/download`, { credentials: "include" });
@@ -226,6 +260,10 @@ export default function StudioPage() {
             <TabsTrigger value="blueprints" data-testid="tab-blueprints">
               <FileText className="h-4 w-4 mr-1.5" />
               My Blueprints
+            </TabsTrigger>
+            <TabsTrigger value="prompts" data-testid="tab-prompts">
+              <MessageSquareText className="h-4 w-4 mr-1.5" />
+              Prompts
             </TabsTrigger>
             <TabsTrigger value="credits" data-testid="tab-credits">
               <CreditCard className="h-4 w-4 mr-1.5" />
@@ -552,6 +590,197 @@ export default function StudioPage() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="prompts" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <MessageSquareText className="h-5 w-5" />
+                    Generate Power Prompts
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Generate a set of high-impact AI prompts tailored to your business topic. Each generation uses 1 credit and produces a collection of ready-to-use prompts.
+                  </p>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">Business Topic</label>
+                    <Input
+                      placeholder="e.g. Social media content strategy for SaaS"
+                      value={promptTopic}
+                      onChange={(e) => setPromptTopic(e.target.value)}
+                      data-testid="input-prompt-topic"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">Category</label>
+                    <Select value={promptCategory} onValueChange={setPromptCategory}>
+                      <SelectTrigger data-testid="select-prompt-category">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categoryOptions.map((cat) => (
+                          <SelectItem key={cat} value={cat}>
+                            {cat}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    className="w-full"
+                    onClick={() => promptMutation.mutate()}
+                    disabled={!promptTopic.trim() || promptMutation.isPending || balance === 0}
+                    data-testid="button-generate-prompts"
+                  >
+                    {promptMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                        Generating Prompts...
+                      </>
+                    ) : (
+                      <>
+                        <MessageSquareText className="h-4 w-4 mr-1.5" />
+                        Generate Prompts (1 Credit)
+                      </>
+                    )}
+                  </Button>
+                  {balance > 0 && (
+                    <p className="text-xs text-muted-foreground text-center">
+                      {balance} credit{balance !== 1 ? "s" : ""} remaining
+                    </p>
+                  )}
+                  {balance === 0 && !creditsQuery.isLoading && (
+                    <Button variant="outline" className="w-full" onClick={() => setActiveTab("credits")} data-testid="button-prompts-buy-credits">
+                      <ShoppingCart className="h-4 w-4 mr-1.5" />
+                      Buy Credits to Get Started
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Sparkles className="h-5 w-5" />
+                    Generated Prompts
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {promptMutation.isPending ? (
+                    <div className="space-y-3">
+                      <Skeleton className="h-6 w-3/4" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-5/6" />
+                      <Skeleton className="h-4 w-full" />
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        AI is crafting your power prompts...
+                      </div>
+                    </div>
+                  ) : promptMutation.data?.blueprint ? (
+                    <div className="space-y-3">
+                      <div className="flex flex-row items-start justify-between gap-2 flex-wrap">
+                        <div>
+                          <h3 className="font-semibold text-foreground" data-testid="text-prompt-title">{promptMutation.data.blueprint.title}</h3>
+                          <p className="text-sm text-muted-foreground">{promptMutation.data.blueprint.description}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleCopyPrompt(promptMutation.data.blueprint.content, promptMutation.data.blueprint.id)}
+                            data-testid="button-copy-prompts"
+                          >
+                            {copiedPromptId === promptMutation.data.blueprint.id ? (
+                              <><Check className="h-3 w-3 mr-1" /> Copied</>
+                            ) : (
+                              <><Copy className="h-3 w-3 mr-1" /> Copy All</>
+                            )}
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => handleDownload(promptMutation.data.blueprint.id, promptMutation.data.blueprint.title)}
+                            data-testid="button-download-prompts"
+                          >
+                            <Download className="h-3 w-3 mr-1" />
+                            DOCX
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="prose prose-sm dark:prose-invert max-h-[400px] overflow-y-auto">
+                        <ReactMarkdown>{promptMutation.data.blueprint.content}</ReactMarkdown>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                      <MessageSquareText className="h-10 w-10 text-muted-foreground/30 mb-3" />
+                      <p className="text-sm text-muted-foreground">Enter a topic to generate tailored power prompts</p>
+                      <p className="text-xs text-muted-foreground mt-1">You'll get a collection of ready-to-use AI prompts for your business</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {(() => {
+              const promptBlueprints = blueprintsQuery.data?.blueprints?.filter(bp => bp.tier === "powerprompts") || [];
+              if (promptBlueprints.length === 0) return null;
+              return (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                    <History className="h-5 w-5" />
+                    Previous Prompt Sets
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {promptBlueprints.map((bp) => (
+                      <Card key={bp.id} className="hover-elevate" data-testid={`card-prompt-${bp.id}`}>
+                        <CardContent className="p-4 space-y-3">
+                          <div className="flex flex-row items-start justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <MessageSquareText className="h-4 w-4 text-violet-500" />
+                              <Badge variant="secondary" className="text-xs">Power Prompts</Badge>
+                            </div>
+                            <Badge variant="outline" className="text-xs">{bp.category}</Badge>
+                          </div>
+                          <h3 className="font-semibold text-sm text-foreground line-clamp-2">{bp.title}</h3>
+                          <p className="text-xs text-muted-foreground line-clamp-2">{bp.description}</p>
+                          <div className="flex flex-row items-center justify-between gap-2 pt-1 flex-wrap">
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {new Date(bp.createdAt).toLocaleDateString()}
+                            </span>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleCopyPrompt(bp.content, bp.id)}
+                                data-testid={`button-copy-prompt-${bp.id}`}
+                              >
+                                {copiedPromptId === bp.id ? (
+                                  <Check className="h-3 w-3" />
+                                ) : (
+                                  <Copy className="h-3 w-3" />
+                                )}
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => handleDownload(bp.id, bp.title)}
+                                data-testid={`button-download-prompt-${bp.id}`}
+                              >
+                                <Download className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </TabsContent>
 
           <TabsContent value="credits" className="space-y-6">

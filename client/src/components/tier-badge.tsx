@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Rocket, Building2, Gift, Zap, FileText, AlertTriangle, Lightbulb, Flame } from "lucide-react";
+import { BookOpen, Rocket, Building2, Gift, Zap, FileText, AlertTriangle, Lightbulb, Flame, MessageSquareText } from "lucide-react";
 import type { BlueprintTier } from "@shared/schema";
 
 interface TierBadgeProps {
@@ -61,6 +61,12 @@ const tierConfig: Record<BlueprintTier, { label: string; icon: typeof BookOpen; 
     icon: Flame,
     description: "Hot emerging opportunities",
     color: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800",
+  },
+  powerprompts: {
+    label: "Power Prompts",
+    icon: MessageSquareText,
+    description: "High-impact AI prompts for business",
+    color: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-800",
   },
 };
 
