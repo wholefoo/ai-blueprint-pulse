@@ -8,6 +8,7 @@ import { WebhookHandlers } from "./webhookHandlers";
 import { analyzeBusinessTrends, generateBlueprintContent, discoverTrendingNeeds } from "./openai";
 import { triggerPostPurchaseSequence } from "./emailService";
 import { submitNexusResearch, handleNexusCallback, getNexusJobStatus, getUserNexusJobs } from "./nexusResearchService";
+import { extractVideoId, getVideoInfo, fetchComments, analyzePainPoints, searchVideos } from "./youtubeScraperService";
 import { insertBlueprintSchema, nexusJobStatuses } from "@shared/schema";
 import type { NexusJobStatus } from "@shared/schema";
 import { z } from "zod";
@@ -763,6 +764,70 @@ export async function registerRoutes(
     } catch (error) {
       console.error("[Nexus] Callback error:", error);
       res.status(500).json({ error: "Callback processing failed" });
+    }
+  });
+
+  // YouTube Pain Point Discovery routes
+  app.post("/api/youtube/search", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const { query, maxResults } = req.body;
+      if (!query || typeof query !== "string") {
+        return res.status(400).json({ error: "Search query is required" });
+      }
+      const results = await searchVideos(query, maxResults || 5);
+      res.json({ results });
+    } catch (error: any) {
+      console.error("[YouTube] Search error:", error);
+      res.status(500).json({ error: error.message || "Failed to search YouTube" });
+    }
+  });
+
+  app.post("/api/youtube/analyze", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const { videoUrl, sector, maxComments } = req.body;
+      if (!videoUrl || typeof videoUrl !== "string") {
+        return res.status(400).json({ error: "Video URL is required" });
+      }
+
+      const videoId = extractVideoId(videoUrl);
+      if (!videoId) {
+        return res.status(400).json({ error: "Invalid YouTube URL or video ID" });
+      }
+
+      const videoInfo = await getVideoInfo(videoId);
+      const comments = await fetchComments(videoId, maxComments || 200);
+
+      if (comments.length === 0) {
+        return res.status(400).json({ error: "No comments found for this video. Comments may be disabled." });
+      }
+
+      const analysis = await analyzePainPoints(comments, videoInfo, sector);
+      res.json(analysis);
+    } catch (error: any) {
+      console.error("[YouTube] Analysis error:", error);
+      res.status(500).json({ error: error.message || "Failed to analyze video comments" });
+    }
+  });
+
+  app.post("/api/youtube/comments", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const { videoUrl, maxComments } = req.body;
+      if (!videoUrl || typeof videoUrl !== "string") {
+        return res.status(400).json({ error: "Video URL is required" });
+      }
+
+      const videoId = extractVideoId(videoUrl);
+      if (!videoId) {
+        return res.status(400).json({ error: "Invalid YouTube URL or video ID" });
+      }
+
+      const videoInfo = await getVideoInfo(videoId);
+      const comments = await fetchComments(videoId, maxComments || 100);
+
+      res.json({ videoInfo, comments, totalFetched: comments.length });
+    } catch (error: any) {
+      console.error("[YouTube] Comments fetch error:", error);
+      res.status(500).json({ error: error.message || "Failed to fetch comments" });
     }
   });
 

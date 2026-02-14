@@ -60,6 +60,13 @@ import {
   Clock,
   RefreshCw,
   Radio,
+  Youtube,
+  MessageSquare,
+  TrendingUp,
+  ExternalLink,
+  ThumbsUp,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import jsPDF from "jspdf";
@@ -250,6 +257,420 @@ const STATUS_CONFIG: Record<NexusJobStatus, { label: string; color: string; icon
   failed: { label: "Failed", color: "text-destructive", icon: AlertTriangle },
   capacity: { label: "At Capacity", color: "text-orange-500", icon: AlertTriangle },
 };
+
+interface YTVideoResult {
+  videoId: string;
+  title: string;
+  channelTitle: string;
+  thumbnail: string;
+}
+
+interface YTPainPoint {
+  title: string;
+  description: string;
+  frequency: number;
+  severity: "low" | "medium" | "high" | "critical";
+  sampleComments: string[];
+  businessOpportunity: string;
+}
+
+interface YTAnalysis {
+  videoInfo: {
+    videoId: string;
+    title: string;
+    channelTitle: string;
+    viewCount: string;
+    commentCount: string;
+  };
+  totalCommentsAnalyzed: number;
+  painPoints: YTPainPoint[];
+  summary: string;
+  topOpportunities: string[];
+}
+
+const severityConfig: Record<string, { label: string; color: string }> = {
+  low: { label: "Low", color: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
+  medium: { label: "Medium", color: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
+  high: { label: "High", color: "bg-orange-500/10 text-orange-600 dark:text-orange-400" },
+  critical: { label: "Critical", color: "bg-red-500/10 text-red-600 dark:text-red-400" },
+};
+
+function PainPointDiscovery() {
+  const { toast } = useToast();
+  const [videoUrl, setVideoUrl] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sector, setSector] = useState("");
+  const [analysis, setAnalysis] = useState<YTAnalysis | null>(null);
+  const [expandedPoints, setExpandedPoints] = useState<Set<number>>(new Set());
+  const [mode, setMode] = useState<"url" | "search">("url");
+
+  const searchMutation = useMutation({
+    mutationFn: async (query: string) => {
+      const res = await apiRequest("POST", "/api/youtube/search", { query, maxResults: 8 });
+      return res.json();
+    },
+    onError: (error: Error) => {
+      toast({ title: "Search failed", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const analyzeMutation = useMutation({
+    mutationFn: async (url: string) => {
+      const res = await apiRequest("POST", "/api/youtube/analyze", {
+        videoUrl: url,
+        sector: sector || undefined,
+        maxComments: 200,
+      });
+      return res.json() as Promise<YTAnalysis>;
+    },
+    onSuccess: (data) => {
+      setAnalysis(data);
+      setExpandedPoints(new Set());
+      toast({ title: "Analysis complete", description: `Found ${data.painPoints.length} pain points from ${data.totalCommentsAnalyzed} comments` });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Analysis failed", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const handleAnalyze = () => {
+    if (!videoUrl.trim()) return;
+    analyzeMutation.mutate(videoUrl.trim());
+  };
+
+  const handleSearch = () => {
+    if (!searchQuery.trim()) return;
+    searchMutation.mutate(searchQuery.trim());
+  };
+
+  const handleSelectVideo = (vid: YTVideoResult) => {
+    setVideoUrl(`https://youtube.com/watch?v=${vid.videoId}`);
+    setMode("url");
+    analyzeMutation.mutate(`https://youtube.com/watch?v=${vid.videoId}`);
+  };
+
+  const toggleExpanded = (index: number) => {
+    setExpandedPoints(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card data-testid="card-yt-input">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2" data-testid="text-yt-title">
+            <Youtube className="h-5 w-5 text-red-500" />
+            YouTube Pain Point Discovery
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Scrape YouTube comments and use AI to discover business pain points and opportunities
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <Button
+              variant={mode === "url" ? "default" : "outline"}
+              onClick={() => setMode("url")}
+              data-testid="button-mode-url"
+            >
+              Paste Video URL
+            </Button>
+            <Button
+              variant={mode === "search" ? "default" : "outline"}
+              onClick={() => setMode("search")}
+              data-testid="button-mode-search"
+            >
+              Search YouTube
+            </Button>
+          </div>
+
+          {mode === "url" ? (
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Paste YouTube URL (e.g. https://youtube.com/watch?v=...)"
+                  value={videoUrl}
+                  onChange={(e) => setVideoUrl(e.target.value)}
+                  data-testid="input-yt-url"
+                />
+                <Button
+                  onClick={handleAnalyze}
+                  disabled={!videoUrl.trim() || analyzeMutation.isPending}
+                  data-testid="button-analyze-yt"
+                >
+                  {analyzeMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Search className="h-4 w-4 mr-2" />
+                  )}
+                  {analyzeMutation.isPending ? "Analyzing..." : "Analyze"}
+                </Button>
+              </div>
+              <Input
+                placeholder="Optional: Focus sector (e.g. SaaS, Healthcare, E-commerce)"
+                value={sector}
+                onChange={(e) => setSector(e.target.value)}
+                data-testid="input-yt-sector"
+              />
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Search for videos (e.g. 'small business struggles 2025')"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  data-testid="input-yt-search"
+                />
+                <Button
+                  onClick={handleSearch}
+                  disabled={!searchQuery.trim() || searchMutation.isPending}
+                  data-testid="button-search-yt"
+                >
+                  {searchMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Search className="h-4 w-4 mr-2" />
+                  )}
+                  Search
+                </Button>
+              </div>
+              <Input
+                placeholder="Optional: Focus sector (e.g. SaaS, Healthcare, E-commerce)"
+                value={sector}
+                onChange={(e) => setSector(e.target.value)}
+                data-testid="input-yt-sector-search"
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {searchMutation.data?.results && searchMutation.data.results.length > 0 && mode === "search" && (
+        <Card data-testid="card-yt-search-results">
+          <CardHeader>
+            <CardTitle className="text-lg">Search Results</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {searchMutation.data.results.map((vid: YTVideoResult) => (
+                <div
+                  key={vid.videoId}
+                  className="flex gap-3 p-3 rounded-lg border hover-elevate cursor-pointer"
+                  onClick={() => handleSelectVideo(vid)}
+                  data-testid={`card-yt-result-${vid.videoId}`}
+                >
+                  {vid.thumbnail && (
+                    <img
+                      src={vid.thumbnail}
+                      alt={vid.title}
+                      className="w-32 h-20 object-cover rounded flex-shrink-0"
+                    />
+                  )}
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm line-clamp-2">{vid.title}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{vid.channelTitle}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {analyzeMutation.isPending && (
+        <Card>
+          <CardContent className="py-12">
+            <div className="flex flex-col items-center gap-4">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <div className="text-center">
+                <p className="font-medium">Analyzing YouTube comments...</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Fetching comments and identifying pain points with AI. This may take 30-60 seconds.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {analysis && !analyzeMutation.isPending && (
+        <>
+          <Card data-testid="card-yt-video-info">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-4 flex-wrap">
+                <img
+                  src={`https://img.youtube.com/vi/${analysis.videoInfo.videoId}/mqdefault.jpg`}
+                  alt={analysis.videoInfo.title}
+                  className="w-40 h-24 object-cover rounded flex-shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-lg" data-testid="text-yt-video-title">
+                    {analysis.videoInfo.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">{analysis.videoInfo.channelTitle}</p>
+                  <div className="flex gap-4 mt-2 flex-wrap">
+                    <Badge variant="secondary">
+                      <Eye className="h-3 w-3 mr-1" />
+                      {Number(analysis.videoInfo.viewCount).toLocaleString()} views
+                    </Badge>
+                    <Badge variant="secondary">
+                      <MessageSquare className="h-3 w-3 mr-1" />
+                      {Number(analysis.videoInfo.commentCount).toLocaleString()} comments
+                    </Badge>
+                    <Badge variant="secondary">
+                      <Search className="h-3 w-3 mr-1" />
+                      {analysis.totalCommentsAnalyzed} analyzed
+                    </Badge>
+                  </div>
+                </div>
+                <a
+                  href={`https://youtube.com/watch?v=${analysis.videoInfo.videoId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="outline" size="sm" data-testid="button-open-yt-video">
+                    <ExternalLink className="h-3 w-3 mr-1" />
+                    Watch
+                  </Button>
+                </a>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-4">
+              <h3 className="font-semibold text-lg flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-red-500" />
+                Pain Points Found ({analysis.painPoints.length})
+              </h3>
+              {analysis.painPoints.map((point, i) => {
+                const sev = severityConfig[point.severity] || severityConfig.medium;
+                const isExpanded = expandedPoints.has(i);
+                return (
+                  <Card key={i} data-testid={`card-painpoint-${i}`}>
+                    <CardContent className="pt-6">
+                      <div
+                        className="flex items-start justify-between gap-2 cursor-pointer"
+                        onClick={() => toggleExpanded(i)}
+                        data-testid={`button-toggle-painpoint-${i}`}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <Badge className={sev.color} data-testid={`badge-severity-${i}`}>
+                              {sev.label}
+                            </Badge>
+                            <Badge variant="outline">
+                              Freq: {point.frequency}/10
+                            </Badge>
+                          </div>
+                          <h4 className="font-semibold" data-testid={`text-painpoint-title-${i}`}>
+                            {point.title}
+                          </h4>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {point.description}
+                          </p>
+                        </div>
+                        <Button variant="ghost" size="icon">
+                          {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        </Button>
+                      </div>
+
+                      {isExpanded && (
+                        <div className="mt-4 space-y-3 border-t pt-3">
+                          <div>
+                            <p className="text-sm font-medium flex items-center gap-1 mb-2">
+                              <TrendingUp className="h-4 w-4 text-emerald-500" />
+                              Business Opportunity
+                            </p>
+                            <p className="text-sm text-muted-foreground pl-5">
+                              {point.businessOpportunity}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium flex items-center gap-1 mb-2">
+                              <MessageSquare className="h-4 w-4" />
+                              Sample Comments
+                            </p>
+                            <div className="space-y-2 pl-5">
+                              {point.sampleComments.map((comment, j) => (
+                                <div key={j} className="text-sm text-muted-foreground border-l-2 pl-3 py-1">
+                                  "{comment}"
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            <div className="space-y-4">
+              <Card data-testid="card-yt-summary">
+                <CardHeader>
+                  <CardTitle className="text-base">Analysis Summary</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground" data-testid="text-yt-summary">
+                    {analysis.summary}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card data-testid="card-yt-opportunities">
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-emerald-500" />
+                    Top Opportunities
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ol className="space-y-2">
+                    {analysis.topOpportunities.map((opp, i) => (
+                      <li key={i} className="flex gap-2 text-sm" data-testid={`text-opportunity-${i}`}>
+                        <span className="font-semibold text-muted-foreground flex-shrink-0">{i + 1}.</span>
+                        <span>{opp}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Severity Breakdown</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {["critical", "high", "medium", "low"].map(sev => {
+                      const count = analysis.painPoints.filter(p => p.severity === sev).length;
+                      if (count === 0) return null;
+                      const config = severityConfig[sev];
+                      return (
+                        <div key={sev} className="flex items-center justify-between gap-2">
+                          <Badge className={config.color}>{config.label}</Badge>
+                          <span className="text-sm font-medium">{count}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 const STAGE_ORDER: NexusJobStatus[] = ["queued", "sending", "researching", "analyzing", "generating", "completed"];
 
@@ -902,6 +1323,10 @@ export default function AdminPage() {
               <Radio className="h-4 w-4" />
               Nexus Status
             </TabsTrigger>
+            <TabsTrigger value="painpoints" className="flex items-center gap-2" data-testid="tab-painpoints">
+              <Youtube className="h-4 w-4" />
+              Pain Point Discovery
+            </TabsTrigger>
             <TabsTrigger value="downloads" className="flex items-center gap-2">
               <Download className="h-4 w-4" />
               Downloads
@@ -1316,6 +1741,10 @@ export default function AdminPage() {
 
           <TabsContent value="nexus" className="space-y-6">
             <NexusStatusDashboard />
+          </TabsContent>
+
+          <TabsContent value="painpoints" className="space-y-6">
+            <PainPointDiscovery />
           </TabsContent>
 
           <TabsContent value="blueprints">
