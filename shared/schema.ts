@@ -83,6 +83,41 @@ export const nexusResearchJobs = pgTable("nexus_research_jobs", {
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
+// Blueprint credits for client-facing generator
+export const blueprintCredits = pgTable("blueprint_credits", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  balance: integer("balance").notNull().default(0),
+  totalPurchased: integer("total_purchased").notNull().default(0),
+  totalUsed: integer("total_used").notNull().default(0),
+  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+// Credit transaction history
+export const creditTransactions = pgTable("credit_transactions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  amount: integer("amount").notNull(),
+  type: text("type").notNull().$type<"purchase" | "usage">(),
+  description: text("description").notNull(),
+  stripeSessionId: text("stripe_session_id"),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+// Client-generated blueprints (DOCX)
+export const generatedBlueprints = pgTable("generated_blueprints", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  content: text("content").notNull(),
+  tier: text("tier").notNull().$type<BlueprintTier>(),
+  category: text("category").notNull(),
+  topic: text("topic").notNull(),
+  status: text("status").notNull().default("completed"),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
 // Relations
 export const blueprintsRelations = relations(blueprints, ({ many }) => ({
   purchases: many(purchases),
@@ -130,6 +165,16 @@ export const insertNexusResearchJobSchema = createInsertSchema(nexusResearchJobs
   completedAt: true,
 });
 
+export const insertCreditTransactionSchema = createInsertSchema(creditTransactions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertGeneratedBlueprintSchema = createInsertSchema(generatedBlueprints).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type Blueprint = typeof blueprints.$inferSelect;
 export type InsertBlueprint = z.infer<typeof insertBlueprintSchema>;
@@ -141,3 +186,8 @@ export type PdfDownload = typeof pdfDownloads.$inferSelect;
 export type InsertPdfDownload = z.infer<typeof insertPdfDownloadSchema>;
 export type NexusResearchJob = typeof nexusResearchJobs.$inferSelect;
 export type InsertNexusResearchJob = z.infer<typeof insertNexusResearchJobSchema>;
+export type BlueprintCredit = typeof blueprintCredits.$inferSelect;
+export type CreditTransaction = typeof creditTransactions.$inferSelect;
+export type InsertCreditTransaction = z.infer<typeof insertCreditTransactionSchema>;
+export type GeneratedBlueprint = typeof generatedBlueprints.$inferSelect;
+export type InsertGeneratedBlueprint = z.infer<typeof insertGeneratedBlueprintSchema>;

@@ -767,6 +767,231 @@ export async function registerRoutes(
     }
   });
 
+  // ===== CLIENT BLUEPRINT STUDIO ROUTES =====
+
+  const CREDIT_PACKAGES = [
+    { id: "single", credits: 1, price: 1000, label: "1 Blueprint" },
+    { id: "five", credits: 5, price: 4000, label: "5 Blueprints" },
+    { id: "ten", credits: 10, price: 7500, label: "10 Blueprints" },
+  ];
+
+  app.get("/api/credits", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const credit = await storage.getCreditBalance(userId);
+      res.json({ balance: credit?.balance || 0, totalPurchased: credit?.totalPurchased || 0, totalUsed: credit?.totalUsed || 0 });
+    } catch (error) {
+      console.error("Error fetching credits:", error);
+      res.status(500).json({ error: "Failed to fetch credit balance" });
+    }
+  });
+
+  app.get("/api/credits/packages", (req: Request, res: Response) => {
+    res.json({ packages: CREDIT_PACKAGES });
+  });
+
+  app.post("/api/credits/purchase", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { packageId } = req.body;
+
+      const pkg = CREDIT_PACKAGES.find(p => p.id === packageId);
+      if (!pkg) {
+        return res.status(400).json({ error: "Invalid package" });
+      }
+
+      const stripe = await getUncachableStripeClient();
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: `Blueprint Credits - ${pkg.label}`,
+                description: `${pkg.credits} blueprint credit${pkg.credits > 1 ? "s" : ""} for the Blueprint Studio. Includes full resale rights on generated blueprints.`,
+              },
+              unit_amount: pkg.price,
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: `${req.protocol}://${req.get("host")}/studio?purchase=success&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${req.protocol}://${req.get("host")}/studio?purchase=cancelled`,
+        metadata: {
+          type: "blueprint_credits",
+          packageId: pkg.id,
+          credits: pkg.credits.toString(),
+          userId,
+        },
+      });
+
+      res.json({ url: session.url });
+    } catch (error) {
+      console.error("Error creating credit checkout:", error);
+      res.status(500).json({ error: "Failed to create checkout session" });
+    }
+  });
+
+  app.post("/api/credits/verify", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { sessionId } = req.body;
+
+      const stripe = await getUncachableStripeClient();
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+      if (session.payment_status === "paid") {
+        const metadataUserId = session.metadata?.userId;
+        if (metadataUserId !== userId) {
+          return res.status(403).json({ error: "Session does not belong to this user" });
+        }
+
+        const credits = parseInt(session.metadata?.credits || "0");
+        const packageId = session.metadata?.packageId || "";
+
+        if (credits > 0) {
+          const existingTx = await storage.getCreditTransactions(userId);
+          const alreadyCredited = existingTx.some(tx => tx.stripeSessionId === sessionId);
+
+          if (!alreadyCredited) {
+            await storage.addCredits(userId, credits, sessionId, `Purchased ${credits} credit${credits > 1 ? "s" : ""} (${packageId} package)`);
+          }
+        }
+
+        const balance = await storage.getCreditBalance(userId);
+        res.json({ status: "completed", balance: balance?.balance || 0 });
+      } else {
+        res.json({ status: session.payment_status });
+      }
+    } catch (error) {
+      console.error("Error verifying credit purchase:", error);
+      res.status(500).json({ error: "Failed to verify purchase" });
+    }
+  });
+
+  app.get("/api/credits/transactions", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const transactions = await storage.getCreditTransactions(userId);
+      res.json({ transactions });
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      res.status(500).json({ error: "Failed to fetch transactions" });
+    }
+  });
+
+  app.get("/api/studio/blueprints", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const blueprintsList = await storage.getGeneratedBlueprints(userId);
+      res.json({ blueprints: blueprintsList });
+    } catch (error) {
+      console.error("Error fetching generated blueprints:", error);
+      res.status(500).json({ error: "Failed to fetch blueprints" });
+    }
+  });
+
+  app.post("/api/studio/generate", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { topic, tier, category } = req.body;
+
+      if (!topic || !tier || !category) {
+        return res.status(400).json({ error: "Topic, tier, and category are required" });
+      }
+
+      const credit = await storage.getCreditBalance(userId);
+      if (!credit || credit.balance <= 0) {
+        return res.status(403).json({ error: "No blueprint credits remaining. Please purchase a credit package." });
+      }
+
+      const used = await storage.useCredit(userId, `Generated blueprint: ${topic}`);
+      if (!used) {
+        return res.status(403).json({ error: "Failed to use credit" });
+      }
+
+      let result;
+      try {
+        const research = `User requested a ${tier} tier blueprint about: ${topic}. Category: ${category}. Generate a comprehensive, actionable business blueprint.`;
+        result = await generateBlueprintContent(topic, research, tier as any);
+      } catch (genError) {
+        await storage.addCredits(userId, 1, undefined, `Refund: generation failed for "${topic}"`);
+        console.error("Blueprint generation failed, credit refunded:", genError);
+        return res.status(500).json({ error: "Blueprint generation failed. Your credit has been refunded." });
+      }
+
+      const generated = await storage.createGeneratedBlueprint({
+        userId,
+        title: result.title,
+        description: result.description,
+        content: result.content,
+        tier,
+        category,
+        topic,
+        status: "completed",
+      });
+
+      res.json({ blueprint: generated });
+    } catch (error) {
+      console.error("Error generating blueprint:", error);
+      res.status(500).json({ error: "Failed to generate blueprint" });
+    }
+  });
+
+  app.get("/api/studio/blueprints/:id/download", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const id = parseInt(req.params.id);
+      const blueprint = await storage.getGeneratedBlueprint(id, userId);
+
+      if (!blueprint) {
+        return res.status(404).json({ error: "Blueprint not found" });
+      }
+
+      const { generateDocx } = await import("./docxService");
+      const docxBuffer = await generateDocx(blueprint.title, blueprint.content, blueprint.tier);
+
+      const filename = blueprint.title.replace(/[^a-zA-Z0-9\s]/g, "").replace(/\s+/g, "_") + ".docx";
+
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.send(docxBuffer);
+    } catch (error) {
+      console.error("Error downloading blueprint:", error);
+      res.status(500).json({ error: "Failed to download blueprint" });
+    }
+  });
+
+  // ===== CLIENT RESEARCH ROUTES (reuse admin research logic) =====
+
+  app.post("/api/studio/discover", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const { category } = req.body;
+      const result = await discoverTrendingNeeds(category || "general");
+      res.json({ result });
+    } catch (error) {
+      console.error("Error discovering trends:", error);
+      res.status(500).json({ error: "Failed to discover trends" });
+    }
+  });
+
+  app.post("/api/studio/analyze", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const { topic } = req.body;
+      if (!topic) {
+        return res.status(400).json({ error: "Topic is required" });
+      }
+      const analysis = await analyzeBusinessTrends(topic);
+      res.json({ analysis });
+    } catch (error) {
+      console.error("Error analyzing trends:", error);
+      res.status(500).json({ error: "Failed to analyze trends" });
+    }
+  });
+
   // YouTube Pain Point Discovery routes
   app.post("/api/youtube/search", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
     try {

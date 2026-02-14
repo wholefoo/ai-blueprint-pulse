@@ -6,6 +6,9 @@ import {
   researchSessions,
   pdfDownloads,
   nexusResearchJobs,
+  blueprintCredits,
+  creditTransactions,
+  generatedBlueprints,
   type Blueprint,
   type InsertBlueprint,
   type Purchase,
@@ -17,6 +20,11 @@ import {
   type NexusResearchJob,
   type InsertNexusResearchJob,
   type NexusJobStatus,
+  type BlueprintCredit,
+  type CreditTransaction,
+  type InsertCreditTransaction,
+  type GeneratedBlueprint,
+  type InsertGeneratedBlueprint,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -46,6 +54,15 @@ export interface IStorage {
   getNexusJob(id: number): Promise<NexusResearchJob | undefined>;
   getNexusJobs(userId: string): Promise<NexusResearchJob[]>;
   updateNexusJob(id: number, updates: Partial<NexusResearchJob>): Promise<NexusResearchJob | undefined>;
+
+  getCreditBalance(userId: string): Promise<BlueprintCredit | undefined>;
+  addCredits(userId: string, amount: number, stripeSessionId?: string, description?: string): Promise<BlueprintCredit>;
+  useCredit(userId: string, description: string): Promise<boolean>;
+  getCreditTransactions(userId: string): Promise<CreditTransaction[]>;
+
+  createGeneratedBlueprint(blueprint: InsertGeneratedBlueprint): Promise<GeneratedBlueprint>;
+  getGeneratedBlueprints(userId: string): Promise<GeneratedBlueprint[]>;
+  getGeneratedBlueprint(id: number, userId: string): Promise<GeneratedBlueprint | undefined>;
 }
 
 class DatabaseStorage implements IStorage {
@@ -191,6 +208,81 @@ class DatabaseStorage implements IStorage {
   async updateNexusJob(id: number, updates: Partial<NexusResearchJob>): Promise<NexusResearchJob | undefined> {
     const [updated] = await db.update(nexusResearchJobs).set(updates).where(eq(nexusResearchJobs.id, id)).returning();
     return updated;
+  }
+
+  async getCreditBalance(userId: string): Promise<BlueprintCredit | undefined> {
+    const [credit] = await db.select().from(blueprintCredits).where(eq(blueprintCredits.userId, userId));
+    return credit;
+  }
+
+  async addCredits(userId: string, amount: number, stripeSessionId?: string, description?: string): Promise<BlueprintCredit> {
+    const existing = await this.getCreditBalance(userId);
+    let result: BlueprintCredit;
+
+    if (existing) {
+      const [updated] = await db.update(blueprintCredits).set({
+        balance: sql`${blueprintCredits.balance} + ${amount}`,
+        totalPurchased: sql`${blueprintCredits.totalPurchased} + ${amount}`,
+        updatedAt: new Date(),
+      }).where(eq(blueprintCredits.userId, userId)).returning();
+      result = updated;
+    } else {
+      const [created] = await db.insert(blueprintCredits).values({
+        userId,
+        balance: amount,
+        totalPurchased: amount,
+        totalUsed: 0,
+      }).returning();
+      result = created;
+    }
+
+    await db.insert(creditTransactions).values({
+      userId,
+      amount,
+      type: "purchase",
+      description: description || `Purchased ${amount} blueprint credit${amount > 1 ? "s" : ""}`,
+      stripeSessionId: stripeSessionId || null,
+    });
+
+    return result;
+  }
+
+  async useCredit(userId: string, description: string): Promise<boolean> {
+    const existing = await this.getCreditBalance(userId);
+    if (!existing || existing.balance <= 0) return false;
+
+    await db.update(blueprintCredits).set({
+      balance: sql`${blueprintCredits.balance} - 1`,
+      totalUsed: sql`${blueprintCredits.totalUsed} + 1`,
+      updatedAt: new Date(),
+    }).where(eq(blueprintCredits.userId, userId));
+
+    await db.insert(creditTransactions).values({
+      userId,
+      amount: -1,
+      type: "usage",
+      description,
+    });
+
+    return true;
+  }
+
+  async getCreditTransactions(userId: string): Promise<CreditTransaction[]> {
+    return db.select().from(creditTransactions).where(eq(creditTransactions.userId, userId)).orderBy(desc(creditTransactions.createdAt));
+  }
+
+  async createGeneratedBlueprint(blueprint: InsertGeneratedBlueprint): Promise<GeneratedBlueprint> {
+    const [created] = await db.insert(generatedBlueprints).values(blueprint).returning();
+    return created;
+  }
+
+  async getGeneratedBlueprints(userId: string): Promise<GeneratedBlueprint[]> {
+    return db.select().from(generatedBlueprints).where(eq(generatedBlueprints.userId, userId)).orderBy(desc(generatedBlueprints.createdAt));
+  }
+
+  async getGeneratedBlueprint(id: number, userId: string): Promise<GeneratedBlueprint | undefined> {
+    const [blueprint] = await db.select().from(generatedBlueprints).where(and(eq(generatedBlueprints.id, id), eq(generatedBlueprints.userId, userId)));
+    return blueprint;
   }
 }
 

@@ -18,6 +18,7 @@ import ProfilePage from "@/pages/profile";
 import CheckoutSuccessPage from "@/pages/checkout-success";
 import TermsPage from "@/pages/terms";
 import AboutPage from "@/pages/about";
+import StudioPage from "@/pages/studio";
 import { useAuth } from "@/hooks/use-auth";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
@@ -95,6 +96,9 @@ function Router() {
       </Route>
       <Route path="/profile">
         <ProtectedRoute component={ProfilePage} />
+      </Route>
+      <Route path="/studio">
+        <ProtectedRoute component={StudioPage} />
       </Route>
       <Route path="/admin">
         <AdminRoute component={AdminPage} />

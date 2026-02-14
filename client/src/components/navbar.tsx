@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Compass, LayoutDashboard, LogOut, Shield, User } from "lucide-react";
+import { Compass, LayoutDashboard, LogOut, Shield, User, Sparkles } from "lucide-react";
 
 export function Navbar() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -42,6 +42,18 @@ export function Navbar() {
                 Marketplace
               </Button>
             </Link>
+            {isAuthenticated && (
+              <Link href="/studio">
+                <Button
+                  variant={location === "/studio" ? "secondary" : "ghost"}
+                  size="sm"
+                  data-testid="link-studio"
+                >
+                  <Sparkles className="h-4 w-4 mr-1" />
+                  Studio
+                </Button>
+              </Link>
+            )}
           </nav>
         </div>
 
@@ -84,6 +96,12 @@ export function Navbar() {
                   <DropdownMenuItem className="cursor-pointer" data-testid="link-dashboard">
                     <LayoutDashboard className="mr-2 h-4 w-4" />
                     My Purchases
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/studio">
+                  <DropdownMenuItem className="cursor-pointer" data-testid="link-studio-dropdown">
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Blueprint Studio
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/profile">
