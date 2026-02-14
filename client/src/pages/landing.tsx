@@ -16,7 +16,10 @@ import {
   Building2,
   Gift,
   FileText,
-  HelpCircle
+  HelpCircle,
+  AlertTriangle,
+  Lightbulb,
+  Flame
 } from "lucide-react";
 import {
   Accordion,
@@ -105,12 +108,42 @@ const tiers = [
     iconBg: "bg-slate-500/10",
     iconColor: "text-slate-600 dark:text-slate-400",
   },
+  {
+    name: "Pain Points",
+    slug: "painpoints",
+    icon: AlertTriangle,
+    description: "Solve the biggest challenges your customers face",
+    features: ["Customer frustration analysis", "Root cause breakdowns", "Practical remedies", "Opportunity mapping"],
+    color: "border-red-200 dark:border-red-800",
+    iconBg: "bg-red-500/10",
+    iconColor: "text-red-600 dark:text-red-400",
+  },
+  {
+    name: "Ethical Hacks",
+    slug: "ethicalhacks",
+    icon: Lightbulb,
+    description: "Smart shortcuts and creative strategies for an edge",
+    features: ["Growth hacking tactics", "Lesser-known strategies", "Innovative approaches", "Responsible shortcuts"],
+    color: "border-teal-200 dark:border-teal-800",
+    iconBg: "bg-teal-500/10",
+    iconColor: "text-teal-600 dark:text-teal-400",
+  },
+  {
+    name: "Trending Use Cases",
+    slug: "trendingusecases",
+    icon: Flame,
+    description: "Capitalize on hot emerging opportunities",
+    features: ["Real-world trend analysis", "Early adopter advantages", "Market momentum guides", "Emerging tech playbooks"],
+    color: "border-rose-200 dark:border-rose-800",
+    iconBg: "bg-rose-500/10",
+    iconColor: "text-rose-600 dark:text-rose-400",
+  },
 ];
 
 const stats = [
   { value: "AI-Powered", label: "Research Engine" },
   { value: "Real-Time", label: "Market Data" },
-  { value: "6 Tiers", label: "Blueprint Levels" },
+  { value: "9 Tiers", label: "Blueprint Levels" },
   { value: "24/7", label: "Instant Access" },
 ];
 
