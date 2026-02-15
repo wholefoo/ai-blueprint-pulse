@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,6 +26,7 @@ import {
   CreditCard,
   Star,
   Coins,
+  Clock,
 } from "lucide-react";
 import {
   Accordion,
@@ -33,21 +35,62 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
+function useScrollReveal() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("animate-fade-in-up");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return ref;
+}
+
+function ScrollReveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const ref = useScrollReveal();
+  return (
+    <div ref={ref} className={`opacity-0 ${className}`}>
+      {children}
+    </div>
+  );
+}
+
 const features = [
   {
     icon: Sparkles,
     title: "AI-Powered Research",
     description: "Our guides are built on cutting-edge AI analysis of current market trends and proven strategies.",
+    gradient: "from-blue-500/10 to-cyan-500/10",
+    iconColor: "text-blue-500",
   },
   {
     icon: TrendingUp,
     title: "Actionable Insights",
     description: "Step-by-step blueprints you can implement immediately to drive measurable business growth.",
+    gradient: "from-emerald-500/10 to-green-500/10",
+    iconColor: "text-emerald-500",
   },
   {
     icon: Shield,
     title: "Expert Validated",
     description: "Every guide is reviewed by industry experts to ensure accuracy and real-world applicability.",
+    gradient: "from-purple-500/10 to-violet-500/10",
+    iconColor: "text-purple-500",
   },
 ];
 
@@ -61,6 +104,7 @@ const tiers = [
     color: "border-gray-200 dark:border-gray-700",
     iconBg: "bg-gray-500/10",
     iconColor: "text-gray-600 dark:text-gray-400",
+    accentTop: "from-gray-400 to-gray-500",
   },
   {
     name: "Starter",
@@ -71,6 +115,7 @@ const tiers = [
     color: "border-emerald-200 dark:border-emerald-800",
     iconBg: "bg-emerald-500/10",
     iconColor: "text-emerald-600 dark:text-emerald-400",
+    accentTop: "from-emerald-400 to-emerald-600",
   },
   {
     name: "Growth",
@@ -82,6 +127,7 @@ const tiers = [
     iconBg: "bg-blue-500/10",
     iconColor: "text-blue-600 dark:text-blue-400",
     popular: true,
+    accentTop: "from-blue-400 to-blue-600",
   },
   {
     name: "Enterprise",
@@ -92,6 +138,7 @@ const tiers = [
     color: "border-purple-200 dark:border-purple-800",
     iconBg: "bg-purple-500/10",
     iconColor: "text-purple-600 dark:text-purple-400",
+    accentTop: "from-purple-400 to-purple-600",
   },
   {
     name: "Most Pressing",
@@ -102,6 +149,7 @@ const tiers = [
     color: "border-amber-200 dark:border-amber-800",
     iconBg: "bg-amber-500/10",
     iconColor: "text-amber-600 dark:text-amber-400",
+    accentTop: "from-amber-400 to-amber-600",
   },
   {
     name: "Boring but Necessary",
@@ -112,6 +160,7 @@ const tiers = [
     color: "border-slate-200 dark:border-slate-700",
     iconBg: "bg-slate-500/10",
     iconColor: "text-slate-600 dark:text-slate-400",
+    accentTop: "from-slate-400 to-slate-500",
   },
   {
     name: "Pain Points",
@@ -122,6 +171,7 @@ const tiers = [
     color: "border-red-200 dark:border-red-800",
     iconBg: "bg-red-500/10",
     iconColor: "text-red-600 dark:text-red-400",
+    accentTop: "from-red-400 to-red-600",
   },
   {
     name: "Ethical Hacks",
@@ -132,6 +182,7 @@ const tiers = [
     color: "border-teal-200 dark:border-teal-800",
     iconBg: "bg-teal-500/10",
     iconColor: "text-teal-600 dark:text-teal-400",
+    accentTop: "from-teal-400 to-teal-600",
   },
   {
     name: "Trending Use Cases",
@@ -142,6 +193,7 @@ const tiers = [
     color: "border-rose-200 dark:border-rose-800",
     iconBg: "bg-rose-500/10",
     iconColor: "text-rose-600 dark:text-rose-400",
+    accentTop: "from-rose-400 to-rose-600",
   },
   {
     name: "Power Prompts",
@@ -152,14 +204,15 @@ const tiers = [
     color: "border-violet-200 dark:border-violet-800",
     iconBg: "bg-violet-500/10",
     iconColor: "text-violet-600 dark:text-violet-400",
+    accentTop: "from-violet-400 to-violet-600",
   },
 ];
 
 const stats = [
-  { value: "AI-Powered", label: "Research Engine" },
-  { value: "Real-Time", label: "Market Data" },
-  { value: "10 Tiers", label: "Blueprint Levels" },
-  { value: "24/7", label: "Instant Access" },
+  { value: "AI-Powered", label: "Research Engine", icon: Sparkles },
+  { value: "Real-Time", label: "Market Data", icon: BarChart3 },
+  { value: "10 Tiers", label: "Blueprint Levels", icon: Target },
+  { value: "24/7", label: "Instant Access", icon: Clock },
 ];
 
 const faqs = [
@@ -226,31 +279,39 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col">
-      <section className="relative overflow-hidden py-24 lg:py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+      <section className="relative overflow-hidden py-28 lg:py-36">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/8 animate-gradient-shift" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-accent/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+
         <div className="container relative">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border bg-background/50 px-4 py-1.5 text-sm mb-6">
+            <div className="animate-fade-in-up inline-flex items-center gap-2 rounded-full border bg-background/80 backdrop-blur-sm px-4 py-1.5 text-sm mb-8">
               <Zap className="h-4 w-4 text-accent" />
               <span>AI-powered business intelligence</span>
             </div>
             
-            <h1 className="font-serif text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl" data-testid="text-hero-title">
+            <h1 className="animate-fade-in-up animation-delay-100 font-serif text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl" data-testid="text-hero-title">
               Transform Your Business
               <br />
-              <span className="text-primary">With Expert Blueprints</span>
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">With Expert Blueprints</span>
             </h1>
             
-            <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto" data-testid="text-hero-subtitle">
+            <p className="animate-fade-in-up animation-delay-200 mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
               Discover actionable guides built on AI research and industry expertise. 
               From startup fundamentals to enterprise strategies — we've got your path to success.
             </p>
             
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <div className="animate-fade-in-up animation-delay-300 mt-10 flex flex-wrap items-center justify-center gap-4">
               <Link href="/marketplace">
-                <Button size="lg" className="gap-2" data-testid="button-explore-marketplace">
+                <Button size="lg" data-testid="button-explore-marketplace">
                   Explore Marketplace
-                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/studio">
+                <Button variant="outline" size="lg" className="gap-2" data-testid="button-open-studio-hero">
+                  <Sparkles className="h-4 w-4" />
+                  Blueprint Studio
                 </Button>
               </Link>
               {!isAuthenticated && (
@@ -260,31 +321,34 @@ export default function LandingPage() {
               )}
             </div>
             
-            <div className="mt-10 flex items-center justify-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
+            <div className="animate-fade-in-up animation-delay-400 mt-10 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                 <span>Instant download</span>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                 <span>Lifetime access</span>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                <span>Money-back guarantee</span>
+                <span>Full resale rights</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-12 bg-muted/30">
+      <section className="py-10 border-y bg-muted/20">
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-3xl font-bold text-primary">{stat.value}</div>
-                <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
+              <div key={stat.label} className="text-center group">
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 mb-3 mx-auto transition-transform duration-300 group-hover:scale-110">
+                  <stat.icon className="h-5 w-5 text-primary" />
+                </div>
+                <div className="text-2xl font-bold text-foreground">{stat.value}</div>
+                <div className="text-xs text-muted-foreground mt-0.5 uppercase tracking-wider">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -293,24 +357,32 @@ export default function LandingPage() {
 
       <section className="py-24">
         <div className="container">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-3xl font-bold">Why AI Blueprint Pulse?</h2>
-            <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-              We combine cutting-edge AI research with real-world business expertise to create guides that actually work.
-            </p>
-          </div>
+          <ScrollReveal>
+            <div className="text-center mb-16">
+              <Badge variant="outline" className="mb-4 px-3 py-1">
+                <Sparkles className="h-3 w-3 mr-1.5" />
+                Why Choose Us
+              </Badge>
+              <h2 className="font-serif text-3xl font-bold">Why AI Blueprint Pulse?</h2>
+              <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
+                We combine cutting-edge AI research with real-world business expertise to create guides that actually work.
+              </p>
+            </div>
+          </ScrollReveal>
           
           <div className="grid md:grid-cols-3 gap-8">
-            {features.map((feature) => (
-              <Card key={feature.title} className="border-0 bg-muted/30">
-                <CardContent className="pt-6">
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                    <feature.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground text-sm">{feature.description}</p>
-                </CardContent>
-              </Card>
+            {features.map((feature, i) => (
+              <ScrollReveal key={feature.title}>
+                <Card className={`border-0 bg-gradient-to-br ${feature.gradient} h-full`}>
+                  <CardContent className="pt-8 pb-8">
+                    <div className={`mb-5 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-background/80 backdrop-blur-sm`}>
+                      <feature.icon className={`h-7 w-7 ${feature.iconColor}`} />
+                    </div>
+                    <h3 className="font-semibold text-xl mb-3">{feature.title}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -318,183 +390,209 @@ export default function LandingPage() {
 
       <section className="py-24 bg-muted/30">
         <div className="container">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-3xl font-bold">Choose Your Path</h2>
-            <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-              Whether you're just starting out or leading an enterprise, we have the right blueprint for you.
-            </p>
-          </div>
+          <ScrollReveal>
+            <div className="text-center mb-16">
+              <Badge variant="outline" className="mb-4 px-3 py-1">
+                <Target className="h-3 w-3 mr-1.5" />
+                10 Specialized Tiers
+              </Badge>
+              <h2 className="font-serif text-3xl font-bold">Choose Your Path</h2>
+              <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
+                Whether you're just starting out or leading an enterprise, we have the right blueprint for you.
+              </p>
+            </div>
+          </ScrollReveal>
           
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {tiers.map((tier) => (
-              <Card 
-                key={tier.name} 
-                className={`relative ${tier.color} ${tier.popular ? 'ring-2 ring-primary shadow-lg' : ''}`}
-              >
-                {tier.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full">
-                      Most Popular
-                    </span>
-                  </div>
-                )}
-                <CardContent className="pt-8 pb-6">
-                  <div className={`inline-flex h-12 w-12 items-center justify-center rounded-lg ${tier.iconBg} mb-4`}>
-                    <tier.icon className={`h-6 w-6 ${tier.iconColor}`} />
-                  </div>
-                  <h3 className="font-semibold text-xl mb-1">{tier.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-6">{tier.description}</p>
-                  <ul className="space-y-3 mb-6">
-                    {tier.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-2 text-sm">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <Link href={`/marketplace?tier=${tier.slug}`}>
-                    <Button 
-                      className="w-full" 
-                      variant={tier.popular ? "default" : "outline"}
-                      data-testid={`button-browse-${tier.name.toLowerCase()}`}
-                    >
-                      Browse {tier.name} Guides
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-24" id="credits">
-        <div className="container">
-          <div className="mx-auto max-w-4xl">
-            <div className="text-center mb-12">
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 mb-4">
-                <Coins className="h-6 w-6 text-accent" />
-              </div>
-              <h2 className="font-serif text-3xl font-bold">Blueprint Studio Credits</h2>
-              <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-                Purchase credits to generate custom business blueprints on any topic. Each blueprint comes with full resale rights and downloads as a polished Word document.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                { id: "single", credits: 1, price: "$10", perCredit: "$10.00", label: "Starter", desc: "Try it out" },
-                { id: "five", credits: 5, price: "$40", perCredit: "$8.00", label: "Popular", desc: "Best for growing businesses", popular: true },
-                { id: "ten", credits: 10, price: "$75", perCredit: "$7.50", label: "Best Value", desc: "Maximum savings" },
-              ].map((pkg) => (
-                <Card key={pkg.id} className={pkg.popular ? "border-primary/50 relative" : ""} data-testid={`card-landing-package-${pkg.id}`}>
-                  {pkg.popular && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              <ScrollReveal key={tier.name}>
+                <Card 
+                  className={`relative h-full ${tier.color} ${tier.popular ? 'ring-2 ring-primary' : ''}`}
+                >
+                  <div className={`absolute top-0 left-0 right-0 h-1 rounded-t-md bg-gradient-to-r ${tier.accentTop}`} />
+                  {tier.popular && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                       <Badge className="bg-primary text-primary-foreground">
                         <Star className="h-3 w-3 mr-1" />
                         Most Popular
                       </Badge>
                     </div>
                   )}
-                  <CardContent className="p-6 text-center space-y-4 pt-8">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">{pkg.label}</p>
-                      <p className="text-3xl font-bold text-foreground mt-1">{pkg.price}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{pkg.perCredit} per blueprint</p>
+                  <CardContent className="pt-8 pb-6">
+                    <div className={`inline-flex h-12 w-12 items-center justify-center rounded-lg ${tier.iconBg} mb-4`}>
+                      <tier.icon className={`h-6 w-6 ${tier.iconColor}`} />
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm text-foreground">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                        <span>{pkg.credits} Blueprint Credit{pkg.credits > 1 ? "s" : ""}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-foreground">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                        <span>Full Resale Rights</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-foreground">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                        <span>DOCX Download</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-foreground">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                        <span>{pkg.desc}</span>
-                      </div>
-                    </div>
-                    <Link href="/studio?tab=credits">
-                      <Button
-                        className="w-full"
-                        variant={pkg.popular ? "default" : "outline"}
-                        data-testid={`button-landing-purchase-${pkg.id}`}
+                    <h3 className="font-semibold text-xl mb-1">{tier.name}</h3>
+                    <p className="text-sm text-muted-foreground mb-6">{tier.description}</p>
+                    <ul className="space-y-3 mb-6">
+                      {tier.features.map((feature) => (
+                        <li key={feature} className="flex items-center gap-2 text-sm">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <Link href={`/marketplace?tier=${tier.slug}`}>
+                      <Button 
+                        className="w-full" 
+                        variant={tier.popular ? "default" : "outline"}
+                        data-testid={`button-browse-${tier.name.toLowerCase()}`}
                       >
-                        <CreditCard className="h-4 w-4 mr-1.5" />
-                        Get Credits
+                        Browse {tier.name} Guides
                       </Button>
                     </Link>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-
-            <div className="text-center mt-8">
-              <Link href="/studio">
-                <Button variant="outline" size="lg" className="gap-2" data-testid="button-open-studio">
-                  <Sparkles className="h-4 w-4" />
-                  Open Blueprint Studio
-                </Button>
-              </Link>
-            </div>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="py-24 bg-muted/30">
-        <div className="container">
-          <div className="mx-auto max-w-3xl">
-            <div className="text-center mb-12">
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
-                <HelpCircle className="h-6 w-6 text-primary" />
+      <section className="py-24 relative overflow-hidden" id="credits">
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-accent/3 via-transparent to-primary/3" />
+        <div className="container relative">
+          <ScrollReveal>
+            <div className="mx-auto max-w-4xl">
+              <div className="text-center mb-12">
+                <Badge variant="outline" className="mb-4 px-3 py-1">
+                  <Coins className="h-3 w-3 mr-1.5" />
+                  Blueprint Studio
+                </Badge>
+                <h2 className="font-serif text-3xl font-bold">Create Custom Blueprints</h2>
+                <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
+                  Purchase credits to generate custom business blueprints on any topic. Each blueprint comes with full resale rights and downloads as a polished Word document.
+                </p>
               </div>
-              <h2 className="font-serif text-3xl font-bold">Frequently Asked Questions</h2>
-              <p className="mt-4 text-muted-foreground">
-                Everything you need to know about AI Blueprint Pulse and our success guides.
-              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                  { id: "single", credits: 1, price: "$10", perCredit: "$10.00", label: "Starter", desc: "Try it out", gradient: "from-slate-500/5 to-slate-500/10" },
+                  { id: "five", credits: 5, price: "$40", perCredit: "$8.00", label: "Popular", desc: "Best for growing businesses", popular: true, gradient: "from-primary/5 to-accent/10" },
+                  { id: "ten", credits: 10, price: "$75", perCredit: "$7.50", label: "Best Value", desc: "Maximum savings", gradient: "from-emerald-500/5 to-emerald-500/10" },
+                ].map((pkg) => (
+                  <Card key={pkg.id} className={`relative ${pkg.popular ? "border-primary/50 ring-1 ring-primary/20" : ""}`} data-testid={`card-landing-package-${pkg.id}`}>
+                    <div className={`absolute inset-0 rounded-md bg-gradient-to-b ${pkg.gradient} pointer-events-none`} />
+                    {pkg.popular && (
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                        <Badge className="bg-primary text-primary-foreground">
+                          <Star className="h-3 w-3 mr-1" />
+                          Most Popular
+                        </Badge>
+                      </div>
+                    )}
+                    <CardContent className="relative p-6 text-center space-y-4 pt-8">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">{pkg.label}</p>
+                        <p className="text-4xl font-bold text-foreground mt-1">{pkg.price}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{pkg.perCredit} per blueprint</p>
+                      </div>
+                      <div className="space-y-2.5">
+                        <div className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                          <span>{pkg.credits} Blueprint Credit{pkg.credits > 1 ? "s" : ""}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                          <span>Full Resale Rights</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                          <span>DOCX Download</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                          <span>{pkg.desc}</span>
+                        </div>
+                      </div>
+                      <Link href="/studio?tab=credits">
+                        <Button
+                          className="w-full"
+                          variant={pkg.popular ? "default" : "outline"}
+                          data-testid={`button-landing-purchase-${pkg.id}`}
+                        >
+                          <CreditCard className="h-4 w-4 mr-1.5" />
+                          Get Credits
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <div className="text-center mt-10">
+                <Link href="/studio">
+                  <Button variant="outline" size="lg" className="gap-2" data-testid="button-open-studio">
+                    <Sparkles className="h-4 w-4" />
+                    Open Blueprint Studio
+                  </Button>
+                </Link>
+              </div>
             </div>
-            
-            <Accordion type="single" collapsible className="w-full">
-              {faqs.map((faq, index) => (
-                <AccordionItem key={index} value={`item-${index}`}>
-                  <AccordionTrigger className="text-left" data-testid={`faq-question-${index}`}>
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
       <section className="py-24 bg-muted/30">
         <div className="container">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 mb-6">
-              <Target className="h-7 w-7 text-primary" />
+          <ScrollReveal>
+            <div className="mx-auto max-w-3xl">
+              <div className="text-center mb-12">
+                <Badge variant="outline" className="mb-4 px-3 py-1">
+                  <HelpCircle className="h-3 w-3 mr-1.5" />
+                  FAQ
+                </Badge>
+                <h2 className="font-serif text-3xl font-bold">Frequently Asked Questions</h2>
+                <p className="mt-4 text-muted-foreground">
+                  Everything you need to know about AI Blueprint Pulse and our success guides.
+                </p>
+              </div>
+              
+              <Accordion type="single" collapsible className="w-full">
+                {faqs.map((faq, index) => (
+                  <AccordionItem key={index} value={`item-${index}`}>
+                    <AccordionTrigger className="text-left" data-testid={`faq-question-${index}`}>
+                      {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground leading-relaxed">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
             </div>
-            <h2 className="font-serif text-3xl font-bold mb-4">Ready to Accelerate Your Success?</h2>
-            <p className="text-muted-foreground mb-8">
-              Join action taker entrepreneurs and business leaders who have transformed their operations with our blueprints.
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <Link href="/marketplace">
-                <Button size="lg" className="gap-2" data-testid="button-cta-marketplace">
-                  Start Browsing
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 animate-gradient-shift" />
+        <div className="container relative">
+          <ScrollReveal>
+            <div className="mx-auto max-w-3xl text-center">
+              <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 mb-6 animate-float">
+                <Target className="h-7 w-7 text-primary" />
+              </div>
+              <h2 className="font-serif text-3xl font-bold mb-4">Ready to Accelerate Your Success?</h2>
+              <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
+                Join action-taking entrepreneurs and business leaders who have transformed their operations with our blueprints.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                <Link href="/marketplace">
+                  <Button size="lg" className="gap-2" data-testid="button-cta-marketplace">
+                    Start Browsing
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link href="/studio">
+                  <Button variant="outline" size="lg" className="gap-2" data-testid="button-cta-studio">
+                    <Sparkles className="h-4 w-4" />
+                    Create a Blueprint
+                  </Button>
+                </Link>
+              </div>
             </div>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
     </div>

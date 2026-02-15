@@ -42,18 +42,16 @@ export function Navbar() {
                 Marketplace
               </Button>
             </Link>
-            {isAuthenticated && (
-              <Link href="/studio">
-                <Button
-                  variant={location === "/studio" ? "secondary" : "ghost"}
-                  size="sm"
-                  data-testid="link-studio"
-                >
-                  <Sparkles className="h-4 w-4 mr-1" />
-                  Studio
-                </Button>
-              </Link>
-            )}
+            <Link href="/studio">
+              <Button
+                variant={location === "/studio" ? "secondary" : "ghost"}
+                size="sm"
+                data-testid="link-studio"
+              >
+                <Sparkles className="h-4 w-4 mr-1" />
+                Studio
+              </Button>
+            </Link>
           </nav>
         </div>
 
