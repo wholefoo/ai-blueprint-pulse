@@ -161,31 +161,59 @@ const stats = [
 const faqs = [
   {
     question: "What exactly is a 'Success Blueprint'?",
-    answer: "A Success Blueprint is a comprehensive, AI-researched business guide that provides actionable strategies, frameworks, and step-by-step instructions for specific business challenges. Each blueprint is synthesized using real-time market data and proven methodologies, giving you a clear roadmap to implement immediately."
+    answer: "A Success Blueprint is a comprehensive, AI-researched business guide that provides actionable strategies, frameworks, and step-by-step instructions for specific business challenges. Each blueprint is synthesized using real-time market data and proven methodologies, giving you a clear roadmap to implement immediately. Whether you're launching a startup, scaling an existing venture, or pivoting into a new market, these blueprints give you a structured plan built on current intelligence rather than outdated theory. They cover everything from market positioning and customer acquisition to operational workflows and revenue optimization."
   },
   {
     question: "How is AI Blueprint Pulse different from other business courses?",
-    answer: "Unlike static courses that become outdated, our blueprints are generated using real-time AI research that analyzes current market trends, competitor strategies, and emerging opportunities. You get actionable intelligence based on what's working right now, not strategies from years ago."
+    answer: "Unlike static courses that become outdated the moment they're published, our blueprints are generated using real-time AI research that analyzes current market trends, competitor strategies, and emerging opportunities. You get actionable intelligence based on what's working right now, not strategies from years ago. Traditional courses often take months to produce and can cost thousands of dollars. Our platform delivers focused, data-driven guidance in minutes at a fraction of the price. Plus, with our Blueprint Studio, you can generate custom guides tailored to your exact business topic and industry, something no pre-recorded course can offer."
   },
   {
     question: "Do I get lifetime access to purchased blueprints?",
-    answer: "Yes! Once you purchase a blueprint, it's yours forever. You can download it as a professionally formatted PDF and access it anytime from your dashboard. There are no recurring fees or subscription requirements for purchased content."
+    answer: "Yes! Once you purchase a blueprint from the marketplace, it's yours forever. You can download it as a professionally formatted PDF and access it anytime from your dashboard. There are no recurring fees or subscription requirements for purchased content. The same applies to blueprints you generate through the Blueprint Studio: every DOCX file you create is yours to keep, share, and even resell with full resale rights included. Your purchases and generated content will always be available in your account."
   },
   {
     question: "What's the difference between the tier levels?",
-    answer: "Our tiers are designed for different business stages: Free gets you started with essentials, Starter covers fundamentals for new entrepreneurs, Growth provides scaling strategies for established businesses, Enterprise offers comprehensive playbooks for larger operations, Most Pressing addresses urgent challenges, and Boring but Necessary covers essential compliance and operations foundations."
+    answer: "We offer 10 distinct tiers designed for different needs and business stages. Free gets you started with essentials. Starter covers fundamentals for new entrepreneurs who are just getting going. Growth provides proven scaling strategies for businesses that have found their footing. Enterprise offers comprehensive playbooks for larger operations managing complex teams and markets. Most Pressing addresses urgent, time-sensitive challenges that need solutions now. Boring but Necessary covers essential compliance, documentation, and operational foundations that every business needs but often overlooks. Pain Points focuses on identifying and solving the biggest frustrations your customers face. Ethical Hacks delivers smart, responsible shortcuts and growth strategies. Trending Use Cases helps you capitalize on hot emerging opportunities before the competition catches on. And Power Prompts gives you collections of high-impact AI prompts you can use across your business immediately."
+  },
+  {
+    question: "What are Pain Points blueprints?",
+    answer: "Pain Points blueprints are specifically designed to help you understand and solve the biggest challenges your customers are dealing with. Using AI-powered analysis of real customer feedback, reviews, and market data, these blueprints identify the most common frustrations in your industry and provide detailed, actionable solutions. Each guide includes severity ratings, frequency analysis, root cause breakdowns, and practical remedies you can implement right away. They're particularly valuable for product development, customer service improvements, and finding untapped business opportunities hidden in customer complaints."
+  },
+  {
+    question: "What are Ethical Hacks blueprints?",
+    answer: "Ethical Hacks blueprints give you smart, creative strategies and responsible shortcuts that give your business a competitive edge without cutting corners on integrity. These aren't shady tricks or grey-hat tactics. They're lesser-known, innovative approaches to common business challenges that most people overlook. Think growth hacking strategies backed by data, unconventional marketing techniques that actually work, and clever operational efficiencies that save time and money. Each blueprint is designed to help you work smarter, not harder, while maintaining your reputation and building trust with your audience."
+  },
+  {
+    question: "What are Trending Use Cases blueprints?",
+    answer: "Trending Use Cases blueprints help you get ahead of emerging opportunities before they become mainstream. Our AI research engine continuously monitors market shifts, technology developments, and consumer behavior changes to identify trends that are gaining momentum right now. Each blueprint provides a detailed playbook for capitalizing on these opportunities, including early adopter advantages, market momentum analysis, implementation timelines, and real-world case studies. Whether it's a new application of AI, a shifting consumer preference, or an emerging business model, these guides position you to move fast and capture market share while others are still catching up."
+  },
+  {
+    question: "What are Power Prompts?",
+    answer: "Power Prompts are curated collections of high-impact AI prompts specifically crafted for business use. Instead of spending hours figuring out how to get the best results from AI tools, you get ready-to-use prompts tailored to your industry and business topic. Each set covers areas like content generation, customer communication, strategic planning, market analysis, and decision-making frameworks. You can copy them directly into any AI tool you use, and they come as downloadable DOCX files so you always have them on hand. They're designed by our AI research engine to maximize the quality and usefulness of the output you get from AI assistants."
+  },
+  {
+    question: "What is the Blueprint Studio and how does it work?",
+    answer: "The Blueprint Studio is your personal blueprint creation tool. Instead of browsing the marketplace for pre-made guides, you can generate a completely custom blueprint on any business topic you choose. Simply pick a topic, select a tier and category, and our AI engine will research and produce a comprehensive guide in seconds. You download it as a polished Word document with full resale rights included, meaning you can use it in your business, share it with clients, or even sell it as your own product. The Studio also includes Discover and Analyze tools to help you research trending business needs and validate topics before generating."
+  },
+  {
+    question: "How do Blueprint Studio credits work?",
+    answer: "Blueprint Studio runs on a simple credit system. Each credit lets you generate one blueprint or one set of Power Prompts. You can purchase credits in three packages: 1 credit for $10, 5 credits for $40 (saving $2 per credit), or 10 credits for $75 (saving $2.50 per credit). Credits never expire and stay in your account until you use them. When you generate a blueprint, one credit is deducted automatically. If something goes wrong during generation, your credit is refunded back to your account. You can check your balance, purchase history, and transaction details anytime in the Credits tab."
+  },
+  {
+    question: "Do I really get full resale rights on generated blueprints?",
+    answer: "Yes, absolutely. Every blueprint and Power Prompt set you generate through the Blueprint Studio comes with full resale rights. That means you can use the content in your own business, share it with your team, include it in client packages, bundle it into your own product offerings, or sell it independently under your own brand. The DOCX format makes it easy to customize, rebrand, and repurpose the content however you see fit. Many of our users generate blueprints specifically to sell as digital products, use as lead magnets, or include in their consulting deliverables."
   },
   {
     question: "Can I get a refund if I'm not satisfied?",
-    answer: "Due to the digital nature of our products, all sales are generally final. However, if you believe a blueprint is technically defective or fundamentally fails to address the topic described, we offer a 48-hour correction window where we'll re-run the research or provide a credit for a future guide."
+    answer: "Due to the digital nature of our products, all sales are generally final for marketplace purchases. However, if you believe a blueprint is technically defective or fundamentally fails to address the topic described, we offer a 48-hour correction window where we'll re-run the research or provide a credit for a future guide. For Blueprint Studio credits, if a generation fails for any technical reason, your credit is automatically refunded to your account immediately. We stand behind the quality of our AI research and want every purchase to deliver real value."
   },
   {
     question: "How often is new content added?",
-    answer: "We continuously add new blueprints based on market demands and emerging business trends. Our AI research engine is constantly analyzing opportunities, so you'll see fresh content added regularly across all tier levels."
+    answer: "We continuously add new blueprints to the marketplace based on market demands and emerging business trends. Our AI research engine is constantly analyzing opportunities across all industries, so you'll see fresh content added regularly across all 10 tier levels. Beyond the marketplace, the Blueprint Studio lets you generate content on any topic at any time, so you're never limited to what's already available. If there's a niche topic or emerging trend you need a guide for, you can create one yourself in minutes."
   },
   {
     question: "What makes actionable blueprints so powerful?",
-    answer: "Actionable blueprints eliminate the gap between knowledge and execution. Instead of generic advice, you get specific steps, templates, frameworks, and implementation timelines tailored to your business stage. Each blueprint is designed so you can start implementing within hours of reading—not weeks of planning. This bias toward action is what separates successful entrepreneurs from those stuck in 'research mode' forever."
+    answer: "Actionable blueprints eliminate the gap between knowledge and execution. Instead of generic advice, you get specific steps, templates, frameworks, and implementation timelines tailored to your business stage. Each blueprint is designed so you can start implementing within hours of reading, not weeks of planning. This bias toward action is what separates successful entrepreneurs from those stuck in 'research mode' forever. Our guides include concrete checklists, decision trees, budget templates, and milestone markers so you always know exactly what to do next and how to measure your progress along the way."
   },
 ];
 
