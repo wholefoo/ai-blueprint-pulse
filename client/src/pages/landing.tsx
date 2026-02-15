@@ -459,9 +459,14 @@ export default function LandingPage() {
                   <Coins className="h-3 w-3 mr-1.5" />
                   Blueprint Studio
                 </Badge>
-                <h2 className="font-serif text-3xl font-bold">Create Custom Blueprints</h2>
-                <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-                  Purchase credits to generate custom business blueprints on any topic. Each blueprint comes with full resale rights and downloads as a polished Word document.
+                <h2 className="font-serif text-3xl font-bold">
+                  Create Custom Blueprints
+                </h2>
+                <p className="mt-2 text-lg font-medium bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  Build Your Own — on any topic, in seconds
+                </p>
+                <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+                  Use credits to generate a fully custom business blueprint tailored to your exact needs. Pick any topic, choose a category, and our AI engine delivers a polished Word document with full resale rights.
                 </p>
               </div>
 
