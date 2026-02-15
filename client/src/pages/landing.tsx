@@ -211,7 +211,7 @@ const tiers = [
 const stats = [
   { value: "AI-Powered", label: "Research Engine", icon: Sparkles },
   { value: "Real-Time", label: "Market Data", icon: BarChart3 },
-  { value: "10 Tiers", label: "Blueprint Levels", icon: Target },
+  { value: "10 Categories", label: "Blueprint Topics", icon: Target },
   { value: "24/7", label: "Instant Access", icon: Clock },
 ];
 
@@ -229,8 +229,8 @@ const faqs = [
     answer: "Yes! Once you purchase a blueprint from the marketplace, it's yours forever. You can download it as a professionally formatted PDF and access it anytime from your dashboard. There are no recurring fees or subscription requirements for purchased content. The same applies to blueprints you generate through the Blueprint Studio: every DOCX file you create is yours to keep, share, and even resell with full resale rights included. Your purchases and generated content will always be available in your account."
   },
   {
-    question: "What's the difference between the tier levels?",
-    answer: "We offer 10 distinct tiers designed for different needs and business stages. Free gets you started with essentials. Starter covers fundamentals for new entrepreneurs who are just getting going. Growth provides proven scaling strategies for businesses that have found their footing. Enterprise offers comprehensive playbooks for larger operations managing complex teams and markets. Most Pressing addresses urgent, time-sensitive challenges that need solutions now. Boring but Necessary covers essential compliance, documentation, and operational foundations that every business needs but often overlooks. Pain Points focuses on identifying and solving the biggest frustrations your customers face. Ethical Hacks delivers smart, responsible shortcuts and growth strategies. Trending Use Cases helps you capitalize on hot emerging opportunities before the competition catches on. And Power Prompts gives you collections of high-impact AI prompts you can use across your business immediately."
+    question: "What's the difference between the categories?",
+    answer: "We offer 10 distinct categories designed for different needs and business stages. Free gets you started with essentials. Starter covers fundamentals for new entrepreneurs who are just getting going. Growth provides proven scaling strategies for businesses that have found their footing. Enterprise offers comprehensive playbooks for larger operations managing complex teams and markets. Most Pressing addresses urgent, time-sensitive challenges that need solutions now. Boring but Necessary covers essential compliance, documentation, and operational foundations that every business needs but often overlooks. Pain Points focuses on identifying and solving the biggest frustrations your customers face. Ethical Hacks delivers smart, responsible shortcuts and growth strategies. Trending Use Cases helps you capitalize on hot emerging opportunities before the competition catches on. And Power Prompts gives you collections of high-impact AI prompts you can use across your business immediately."
   },
   {
     question: "What are Pain Points blueprints?",
@@ -250,7 +250,7 @@ const faqs = [
   },
   {
     question: "What is the Blueprint Studio and how does it work?",
-    answer: "The Blueprint Studio is your personal blueprint creation tool. Instead of browsing the marketplace for pre-made guides, you can generate a completely custom blueprint on any business topic you choose. Simply pick a topic, select a tier and category, and our AI engine will research and produce a comprehensive guide in seconds. You download it as a polished Word document with full resale rights included, meaning you can use it in your business, share it with clients, or even sell it as your own product. The Studio also includes Discover and Analyze tools to help you research trending business needs and validate topics before generating."
+    answer: "The Blueprint Studio is your personal blueprint creation tool. Instead of browsing the marketplace for pre-made guides, you can generate a completely custom blueprint on any business topic you choose. Simply pick a topic, select a category and focus area, and our AI engine will research and produce a comprehensive guide in seconds. You download it as a polished Word document with full resale rights included, meaning you can use it in your business, share it with clients, or even sell it as your own product. The Studio also includes Discover and Analyze tools to help you research trending business needs and validate topics before generating."
   },
   {
     question: "How do Blueprint Studio credits work?",
@@ -266,7 +266,7 @@ const faqs = [
   },
   {
     question: "How often is new content added?",
-    answer: "We continuously add new blueprints to the marketplace based on market demands and emerging business trends. Our AI research engine is constantly analyzing opportunities across all industries, so you'll see fresh content added regularly across all 10 tier levels. Beyond the marketplace, the Blueprint Studio lets you generate content on any topic at any time, so you're never limited to what's already available. If there's a niche topic or emerging trend you need a guide for, you can create one yourself in minutes."
+    answer: "We continuously add new blueprints to the marketplace based on market demands and emerging business trends. Our AI research engine is constantly analyzing opportunities across all industries, so you'll see fresh content added regularly across all 10 categories. Beyond the marketplace, the Blueprint Studio lets you generate content on any topic at any time, so you're never limited to what's already available. If there's a niche topic or emerging trend you need a guide for, you can create one yourself in minutes."
   },
   {
     question: "What makes actionable blueprints so powerful?",
@@ -394,7 +394,7 @@ export default function LandingPage() {
             <div className="text-center mb-16">
               <Badge variant="outline" className="mb-4 px-3 py-1">
                 <Target className="h-3 w-3 mr-1.5" />
-                10 Specialized Tiers
+                10 Specialized Categories
               </Badge>
               <h2 className="font-serif text-3xl font-bold">Choose Your Path</h2>
               <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
