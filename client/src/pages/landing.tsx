@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
+import { Badge } from "@/components/ui/badge";
 import { 
   ArrowRight, 
   Sparkles, 
@@ -20,7 +21,10 @@ import {
   AlertTriangle,
   Lightbulb,
   Flame,
-  MessageSquareText
+  MessageSquareText,
+  CreditCard,
+  Star,
+  Coins,
 } from "lucide-react";
 import {
   Accordion,
@@ -364,7 +368,86 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="py-24">
+      <section className="py-24" id="credits">
+        <div className="container">
+          <div className="mx-auto max-w-4xl">
+            <div className="text-center mb-12">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 mb-4">
+                <Coins className="h-6 w-6 text-accent" />
+              </div>
+              <h2 className="font-serif text-3xl font-bold">Blueprint Studio Credits</h2>
+              <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
+                Purchase credits to generate custom business blueprints on any topic. Each blueprint comes with full resale rights and downloads as a polished Word document.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { id: "single", credits: 1, price: "$10", perCredit: "$10.00", label: "Starter", desc: "Try it out" },
+                { id: "five", credits: 5, price: "$40", perCredit: "$8.00", label: "Popular", desc: "Best for growing businesses", popular: true },
+                { id: "ten", credits: 10, price: "$75", perCredit: "$7.50", label: "Best Value", desc: "Maximum savings" },
+              ].map((pkg) => (
+                <Card key={pkg.id} className={pkg.popular ? "border-primary/50 relative" : ""} data-testid={`card-landing-package-${pkg.id}`}>
+                  {pkg.popular && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                      <Badge className="bg-primary text-primary-foreground">
+                        <Star className="h-3 w-3 mr-1" />
+                        Most Popular
+                      </Badge>
+                    </div>
+                  )}
+                  <CardContent className="p-6 text-center space-y-4 pt-8">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">{pkg.label}</p>
+                      <p className="text-3xl font-bold text-foreground mt-1">{pkg.price}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{pkg.perCredit} per blueprint</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm text-foreground">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                        <span>{pkg.credits} Blueprint Credit{pkg.credits > 1 ? "s" : ""}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-foreground">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                        <span>Full Resale Rights</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-foreground">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                        <span>DOCX Download</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-foreground">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                        <span>{pkg.desc}</span>
+                      </div>
+                    </div>
+                    <Link href="/studio?tab=credits">
+                      <Button
+                        className="w-full"
+                        variant={pkg.popular ? "default" : "outline"}
+                        data-testid={`button-landing-purchase-${pkg.id}`}
+                      >
+                        <CreditCard className="h-4 w-4 mr-1.5" />
+                        Get Credits
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <div className="text-center mt-8">
+              <Link href="/studio">
+                <Button variant="outline" size="lg" className="gap-2" data-testid="button-open-studio">
+                  <Sparkles className="h-4 w-4" />
+                  Open Blueprint Studio
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-muted/30">
         <div className="container">
           <div className="mx-auto max-w-3xl">
             <div className="text-center mb-12">

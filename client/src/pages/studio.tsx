@@ -45,6 +45,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import type { BlueprintTier, GeneratedBlueprint } from "@shared/schema";
 import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 
 const tierOptions: { value: string; label: string; icon: typeof BookOpen }[] = [
   { value: "starter", label: "Beginner", icon: BookOpen },
@@ -73,6 +74,7 @@ const categoryOptions = [
 
 export default function StudioPage() {
   const { toast } = useToast();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [location] = useLocation();
   const [activeTab, setActiveTab] = useState("generate");
   const [topic, setTopic] = useState("");
@@ -87,14 +89,17 @@ export default function StudioPage() {
 
   const creditsQuery = useQuery<{ balance: number; totalPurchased: number; totalUsed: number }>({
     queryKey: ["/api/credits"],
+    enabled: isAuthenticated,
   });
 
   const blueprintsQuery = useQuery<{ blueprints: GeneratedBlueprint[] }>({
     queryKey: ["/api/studio/blueprints"],
+    enabled: isAuthenticated,
   });
 
   const transactionsQuery = useQuery<{ transactions: any[] }>({
     queryKey: ["/api/credits/transactions"],
+    enabled: isAuthenticated,
   });
 
   useEffect(() => {
@@ -236,14 +241,20 @@ export default function StudioPage() {
             <p className="text-muted-foreground text-sm">Generate custom business blueprints with full resale rights</p>
           </div>
           <div className="flex flex-row items-center gap-3 flex-wrap">
-            <Card className="px-4 py-2">
-              <div className="flex items-center gap-2">
-                <Coins className="h-4 w-4 text-amber-500" />
-                <span className="text-sm font-medium" data-testid="text-credit-balance">
-                  {creditsQuery.isLoading ? "..." : balance} Credit{balance !== 1 ? "s" : ""}
-                </span>
-              </div>
-            </Card>
+            {isAuthenticated ? (
+              <Card className="px-4 py-2">
+                <div className="flex items-center gap-2">
+                  <Coins className="h-4 w-4 text-amber-500" />
+                  <span className="text-sm font-medium" data-testid="text-credit-balance">
+                    {creditsQuery.isLoading ? "..." : balance} Credit{balance !== 1 ? "s" : ""}
+                  </span>
+                </div>
+              </Card>
+            ) : (
+              <Button asChild data-testid="button-studio-login">
+                <a href="/api/login">Sign In to Get Started</a>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -272,7 +283,26 @@ export default function StudioPage() {
           </TabsList>
 
           <TabsContent value="generate" className="space-y-6">
-            {balance === 0 && !creditsQuery.isLoading && (
+            {!isAuthenticated && (
+              <Card className="border-primary/30 bg-primary/5">
+                <CardContent className="p-4 flex flex-row items-center justify-between gap-4 flex-wrap">
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="font-medium text-foreground">Sign In to Generate Blueprints</p>
+                      <p className="text-sm text-muted-foreground">Create an account to purchase credits and start generating custom blueprints</p>
+                    </div>
+                  </div>
+                  <Button asChild data-testid="button-generate-login">
+                    <a href="/api/login">
+                      <ArrowRight className="h-4 w-4 mr-1.5" />
+                      Sign In
+                    </a>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+            {isAuthenticated && balance === 0 && !creditsQuery.isLoading && (
               <Card className="border-amber-500/30 bg-amber-500/5">
                 <CardContent className="p-4 flex flex-row items-center justify-between gap-4 flex-wrap">
                   <div className="flex items-center gap-3">
@@ -338,25 +368,34 @@ export default function StudioPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <Button
-                    className="w-full"
-                    onClick={() => generateMutation.mutate()}
-                    disabled={!topic.trim() || generateMutation.isPending || balance === 0}
-                    data-testid="button-generate"
-                  >
-                    {generateMutation.isPending ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="h-4 w-4 mr-1.5" />
-                        Generate Blueprint (1 Credit)
-                      </>
-                    )}
-                  </Button>
-                  {balance > 0 && (
+                  {isAuthenticated ? (
+                    <Button
+                      className="w-full"
+                      onClick={() => generateMutation.mutate()}
+                      disabled={!topic.trim() || generateMutation.isPending || balance === 0}
+                      data-testid="button-generate"
+                    >
+                      {generateMutation.isPending ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4 mr-1.5" />
+                          Generate Blueprint (1 Credit)
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <Button className="w-full" asChild data-testid="button-generate-signin">
+                      <a href="/api/login">
+                        <ArrowRight className="h-4 w-4 mr-1.5" />
+                        Sign In to Generate
+                      </a>
+                    </Button>
+                  )}
+                  {isAuthenticated && balance > 0 && (
                     <p className="text-xs text-muted-foreground text-center">
                       {balance} credit{balance !== 1 ? "s" : ""} remaining
                     </p>
@@ -446,24 +485,33 @@ export default function StudioPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <Button
-                    className="w-full"
-                    onClick={() => discoverMutation.mutate()}
-                    disabled={discoverMutation.isPending}
-                    data-testid="button-discover"
-                  >
-                    {discoverMutation.isPending ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                        Discovering...
-                      </>
-                    ) : (
-                      <>
-                        <Search className="h-4 w-4 mr-1.5" />
-                        Discover Trends
-                      </>
-                    )}
-                  </Button>
+                  {isAuthenticated ? (
+                    <Button
+                      className="w-full"
+                      onClick={() => discoverMutation.mutate()}
+                      disabled={discoverMutation.isPending}
+                      data-testid="button-discover"
+                    >
+                      {discoverMutation.isPending ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                          Discovering...
+                        </>
+                      ) : (
+                        <>
+                          <Search className="h-4 w-4 mr-1.5" />
+                          Discover Trends
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <Button className="w-full" asChild data-testid="button-discover-signin">
+                      <a href="/api/login">
+                        <ArrowRight className="h-4 w-4 mr-1.5" />
+                        Sign In to Discover Trends
+                      </a>
+                    </Button>
+                  )}
 
                   {discoverMutation.data?.result && (
                     <div className="prose prose-sm dark:prose-invert max-h-[400px] overflow-y-auto pt-2">
@@ -490,24 +538,33 @@ export default function StudioPage() {
                       data-testid="input-analyze-topic"
                     />
                   </div>
-                  <Button
-                    className="w-full"
-                    onClick={() => analyzeMutation.mutate()}
-                    disabled={!analyzeTopic.trim() || analyzeMutation.isPending}
-                    data-testid="button-analyze"
-                  >
-                    {analyzeMutation.isPending ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                        Analyzing...
-                      </>
-                    ) : (
-                      <>
-                        <Zap className="h-4 w-4 mr-1.5" />
-                        Analyze Topic
-                      </>
-                    )}
-                  </Button>
+                  {isAuthenticated ? (
+                    <Button
+                      className="w-full"
+                      onClick={() => analyzeMutation.mutate()}
+                      disabled={!analyzeTopic.trim() || analyzeMutation.isPending}
+                      data-testid="button-analyze"
+                    >
+                      {analyzeMutation.isPending ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                          Analyzing...
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="h-4 w-4 mr-1.5" />
+                          Analyze Topic
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <Button className="w-full" asChild data-testid="button-analyze-signin">
+                      <a href="/api/login">
+                        <ArrowRight className="h-4 w-4 mr-1.5" />
+                        Sign In to Analyze
+                      </a>
+                    </Button>
+                  )}
 
                   {analyzeMutation.data?.analysis && (
                     <div className="prose prose-sm dark:prose-invert max-h-[400px] overflow-y-auto pt-2">
@@ -520,6 +577,24 @@ export default function StudioPage() {
           </TabsContent>
 
           <TabsContent value="blueprints" className="space-y-4">
+            {!isAuthenticated ? (
+              <Card className="border-primary/30 bg-primary/5">
+                <CardContent className="p-6 text-center space-y-4">
+                  <FileText className="h-10 w-10 mx-auto text-primary" />
+                  <div>
+                    <p className="font-medium text-foreground text-lg">Sign In to View Your Blueprints</p>
+                    <p className="text-sm text-muted-foreground mt-1">Create an account to generate and manage your custom business blueprints</p>
+                  </div>
+                  <Button asChild data-testid="button-blueprints-login">
+                    <a href="/api/login">
+                      <ArrowRight className="h-4 w-4 mr-1.5" />
+                      Sign In
+                    </a>
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+            <>
             <div className="flex flex-row items-center justify-between gap-4 flex-wrap">
               <h2 className="text-lg font-semibold text-foreground">My Generated Blueprints</h2>
               <Badge variant="secondary">
@@ -590,6 +665,8 @@ export default function StudioPage() {
                 </CardContent>
               </Card>
             )}
+            </>
+            )}
           </TabsContent>
 
           <TabsContent value="prompts" className="space-y-6">
@@ -629,30 +706,39 @@ export default function StudioPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <Button
-                    className="w-full"
-                    onClick={() => promptMutation.mutate()}
-                    disabled={!promptTopic.trim() || promptMutation.isPending || balance === 0}
-                    data-testid="button-generate-prompts"
-                  >
-                    {promptMutation.isPending ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                        Generating Prompts...
-                      </>
-                    ) : (
-                      <>
-                        <MessageSquareText className="h-4 w-4 mr-1.5" />
-                        Generate Prompts (1 Credit)
-                      </>
-                    )}
-                  </Button>
-                  {balance > 0 && (
+                  {isAuthenticated ? (
+                    <Button
+                      className="w-full"
+                      onClick={() => promptMutation.mutate()}
+                      disabled={!promptTopic.trim() || promptMutation.isPending || balance === 0}
+                      data-testid="button-generate-prompts"
+                    >
+                      {promptMutation.isPending ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                          Generating Prompts...
+                        </>
+                      ) : (
+                        <>
+                          <MessageSquareText className="h-4 w-4 mr-1.5" />
+                          Generate Prompts (1 Credit)
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <Button className="w-full" asChild data-testid="button-prompts-signin">
+                      <a href="/api/login">
+                        <ArrowRight className="h-4 w-4 mr-1.5" />
+                        Sign In to Generate Prompts
+                      </a>
+                    </Button>
+                  )}
+                  {isAuthenticated && balance > 0 && (
                     <p className="text-xs text-muted-foreground text-center">
                       {balance} credit{balance !== 1 ? "s" : ""} remaining
                     </p>
                   )}
-                  {balance === 0 && !creditsQuery.isLoading && (
+                  {isAuthenticated && balance === 0 && !creditsQuery.isLoading && (
                     <Button variant="outline" className="w-full" onClick={() => setActiveTab("credits")} data-testid="button-prompts-buy-credits">
                       <ShoppingCart className="h-4 w-4 mr-1.5" />
                       Buy Credits to Get Started
@@ -784,29 +870,50 @@ export default function StudioPage() {
           </TabsContent>
 
           <TabsContent value="credits" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardContent className="p-4 text-center space-y-1">
-                  <Coins className="h-6 w-6 mx-auto text-amber-500" />
-                  <p className="text-2xl font-bold text-foreground" data-testid="text-credits-balance">{creditsQuery.data?.balance || 0}</p>
-                  <p className="text-xs text-muted-foreground">Available Credits</p>
+            {!isAuthenticated && (
+              <Card className="border-primary/30 bg-primary/5">
+                <CardContent className="p-4 flex flex-row items-center justify-between gap-4 flex-wrap">
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="font-medium text-foreground">Sign In to Purchase Credits</p>
+                      <p className="text-sm text-muted-foreground">Create an account to buy credits and start generating custom blueprints</p>
+                    </div>
+                  </div>
+                  <Button asChild data-testid="button-credits-login">
+                    <a href="/api/login">
+                      <ArrowRight className="h-4 w-4 mr-1.5" />
+                      Sign In
+                    </a>
+                  </Button>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent className="p-4 text-center space-y-1">
-                  <ShoppingCart className="h-6 w-6 mx-auto text-green-500" />
-                  <p className="text-2xl font-bold text-foreground">{creditsQuery.data?.totalPurchased || 0}</p>
-                  <p className="text-xs text-muted-foreground">Total Purchased</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4 text-center space-y-1">
-                  <Sparkles className="h-6 w-6 mx-auto text-blue-500" />
-                  <p className="text-2xl font-bold text-foreground">{creditsQuery.data?.totalUsed || 0}</p>
-                  <p className="text-xs text-muted-foreground">Blueprints Generated</p>
-                </CardContent>
-              </Card>
-            </div>
+            )}
+            {isAuthenticated && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card>
+                  <CardContent className="p-4 text-center space-y-1">
+                    <Coins className="h-6 w-6 mx-auto text-amber-500" />
+                    <p className="text-2xl font-bold text-foreground" data-testid="text-credits-balance">{creditsQuery.data?.balance || 0}</p>
+                    <p className="text-xs text-muted-foreground">Available Credits</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 text-center space-y-1">
+                    <ShoppingCart className="h-6 w-6 mx-auto text-green-500" />
+                    <p className="text-2xl font-bold text-foreground">{creditsQuery.data?.totalPurchased || 0}</p>
+                    <p className="text-xs text-muted-foreground">Total Purchased</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 text-center space-y-1">
+                    <Sparkles className="h-6 w-6 mx-auto text-blue-500" />
+                    <p className="text-2xl font-bold text-foreground">{creditsQuery.data?.totalUsed || 0}</p>
+                    <p className="text-xs text-muted-foreground">Blueprints Generated</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
             <h3 className="text-lg font-semibold text-foreground">Purchase Credits</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -851,8 +958,8 @@ export default function StudioPage() {
                     <Button
                       className="w-full"
                       variant={pkg.popular ? "default" : "outline"}
-                      onClick={() => purchaseMutation.mutate(pkg.id)}
-                      disabled={purchaseMutation.isPending}
+                      onClick={() => isAuthenticated ? purchaseMutation.mutate(pkg.id) : (window.location.href = "/api/login")}
+                      disabled={isAuthenticated && purchaseMutation.isPending}
                       data-testid={`button-purchase-${pkg.id}`}
                     >
                       {purchaseMutation.isPending ? (

@@ -97,9 +97,7 @@ function Router() {
       <Route path="/profile">
         <ProtectedRoute component={ProfilePage} />
       </Route>
-      <Route path="/studio">
-        <ProtectedRoute component={StudioPage} />
-      </Route>
+      <Route path="/studio" component={StudioPage} />
       <Route path="/admin">
         <AdminRoute component={AdminPage} />
       </Route>
