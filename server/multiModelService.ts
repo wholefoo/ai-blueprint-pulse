@@ -1,27 +1,27 @@
 import OpenAI from "openai";
 
 const openaiClient = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY || "placeholder",
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
 
 const anthropicClient = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
+  apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY || "placeholder",
   baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
 });
 
 const geminiClient = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY,
+  apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY || "placeholder",
   baseURL: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL,
 });
 
 const openrouterClient = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
+  apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY || "placeholder",
   baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
 });
 
 const perplexityClient = new OpenAI({
-  apiKey: process.env.PERPLEXITY_API_KEY,
+  apiKey: process.env.PERPLEXITY_API_KEY || "placeholder",
   baseURL: "https://api.perplexity.ai",
 });
 
