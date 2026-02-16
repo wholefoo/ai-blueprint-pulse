@@ -7,6 +7,11 @@ AI Blueprint Pulse is a SaaS digital marketplace for marketing and selling busin
 **Design Theme**: Fintech-inspired aesthetic with deep navy primary colors and clean white backgrounds using Inter typography.
 
 ## Recent Changes (February 2026)
+- Blueprint Quality Improvements
+  - Enhanced generation prompt with strict no-filler rules, anti-AI-tells, specificity requirements, professional prose standards
+  - Added Claude-powered post-generation quality review pass (qualityReviewPass in server/openai.ts)
+  - Upgraded DOCX service with proper Markdown table rendering, code blocks, checkboxes, nested lists, branded headers/footers, page numbers
+  - Added OIDC auth retry logic with graceful server startup fallback when auth service is temporarily unavailable
 - Added Multi-Model AI Analysis (ChatGPT + Claude + Gemini + Grok + Perplexity)
   - server/multiModelService.ts: queries all 5 AI models in parallel, synthesizes results
   - Blueprint Studio generation now uses multi-model research before generating content

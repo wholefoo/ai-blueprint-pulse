@@ -2,7 +2,8 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import express from "express";
 import { storage } from "./storage";
-import { isAuthenticated, setupAuth, registerAuthRoutes } from "./replit_integrations/auth";
+import passport from "passport";
+import { isAuthenticated, setupAuth, getSession, registerAuthRoutes } from "./replit_integrations/auth";
 import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClient";
 import { WebhookHandlers } from "./webhookHandlers";
 import { analyzeBusinessTrends, generateBlueprintContent, discoverTrendingNeeds } from "./openai";
@@ -52,8 +53,17 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   
-  // Setup Replit Auth (session, passport, login/logout routes)
-  await setupAuth(app);
+  try {
+    await setupAuth(app);
+  } catch (error) {
+    console.error("[Auth] Failed to setup auth on startup (OIDC may be unavailable):", error instanceof Error ? error.message : error);
+    console.log("[Auth] Server will start without auth. Auth routes will return 503 until OIDC recovers.");
+    app.use(getSession());
+    app.use(passport.initialize());
+    app.use(passport.session());
+    passport.serializeUser((user: Express.User, cb: any) => cb(null, user));
+    passport.deserializeUser((user: Express.User, cb: any) => cb(null, user));
+  }
   registerAuthRoutes(app);
   
   // Stripe webhook - MUST be before express.json()

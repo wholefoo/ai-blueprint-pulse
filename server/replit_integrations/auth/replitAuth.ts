@@ -10,10 +10,20 @@ import { authStorage } from "./storage";
 
 const getOidcConfig = memoize(
   async () => {
-    return await client.discovery(
-      new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
-      process.env.REPL_ID!
-    );
+    const maxRetries = 3;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await client.discovery(
+          new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
+          process.env.REPL_ID!
+        );
+      } catch (error) {
+        if (attempt === maxRetries) throw error;
+        console.log(`[Auth] OIDC discovery attempt ${attempt} failed, retrying in ${attempt * 2}s...`);
+        await new Promise((r) => setTimeout(r, attempt * 2000));
+      }
+    }
+    throw new Error("OIDC discovery failed after retries");
   },
   { maxAge: 3600 * 1000 }
 );

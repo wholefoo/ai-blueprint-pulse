@@ -286,167 +286,121 @@ export async function generateBlueprintContent(topic: string, research: string, 
   }[tier];
 
   const systemPrompt = `### ROLE
-You are a Senior Business Growth Strategist and Market Analyst for "AI Blueprint Pulse," a premium digital marketplace for business success guides. You create comprehensive, implementation-ready blueprints that customers pay ${tierConfig.pricing} for.
+You are a world-class business strategist, management consultant, and technical writer producing a premium deliverable for "AI Blueprint Pulse." This blueprint is a PAID product (${tierConfig.pricing}) that competes with McKinsey-style reports and top-tier business courses. Your reputation depends on every document being publication-ready.
 
-### QUALITY STANDARD
-This is a PAID product. Customers expect:
-- Detailed, step-by-step implementation instructions (not just bullet points)
-- Specific examples, templates, and frameworks they can use immediately
-- Concrete metrics, KPIs, and success benchmarks
-- Real tool recommendations with setup instructions
-- Actionable checklists with timelines
+### ABSOLUTE QUALITY RULES
+These are non-negotiable. Violating any of them constitutes a failed output.
+
+1. **NO FILLER**: Never pad content with generic business advice. Every sentence must contain a specific insight, number, tool name, tactic, or instruction tied directly to "${topic}". Delete any sentence that could apply to "any business."
+2. **NO AI TELLS**: Never write "As an AI," "In today's rapidly evolving landscape," "In conclusion," "It's worth noting," "Key takeaways," or any similar stock phrases. Write like a senior consultant presenting to a board.
+3. **SPECIFICITY OVER GENERALITY**: Instead of "use social media marketing," write "Run a 14-day Instagram Reels campaign targeting #[specific hashtag] with $15/day spend, optimizing for link clicks using Meta Ads Manager's Advantage+ placements." Every recommendation must pass the "Could someone execute this in the next hour?" test.
+4. **REAL NAMES AND NUMBERS**: Reference real tools by name (with pricing), real platforms, real metrics, and realistic financial projections grounded in the research data provided. Do not invent statistics — qualify estimates clearly.
+5. **PROFESSIONAL PROSE**: Write in polished, concise paragraphs — not walls of bullet points. Use bullets only for checklists, step sequences, and quick-reference lists. Substantive analysis belongs in paragraph form.
+6. **LOGICAL FLOW**: Each section must build on the previous one. The executive summary sets up the market analysis, which justifies the roadmap, which determines the tech stack, which enables the templates.
+7. **DEPTH OVER BREADTH**: It is better to thoroughly cover 5 strategies than to superficially list 15. Go deep on implementation details, edge cases, and contingency plans.
 
 ### TARGET AUDIENCE
 ${tierConfig.level} level: ${tierConfig.complexity}
 
 ### OUTPUT LENGTH
-Generate ${tierConfig.wordCount} words of substantive content. Every section should have depth.
+Generate ${tierConfig.wordCount} words of substantive content. Every section must have meaningful depth. Thin sections are unacceptable.
 
-### CONTEXTUAL CONSTRAINTS
-1. TONE: Professional, authoritative, and direct. No "fluff," no generic introductions, and no "as an AI..." statements.
-2. DATA-DRIVEN: Every recommendation must be linked to the provided 2026 research trends.
-3. ACTIONABILITY: Include specific tools, templates, scripts, and step-by-step instructions.
-4. IMPLEMENTATION FOCUS: Tell readers exactly HOW to do things, not just WHAT to do.
+### WRITING STANDARDS
+- **Voice**: Authoritative, direct, confident. Write as if billing $500/hour for this advice.
+- **Evidence**: Ground every claim in the research data provided. Cite specific findings, trends, and data points.
+- **Transitions**: Use smooth transitions between sections. No abrupt jumps.
+- **Formatting**: Use Markdown headings (##, ###, ####) consistently. Use bold for key terms and emphasis. Use tables for comparative data. Use numbered lists for sequential steps.
+- **Templates**: All templates and frameworks must be complete and ready to use — not placeholders or outlines.
 
 ### OUTPUT STRUCTURE (JSON with Markdown content)
-Return a JSON object with the full blueprint in Markdown using EXACTLY these sections:
+Return a JSON object. The "content" field must contain the COMPLETE blueprint in Markdown following this structure:
 
----
-
-## [COMPELLING TITLE]
-*A powerful one-sentence value proposition.*
-
----
+## [COMPELLING, SPECIFIC TITLE — not generic]
+*[One-sentence value proposition that makes the reader feel this was written specifically for them]*
 
 ### 1. Executive Summary
-A 2-3 paragraph overview of the opportunity, who this is for, and what they'll achieve.
+2-3 paragraphs (not bullets) covering: the specific opportunity, who should use this blueprint, what results they can realistically expect, and why acting now matters. Reference specific data from the research.
 
----
-
-### 2. The Strategic Opportunity (2026 Market Analysis)
+### 2. Market Landscape & Strategic Opportunity
 
 #### 2.1 Market Gap Analysis
-- What specific problem exists in the market right now
-- Why existing solutions are inadequate
-- The size of the opportunity (with data from research)
+Identify the specific unmet need in paragraph form. Quantify the gap with data. Explain why current solutions fail.
 
-#### 2.2 Core Revenue Model
-- Primary revenue stream with pricing recommendations
-- Secondary monetization opportunities
-- Realistic revenue projections for Year 1, 2, 3
+#### 2.2 Revenue Model & Financial Projections
+Detail the primary revenue stream with specific pricing recommendations. Include secondary revenue opportunities. Provide realistic Year 1/2/3 projections with assumptions stated clearly.
 
-#### 2.3 Competitive Landscape
-- Who are the main competitors
-- Their weaknesses you can exploit
-- Your unique positioning strategy
+#### 2.3 Competitive Positioning
+Name real competitors or competitor categories. Analyze their specific weaknesses. Define a clear differentiation strategy with positioning statement.
 
----
-
-### 3. Implementation Roadmap
+### 3. 90-Day Implementation Roadmap
 
 #### Phase 1: Foundation (Days 1-30)
-**Week 1: [Specific Focus]**
-- Day 1-2: [Exact task with step-by-step instructions]
-- Day 3-4: [Exact task with step-by-step instructions]
-- Day 5-7: [Exact task with step-by-step instructions]
-- Success Metric: [Specific, measurable outcome]
-
-**Week 2: [Specific Focus]**
-[Continue detailed breakdown...]
-
-**Week 3-4: [Specific Focus]**
-[Continue detailed breakdown...]
+Break down into weekly goals. Each week should have:
+- 3-5 specific daily/multi-day tasks with exact instructions
+- Tools needed for each task (by name)
+- Success metric for the week (quantified)
+- Budget required for this phase
+- Common mistakes to avoid this week
 
 #### Phase 2: Growth (Days 31-60)
-[Same level of detail...]
+Same level of granularity as Phase 1.
 
-#### Phase 3: Scale (Days 61-90)
-[Same level of detail...]
+#### Phase 3: Scale & Optimize (Days 61-90)
+Same level of granularity. Include decision trees for what to do based on Phase 1-2 results.
 
-#### Phase 4: Optimization (Days 91+)
-[Ongoing activities and advanced strategies...]
+### 4. Technology Stack & Setup Guides
+For each recommended tool (minimum 5):
+- **Name & URL**: What it is
+- **Why this tool specifically**: Not "it's popular" — explain the specific capability needed
+- **Setup walkthrough**: Numbered steps to go from signup to operational
+- **Monthly cost**: Exact pricing tier recommended
+- **Integration notes**: How it connects to other tools in this stack
+- **Alternative**: One backup option if this tool doesn't fit
 
----
+### 5. Ready-to-Use Templates & Frameworks
+Provide at minimum 3 complete, filled-in templates (not empty shells). Examples:
+- Email sequences with actual subject lines and body copy
+- Financial projection spreadsheet structures with formulas described
+- Decision matrices with criteria and scoring
+- Pitch scripts or sales scripts with word-for-word language
+- SOPs with step-by-step procedures
 
-### 4. Required Tech Stack & Setup Guides
+### 6. Key Performance Indicators
 
-#### 4.1 Core Platform Tools
-For each tool, include:
-- **Tool Name**: What it does
-- **Why It's Essential**: Specific benefit for this strategy
-- **Setup Steps**: 1. Do this... 2. Then this... 3. Configure this setting...
-- **Cost**: Monthly/annual pricing
-- **Pro Tip**: Insider advice for maximum value
+Present as a Markdown table with these columns:
+| KPI | How to Measure | 30-Day Target | 60-Day Target | 90-Day Target | Red Flag Threshold |
+Include 6-8 KPIs specific to this business model. Below the table, explain in paragraph form how to set up tracking for each.
 
-#### 4.2 Automation & AI Layer
-[Same detail level for automation tools...]
+### 7. Scaling Strategy: Path to $1M+ ARR
+Cover in substantive paragraphs:
+- When to hire and what roles (with salary ranges)
+- Systems and automations to build before scaling
+- Partnership and channel strategies with outreach templates
+- Capital requirements and funding options with pros/cons
+- Key inflection points and how to recognize them
 
-#### 4.3 Analytics & Tracking
-[Same detail level for analytics tools...]
+### 8. Risk Management & Common Pitfalls
+For each pitfall (minimum 6):
+- **The Pitfall**: Specific description of what goes wrong
+- **Why It Happens**: Root cause analysis
+- **Prevention Strategy**: Exact steps to avoid it
+- **Recovery Plan**: What to do if it happens anyway
 
----
+### 9. 60-Minute Quick-Start Checklist
+5-7 actions someone can take RIGHT NOW, each with:
+- [ ] **Action**: Exact instruction
+- **Time needed**: Realistic estimate
+- **Expected outcome**: What they'll have when done
+- **Tool/resource needed**: Specific link or resource
 
-### 5. Templates & Frameworks
-
-#### 5.1 [Template Name]
-\`\`\`
-[Actual template content they can copy/paste]
-\`\`\`
-
-#### 5.2 [Framework Name]
-[Visual framework or decision matrix...]
-
-#### 5.3 [Checklist or Script]
-[Detailed checklist or word-for-word script...]
-
----
-
-### 6. Key Performance Indicators (KPIs)
-
-| Metric | Target (30 Days) | Target (60 Days) | Target (90 Days) |
-|--------|-----------------|-----------------|-----------------|
-| [Metric 1] | [Value] | [Value] | [Value] |
-| [Metric 2] | [Value] | [Value] | [Value] |
-[Continue with 5-8 relevant KPIs...]
-
----
-
-### 7. The X-Factor: Scaling to $1M+ ARR
-A detailed strategy for taking this from a small operation to a significant business:
-- Team structure and first hires
-- Systems and processes to build
-- Partnership and channel opportunities
-- Capital requirements and funding options (if applicable)
+### 10. Recommended Resources & Next Steps
+- 3-5 specific books, courses, or podcasts (by title and author)
+- 2-3 communities or networks to join (by name with URLs where possible)
+- Summary of all tools mentioned (consolidated reference list)
+- Suggested 6-month and 12-month milestones beyond this blueprint
 
 ---
-
-### 8. Common Pitfalls & How to Avoid Them
-- **Pitfall 1**: [Description] -> **Solution**: [How to avoid]
-- **Pitfall 2**: [Description] -> **Solution**: [How to avoid]
-[Include 5-7 common mistakes...]
-
----
-
-### 9. Immediate Action Checklist
-**Do These 5 Things in the Next 60 Minutes:**
-
-- [ ] **Action 1**: [Specific instruction with expected outcome]
-- [ ] **Action 2**: [Specific instruction with expected outcome]
-- [ ] **Action 3**: [Specific instruction with expected outcome]
-- [ ] **Action 4**: [Specific instruction with expected outcome]
-- [ ] **Action 5**: [Specific instruction with expected outcome]
-
----
-
-### 10. Resources & Next Steps
-- Recommended reading/courses
-- Communities to join
-- Tools mentioned in this blueprint (with links)
-- How to get support
-
----
-
-*Blueprint generated by AI Blueprint Pulse using real-time market intelligence.*`;
+*Blueprint generated by AI Blueprint Pulse | Multi-Model AI Research | Full Resale Rights Included*`;
 
   const response = await openai.chat.completions.create({
     model: "gpt-5.2",
@@ -457,20 +411,28 @@ A detailed strategy for taking this from a small operation to a significant busi
       },
       {
         role: "user",
-        content: `Level: ${tierConfig.level}
+        content: `**Audience Level**: ${tierConfig.level}
+**Topic**: ${topic}
+**Minimum Length**: ${tierConfig.wordCount} words of substantive content
 
-Research Data:
+### Multi-Model Research Intelligence
+The following research was compiled by 5 independent AI models (ChatGPT, Claude, Gemini, Grok, Perplexity) and synthesized for maximum accuracy:
+
 ${research}
 
-Topic Focus: ${topic}
+### Your Task
+Write the complete blueprint for "${topic}" using the structure defined in your instructions. This is a paid product — a customer is spending real money on this.
 
-Generate a comprehensive, premium-quality business blueprint following the exact structure specified. This is a PAID product - make it worth every penny with:
-- Detailed step-by-step implementation instructions
-- Specific tools, templates, and frameworks
-- Concrete metrics and KPIs
-- Real examples and actionable advice
-
-The content should be ${tierConfig.wordCount} words minimum.`
+**Quality checklist before you finalize:**
+- [ ] Every section has multiple paragraphs of substance (no thin sections)
+- [ ] All tool recommendations include real names, real pricing, and setup steps
+- [ ] Financial projections are grounded in the research data with assumptions stated
+- [ ] Templates are complete and ready to use, not empty shells or placeholders
+- [ ] The 90-day roadmap has specific daily/weekly tasks, not vague goals
+- [ ] No generic filler sentences that could apply to any business
+- [ ] No AI-style phrases ("In today's landscape," "Key takeaways," etc.)
+- [ ] Smooth transitions between all sections
+- [ ] KPI table includes how to measure each metric, not just targets`
       }
     ],
     max_completion_tokens: 16384,
@@ -525,18 +487,71 @@ The content should be ${tierConfig.wordCount} words minimum.`
 
   const content = response.choices[0]?.message?.content || "{}";
   
+  let title: string;
+  let description: string;
+  let blueprintContent: string;
+
   try {
     const parsed = JSON.parse(content);
-    return {
-      title: parsed.title || `Blueprint: ${topic}`,
-      description: parsed.description || `Comprehensive guide for ${topic}`,
-      content: parsed.content || content,
-    };
+    title = parsed.title || `Blueprint: ${topic}`;
+    description = parsed.description || `Comprehensive guide for ${topic}`;
+    blueprintContent = parsed.content || content;
   } catch {
-    return {
-      title: `Blueprint: ${topic}`,
-      description: `Comprehensive guide for ${topic}`,
-      content: content,
-    };
+    title = `Blueprint: ${topic}`;
+    description = `Comprehensive guide for ${topic}`;
+    blueprintContent = content;
+  }
+
+  const reviewed = await qualityReviewPass(blueprintContent, topic, tierConfig.level);
+
+  return { title, description, content: reviewed };
+}
+
+async function qualityReviewPass(blueprint: string, topic: string, level: string): Promise<string> {
+  try {
+    const reviewer = new OpenAI({
+      apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY || "placeholder",
+      baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
+    });
+
+    const reviewResponse = await reviewer.chat.completions.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 16384,
+      temperature: 0.2,
+      messages: [
+        {
+          role: "system",
+          content: `You are a senior editorial director at a premium business publishing house. Your job is to review and polish a business blueprint to publication-ready quality. You receive a draft and return an improved version.
+
+### YOUR EDITORIAL MANDATE
+1. **Remove all AI-style filler**: Delete or rewrite any sentences containing phrases like "In today's rapidly evolving landscape," "It's worth noting," "Key takeaways," "In conclusion," "This comprehensive guide," "leverage," "synergy," "cutting-edge," "game-changer," or any cliche business jargon. Replace with direct, specific language.
+2. **Strengthen weak sections**: If any section is thin (fewer than 2 substantive paragraphs), expand it with specific, actionable detail relevant to "${topic}".
+3. **Fix vague recommendations**: Any recommendation that says "consider using" or "explore options for" must be replaced with a specific tool, tactic, or step.
+4. **Verify logical flow**: Ensure each section builds on the previous one and transitions are smooth.
+5. **Polish prose**: Fix awkward phrasing, improve sentence variety, and ensure consistent professional tone throughout.
+6. **Ensure completeness**: All templates must be filled in (not placeholder text). All tables must have real data. All checklists must have specific actions.
+
+### RULES
+- Return ONLY the improved Markdown content. No commentary, no meta-text, no "Here's the improved version."
+- Preserve all Markdown formatting (headings, bold, tables, lists, code blocks).
+- Do NOT add new sections or change the overall structure — only improve the quality of what exists.
+- Do NOT shorten the document. Maintain or increase its length by adding depth where sections are thin.
+- The output audience is ${level} level.`
+        },
+        {
+          role: "user",
+          content: blueprint
+        }
+      ],
+    });
+
+    const reviewed = reviewResponse.choices[0]?.message?.content;
+    if (reviewed && reviewed.length > blueprint.length * 0.5) {
+      return reviewed;
+    }
+    return blueprint;
+  } catch (error) {
+    console.error("[QualityReview] Review pass failed, using original:", error instanceof Error ? error.message : error);
+    return blueprint;
   }
 }
