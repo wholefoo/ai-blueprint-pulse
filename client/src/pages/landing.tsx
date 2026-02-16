@@ -73,8 +73,8 @@ function ScrollReveal({ children, className = "" }: { children: React.ReactNode;
 const features = [
   {
     icon: Sparkles,
-    title: "4-Model AI Analysis",
-    description: "Every blueprint is powered by ChatGPT, Claude, Gemini, and Grok working together for unmatched accuracy and depth.",
+    title: "5-Model AI Analysis",
+    description: "Every blueprint is powered by ChatGPT, Claude, Gemini, Grok, and Perplexity working together for unmatched accuracy and depth.",
     gradient: "from-blue-500/10 to-cyan-500/10",
     iconColor: "text-blue-500",
   },
@@ -222,7 +222,7 @@ const faqs = [
   },
   {
     question: "How is AI Blueprint Pulse different from other business courses?",
-    answer: "Unlike static courses that become outdated the moment they're published, our blueprints are generated using 4 AI models working together — ChatGPT, Claude, Gemini, and Grok — each analyzing your topic independently before a synthesis step combines their best insights into one consensus-verified report. You get actionable intelligence based on what's working right now, cross-validated across multiple AI perspectives for maximum accuracy. Traditional courses often take months to produce and can cost thousands of dollars. Our platform delivers focused, multi-model-verified guidance in minutes at a fraction of the price. Plus, with our Blueprint Studio, you can generate custom guides tailored to your exact business topic and industry, something no pre-recorded course can offer."
+    answer: "Unlike static courses that become outdated the moment they're published, our blueprints are generated using 5 AI models working together — ChatGPT, Claude, Gemini, Grok, and Perplexity — each analyzing your topic independently before a synthesis step combines their best insights into one consensus-verified report. You get actionable intelligence based on what's working right now, cross-validated across multiple AI perspectives for maximum accuracy. Traditional courses often take months to produce and can cost thousands of dollars. Our platform delivers focused, multi-model-verified guidance in minutes at a fraction of the price. Plus, with our Blueprint Studio, you can generate custom guides tailored to your exact business topic and industry, something no pre-recorded course can offer."
   },
   {
     question: "Do I get lifetime access to purchased blueprints?",
@@ -298,7 +298,7 @@ export default function LandingPage() {
             </h1>
             
             <p className="animate-fade-in-up animation-delay-200 mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
-              Actionable business guides powered by 4 AI models working together — ChatGPT, Claude, Gemini, and Grok. 
+              Actionable business guides powered by 5 AI models working together — ChatGPT, Claude, Gemini, Grok, and Perplexity. 
               From startup fundamentals to enterprise strategies, get consensus-verified intelligence.
             </p>
             
@@ -336,7 +336,7 @@ export default function LandingPage() {
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                <span>4 AI models combined</span>
+                <span>5 AI models combined</span>
               </div>
             </div>
           </div>

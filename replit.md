@@ -7,14 +7,14 @@ AI Blueprint Pulse is a SaaS digital marketplace for marketing and selling busin
 **Design Theme**: Fintech-inspired aesthetic with deep navy primary colors and clean white backgrounds using Inter typography.
 
 ## Recent Changes (February 2026)
-- Added Multi-Model AI Analysis (ChatGPT + Claude + Gemini + Grok)
-  - server/multiModelService.ts: queries all 4 AI models in parallel, synthesizes results
+- Added Multi-Model AI Analysis (ChatGPT + Claude + Gemini + Grok + Perplexity)
+  - server/multiModelService.ts: queries all 5 AI models in parallel, synthesizes results
   - Blueprint Studio generation now uses multi-model research before generating content
   - New API endpoint: POST /api/studio/multi-analyze for standalone multi-model topic analysis
-  - Studio Analyze tab: "Quick Analyze" (single model) and "Multi-Model Analysis" (4 models) buttons
-  - Landing page updated to highlight 4-model AI feature in hero, features, trust badges, and FAQ
-  - AI providers: OpenAI (gpt-4.1), Anthropic (claude-sonnet-4-5), Gemini (gemini-2.5-flash), OpenRouter (x-ai/grok-3-fast)
-  - All via Replit AI Integrations (no user API keys needed)
+  - Studio Analyze tab: "Quick Analyze" (single model) and "Multi-Model Analysis" (5 models) buttons
+  - Landing page updated to highlight 5-model AI feature in hero, features, trust badges, and FAQ
+  - AI providers: OpenAI (gpt-4.1), Anthropic (claude-sonnet-4-5), Gemini (gemini-2.5-flash), OpenRouter (x-ai/grok-3-mini-beta), Perplexity (llama-3.1-sonar-small-128k-online)
+  - OpenAI/Anthropic/Gemini/OpenRouter via Replit AI Integrations; Perplexity via PERPLEXITY_API_KEY secret
 - Added Blueprint Studio (client-facing) at /studio
   - Credit-based system: users purchase credits (1/$10, 5/$40, 10/$75) via Stripe checkout
   - AI blueprint generation: users enter topic, tier, category to generate business guides

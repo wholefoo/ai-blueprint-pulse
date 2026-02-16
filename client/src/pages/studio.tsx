@@ -578,7 +578,7 @@ export default function StudioPage() {
                         {multiAnalyzeMutation.isPending ? (
                           <>
                             <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                            Running 4 AI Models...
+                            Running 5 AI Models...
                           </>
                         ) : (
                           <>

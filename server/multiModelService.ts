@@ -20,6 +20,11 @@ const openrouterClient = new OpenAI({
   baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
 });
 
+const perplexityClient = new OpenAI({
+  apiKey: process.env.PERPLEXITY_API_KEY,
+  baseURL: "https://api.perplexity.ai",
+});
+
 interface ModelConfig {
   name: string;
   label: string;
@@ -32,6 +37,7 @@ const MODELS: ModelConfig[] = [
   { name: "claude", label: "Claude", client: anthropicClient, model: "claude-sonnet-4-20250514" },
   { name: "gemini", label: "Gemini", client: geminiClient, model: "gemini-2.5-flash" },
   { name: "grok", label: "Grok", client: openrouterClient, model: "x-ai/grok-3-mini-beta" },
+  { name: "perplexity", label: "Perplexity", client: perplexityClient, model: "llama-3.1-sonar-small-128k-online" },
 ];
 
 interface ModelAnalysis {
