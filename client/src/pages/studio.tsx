@@ -185,6 +185,16 @@ export default function StudioPage() {
     },
   });
 
+  const multiAnalyzeMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/studio/multi-analyze", { topic: analyzeTopic });
+      return res.json();
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Multi-model analysis failed.", variant: "destructive" });
+    },
+  });
+
   const promptMutation = useMutation({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/studio/generate", {
@@ -539,24 +549,45 @@ export default function StudioPage() {
                     />
                   </div>
                   {isAuthenticated ? (
-                    <Button
-                      className="w-full"
-                      onClick={() => analyzeMutation.mutate()}
-                      disabled={!analyzeTopic.trim() || analyzeMutation.isPending}
-                      data-testid="button-analyze"
-                    >
-                      {analyzeMutation.isPending ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                          Analyzing...
-                        </>
-                      ) : (
-                        <>
-                          <Zap className="h-4 w-4 mr-1.5" />
-                          Analyze Topic
-                        </>
-                      )}
-                    </Button>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <Button
+                        className="flex-1"
+                        variant="outline"
+                        onClick={() => analyzeMutation.mutate()}
+                        disabled={!analyzeTopic.trim() || analyzeMutation.isPending || multiAnalyzeMutation.isPending}
+                        data-testid="button-analyze"
+                      >
+                        {analyzeMutation.isPending ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                            Analyzing...
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="h-4 w-4 mr-1.5" />
+                            Quick Analyze
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        className="flex-1"
+                        onClick={() => multiAnalyzeMutation.mutate()}
+                        disabled={!analyzeTopic.trim() || multiAnalyzeMutation.isPending || analyzeMutation.isPending}
+                        data-testid="button-multi-analyze"
+                      >
+                        {multiAnalyzeMutation.isPending ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                            Running 4 AI Models...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-4 w-4 mr-1.5" />
+                            Multi-Model Analysis
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   ) : (
                     <Button className="w-full" asChild data-testid="button-analyze-signin">
                       <a href="/api/login">
@@ -566,7 +597,21 @@ export default function StudioPage() {
                     </Button>
                   )}
 
-                  {analyzeMutation.data?.analysis && (
+                  {multiAnalyzeMutation.data && (
+                    <div className="space-y-3 pt-2">
+                      <div className="flex flex-row items-center gap-2 flex-wrap">
+                        <span className="text-sm font-medium text-muted-foreground">Powered by:</span>
+                        {multiAnalyzeMutation.data.modelsUsed?.map((m: string) => (
+                          <Badge key={m} variant="secondary" data-testid={`badge-model-${m.toLowerCase()}`}>{m}</Badge>
+                        ))}
+                      </div>
+                      <div className="prose prose-sm dark:prose-invert max-h-[500px] overflow-y-auto">
+                        <ReactMarkdown>{multiAnalyzeMutation.data.synthesis}</ReactMarkdown>
+                      </div>
+                    </div>
+                  )}
+
+                  {analyzeMutation.data?.analysis && !multiAnalyzeMutation.data && (
                     <div className="prose prose-sm dark:prose-invert max-h-[400px] overflow-y-auto pt-2">
                       <ReactMarkdown>{analyzeMutation.data.analysis}</ReactMarkdown>
                     </div>

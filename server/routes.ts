@@ -6,6 +6,7 @@ import { isAuthenticated, setupAuth, registerAuthRoutes } from "./replit_integra
 import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClient";
 import { WebhookHandlers } from "./webhookHandlers";
 import { analyzeBusinessTrends, generateBlueprintContent, discoverTrendingNeeds } from "./openai";
+import { multiModelAnalyze, multiModelBlueprintResearch } from "./multiModelService";
 import { triggerPostPurchaseSequence } from "./emailService";
 import { submitNexusResearch, handleNexusCallback, getNexusJobStatus, getUserNexusJobs } from "./nexusResearchService";
 import { extractVideoId, getVideoInfo, fetchComments, analyzePainPoints, searchVideos } from "./youtubeScraperService";
@@ -915,7 +916,8 @@ export async function registerRoutes(
 
       let result;
       try {
-        const research = `User requested a ${tier} tier blueprint about: ${topic}. Category: ${category}. Generate a comprehensive, actionable business blueprint.`;
+        const multiModelResearch = await multiModelBlueprintResearch(topic, tier);
+        const research = `${multiModelResearch}\n\nUser requested a ${tier} tier blueprint about: ${topic}. Category: ${category}. Generate a comprehensive, actionable business blueprint.`;
         result = await generateBlueprintContent(topic, research, tier as any);
       } catch (genError) {
         await storage.addCredits(userId, 1, undefined, `Refund: generation failed for "${topic}"`);
@@ -989,6 +991,20 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error analyzing trends:", error);
       res.status(500).json({ error: "Failed to analyze trends" });
+    }
+  });
+
+  app.post("/api/studio/multi-analyze", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const { topic } = req.body;
+      if (!topic || typeof topic !== "string" || topic.trim().length < 3) {
+        return res.status(400).json({ error: "Please provide a topic with at least 3 characters." });
+      }
+      const result = await multiModelAnalyze(topic.trim());
+      res.json(result);
+    } catch (error) {
+      console.error("Error in multi-model analysis:", error);
+      res.status(500).json({ error: "Failed to run multi-model analysis" });
     }
   });
 
