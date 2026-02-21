@@ -41,6 +41,11 @@ import {
   MessageSquareText,
   Copy,
   Check,
+  Headphones,
+  Database,
+  Megaphone,
+  Settings,
+  Handshake,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import type { BlueprintTier, GeneratedBlueprint } from "@shared/schema";
@@ -55,6 +60,11 @@ const tierOptions: { value: string; label: string; icon: typeof BookOpen }[] = [
   { value: "ethicalhacks", label: "Ethical Hacks", icon: Lightbulb },
   { value: "trendingusecases", label: "Trending Use Cases", icon: Flame },
   { value: "powerprompts", label: "Power Prompts", icon: MessageSquareText },
+  { value: "customerservice", label: "Customer Service", icon: Headphones },
+  { value: "dataanalysis", label: "Data Analysis", icon: Database },
+  { value: "marketing", label: "Marketing", icon: Megaphone },
+  { value: "operations", label: "Operations", icon: Settings },
+  { value: "b2b", label: "Business to Business", icon: Handshake },
 ];
 
 const categoryOptions = [

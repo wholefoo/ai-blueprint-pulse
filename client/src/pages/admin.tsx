@@ -69,6 +69,11 @@ import {
   ChevronUp,
   Lightbulb,
   Flame,
+  Headphones,
+  Database,
+  Megaphone,
+  Settings,
+  Handshake,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import jsPDF from "jspdf";
@@ -85,6 +90,11 @@ const tierOptions: { value: BlueprintTier; label: string; icon: typeof BookOpen 
   { value: "ethicalhacks", label: "Ethical Hacks", icon: Lightbulb },
   { value: "trendingusecases", label: "Trending Use Cases", icon: Flame },
   { value: "powerprompts", label: "Power Prompts", icon: Lightbulb },
+  { value: "customerservice", label: "Customer Service", icon: Headphones },
+  { value: "dataanalysis", label: "Data Analysis", icon: Database },
+  { value: "marketing", label: "Marketing", icon: Megaphone },
+  { value: "operations", label: "Operations", icon: Settings },
+  { value: "b2b", label: "Business to Business", icon: Handshake },
 ];
 
 const categoryOptions = [

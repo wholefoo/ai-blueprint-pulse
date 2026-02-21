@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BlueprintCard } from "@/components/blueprint-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Filter, BookOpen, Rocket, Building2, LayoutGrid, Gift, Zap, FileText, AlertTriangle, Lightbulb, Flame, MessageSquareText } from "lucide-react";
+import { Search, Filter, BookOpen, Rocket, Building2, LayoutGrid, Gift, Zap, FileText, AlertTriangle, Lightbulb, Flame, MessageSquareText, Headphones, Database, Megaphone, Settings, Handshake } from "lucide-react";
 import type { Blueprint, BlueprintTier } from "@shared/schema";
 import {
   Select,
@@ -28,6 +28,11 @@ const tiers = [
   { value: "ethicalhacks", label: "Hacks", icon: Lightbulb },
   { value: "trendingusecases", label: "Trends", icon: Flame },
   { value: "powerprompts", label: "Prompts", icon: MessageSquareText },
+  { value: "customerservice", label: "Service", icon: Headphones },
+  { value: "dataanalysis", label: "Data", icon: Database },
+  { value: "marketing", label: "Marketing", icon: Megaphone },
+  { value: "operations", label: "Operations", icon: Settings },
+  { value: "b2b", label: "B2B", icon: Handshake },
 ];
 
 const categories = [

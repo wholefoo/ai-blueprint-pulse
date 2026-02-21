@@ -27,6 +27,11 @@ import {
   Star,
   Coins,
   Clock,
+  Headphones,
+  Database,
+  Megaphone,
+  Settings,
+  Handshake,
 } from "lucide-react";
 import {
   Accordion,
@@ -206,12 +211,67 @@ const tiers = [
     iconColor: "text-violet-600 dark:text-violet-400",
     accentTop: "from-violet-400 to-violet-600",
   },
+  {
+    name: "Customer Service",
+    slug: "customerservice",
+    icon: Headphones,
+    description: "Deliver outstanding support and build lasting loyalty",
+    features: ["Support workflow optimization", "Customer retention strategies", "Complaint resolution frameworks", "Service quality metrics"],
+    color: "border-cyan-200 dark:border-cyan-800",
+    iconBg: "bg-cyan-500/10",
+    iconColor: "text-cyan-600 dark:text-cyan-400",
+    accentTop: "from-cyan-400 to-cyan-600",
+  },
+  {
+    name: "Data Analysis",
+    slug: "dataanalysis",
+    icon: Database,
+    description: "Turn raw data into actionable business intelligence",
+    features: ["Data collection frameworks", "KPI tracking systems", "Reporting dashboards", "Predictive analytics guides"],
+    color: "border-indigo-200 dark:border-indigo-800",
+    iconBg: "bg-indigo-500/10",
+    iconColor: "text-indigo-600 dark:text-indigo-400",
+    accentTop: "from-indigo-400 to-indigo-600",
+  },
+  {
+    name: "Marketing",
+    slug: "marketing",
+    icon: Megaphone,
+    description: "Drive growth with proven marketing strategies",
+    features: ["Campaign planning playbooks", "Content marketing frameworks", "SEO & paid ads guides", "Brand positioning strategies"],
+    color: "border-pink-200 dark:border-pink-800",
+    iconBg: "bg-pink-500/10",
+    iconColor: "text-pink-600 dark:text-pink-400",
+    accentTop: "from-pink-400 to-pink-600",
+  },
+  {
+    name: "Operations",
+    slug: "operations",
+    icon: Settings,
+    description: "Streamline processes and maximize efficiency",
+    features: ["Process optimization guides", "Supply chain management", "Inventory control systems", "Operational KPI frameworks"],
+    color: "border-orange-200 dark:border-orange-800",
+    iconBg: "bg-orange-500/10",
+    iconColor: "text-orange-600 dark:text-orange-400",
+    accentTop: "from-orange-400 to-orange-600",
+  },
+  {
+    name: "Business to Business",
+    slug: "b2b",
+    icon: Handshake,
+    description: "Master B2B sales, partnerships, and enterprise deals",
+    features: ["B2B sales playbooks", "Partnership frameworks", "Enterprise deal strategies", "Account management guides"],
+    color: "border-lime-200 dark:border-lime-800",
+    iconBg: "bg-lime-500/10",
+    iconColor: "text-lime-600 dark:text-lime-400",
+    accentTop: "from-lime-400 to-lime-600",
+  },
 ];
 
 const stats = [
   { value: "AI-Powered", label: "Research Engine", icon: Sparkles },
   { value: "Real-Time", label: "Market Data", icon: BarChart3 },
-  { value: "10 Categories", label: "Blueprint Topics", icon: Target },
+  { value: "15 Categories", label: "Blueprint Topics", icon: Target },
   { value: "24/7", label: "Instant Access", icon: Clock },
 ];
 
@@ -230,7 +290,7 @@ const faqs = [
   },
   {
     question: "What's the difference between the categories?",
-    answer: "We offer 10 distinct categories designed for different needs and business stages. Free gets you started with essentials. Starter covers fundamentals for new entrepreneurs who are just getting going. Growth provides proven scaling strategies for businesses that have found their footing. Enterprise offers comprehensive playbooks for larger operations managing complex teams and markets. Most Pressing addresses urgent, time-sensitive challenges that need solutions now. Boring but Necessary covers essential compliance, documentation, and operational foundations that every business needs but often overlooks. Pain Points focuses on identifying and solving the biggest frustrations your customers face. Ethical Hacks delivers smart, responsible shortcuts and growth strategies. Trending Use Cases helps you capitalize on hot emerging opportunities before the competition catches on. And Power Prompts gives you collections of high-impact AI prompts you can use across your business immediately."
+    answer: "We offer 15 distinct categories designed for different needs and business stages. Free gets you started with essentials. Starter covers fundamentals for new entrepreneurs who are just getting going. Growth provides proven scaling strategies for businesses that have found their footing. Enterprise offers comprehensive playbooks for larger operations managing complex teams and markets. Most Pressing addresses urgent, time-sensitive challenges that need solutions now. Boring but Necessary covers essential compliance, documentation, and operational foundations that every business needs but often overlooks. Pain Points focuses on identifying and solving the biggest frustrations your customers face. Ethical Hacks delivers smart, responsible shortcuts and growth strategies. Trending Use Cases helps you capitalize on hot emerging opportunities before the competition catches on. Power Prompts gives you collections of high-impact AI prompts you can use across your business immediately. Customer Service helps you build outstanding support systems and retention strategies. Data Analysis turns raw data into actionable business intelligence. Marketing provides proven campaign and growth strategies. Operations streamlines your processes for maximum efficiency. And Business to Business covers B2B sales, partnerships, and enterprise deal strategies."
   },
   {
     question: "What are Pain Points blueprints?",
@@ -266,7 +326,7 @@ const faqs = [
   },
   {
     question: "How often is new content added?",
-    answer: "We continuously add new blueprints to the marketplace based on market demands and emerging business trends. Our AI research engine is constantly analyzing opportunities across all industries, so you'll see fresh content added regularly across all 10 categories. Beyond the marketplace, the Blueprint Studio lets you generate content on any topic at any time, so you're never limited to what's already available. If there's a niche topic or emerging trend you need a guide for, you can create one yourself in minutes."
+    answer: "We continuously add new blueprints to the marketplace based on market demands and emerging business trends. Our AI research engine is constantly analyzing opportunities across all industries, so you'll see fresh content added regularly across all 15 categories. Beyond the marketplace, the Blueprint Studio lets you generate content on any topic at any time, so you're never limited to what's already available. If there's a niche topic or emerging trend you need a guide for, you can create one yourself in minutes."
   },
   {
     question: "What makes actionable blueprints so powerful?",
