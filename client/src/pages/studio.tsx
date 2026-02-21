@@ -507,6 +507,12 @@ export default function StudioPage() {
                         <SelectItem value="consulting">Consulting</SelectItem>
                         <SelectItem value="healthcare">Healthcare</SelectItem>
                         <SelectItem value="finance">Finance</SelectItem>
+                        <SelectItem value="agentic workflows">Agentic Workflows</SelectItem>
+                        <SelectItem value="skills utilization">Skills Utilization</SelectItem>
+                        <SelectItem value="ai agents">AI Agents & Assistants</SelectItem>
+                        <SelectItem value="workflow automation">Workflow Automation</SelectItem>
+                        <SelectItem value="prompt engineering">Prompt Engineering</SelectItem>
+                        <SelectItem value="no-code automation">No-Code & Low-Code Automation</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

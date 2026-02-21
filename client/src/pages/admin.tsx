@@ -1401,6 +1401,15 @@ export default function AdminPage() {
                         <SelectItem value="media entertainment">Media & Entertainment</SelectItem>
                         <SelectItem value="professional services">Professional Services</SelectItem>
                         <SelectItem value="crypto web3">Crypto & Web3</SelectItem>
+                        <SelectItem value="---ai-workflows" disabled>── AI & Agentic Workflows ──</SelectItem>
+                        <SelectItem value="agentic workflows">Agentic Workflows</SelectItem>
+                        <SelectItem value="skills utilization">Skills Utilization</SelectItem>
+                        <SelectItem value="ai agents">AI Agents & Assistants</SelectItem>
+                        <SelectItem value="workflow automation">Workflow Automation</SelectItem>
+                        <SelectItem value="prompt engineering">Prompt Engineering</SelectItem>
+                        <SelectItem value="no-code automation">No-Code & Low-Code Automation</SelectItem>
+                        <SelectItem value="ai integration">AI Integration & Deployment</SelectItem>
+                        <SelectItem value="multi-agent systems">Multi-Agent Systems</SelectItem>
                         <SelectItem value="---starter" disabled>── Starter Tier Niches ──</SelectItem>
                         <SelectItem value="core business fundamentals">Core Business Fundamentals</SelectItem>
                         <SelectItem value="basic market analysis">Basic Market Analysis</SelectItem>
