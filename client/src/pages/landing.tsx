@@ -478,7 +478,7 @@ export default function LandingPage() {
             <div className="text-center mb-16">
               <Badge variant="outline" className="mb-4 px-3 py-1">
                 <Target className="h-3 w-3 mr-1.5" />
-                10 Specialized Categories
+                15 Specialized Categories
               </Badge>
               <h2 className="font-serif text-3xl font-bold">Choose Your Path</h2>
               <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
