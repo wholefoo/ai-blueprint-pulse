@@ -69,6 +69,11 @@ const categoryOptions = [
   "Technology",
   "Retail",
   "Manufacturing",
+  "Customer Service",
+  "Data Analysis",
+  "Marketing",
+  "Operations",
+  "Business to Business",
   "Other",
 ];
 

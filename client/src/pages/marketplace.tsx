@@ -39,6 +39,9 @@ const categories = [
   "Leadership",
   "Technology",
   "Strategy",
+  "Customer Service",
+  "Data Analysis",
+  "Business to Business",
 ];
 
 export default function MarketplacePage() {

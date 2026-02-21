@@ -96,6 +96,9 @@ const categoryOptions = [
   "Leadership",
   "Technology",
   "Strategy",
+  "Customer Service",
+  "Data Analysis",
+  "Business to Business",
   // Starter tier niches
   "Core Business Fundamentals",
   "Basic Market Analysis",
