@@ -315,7 +315,7 @@ Generate ${tierConfig.wordCount} words of substantive content. Every section mus
 ### OUTPUT STRUCTURE (JSON with Markdown content)
 Return a JSON object. The "content" field must contain the COMPLETE blueprint in Markdown following this structure:
 
-## [COMPELLING, SPECIFIC TITLE — not generic]
+## [TRENDING LONG-TAIL KEYWORD TITLE — SEO-optimized, 8-14 words, incorporating high-search-volume long-tail keywords that people actually search for. Example: "How to Build a Profitable Dropshipping Business with AI Automation in 2026" NOT generic titles like "Business Success Guide"]
 *[One-sentence value proposition that makes the reader feel this was written specifically for them]*
 
 ### 1. Executive Summary
@@ -447,7 +447,7 @@ Write the complete blueprint for "${topic}" using the structure defined in your 
           properties: {
             title: {
               type: "string",
-              description: "A compelling, specific title for the blueprint"
+              description: "A trending, SEO-optimized long-tail keyword title (8-14 words). Must include high-search-volume keywords people actually Google. Format: 'How to [Achieve Result] with [Method/Tool] for [Audience/Niche] in [Year]' or similar long-tail patterns. Example: 'How to Scale a SaaS Business to $1M ARR Using AI-Powered Marketing in 2026'. Never use generic titles."
             },
             description: {
               type: "string", 
