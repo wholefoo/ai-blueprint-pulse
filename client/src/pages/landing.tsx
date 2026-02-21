@@ -309,6 +309,26 @@ const faqs = [
     answer: "Power Prompts are curated collections of high-impact AI prompts specifically crafted for business use. Instead of spending hours figuring out how to get the best results from AI tools, you get ready-to-use prompts tailored to your industry and business topic. Each set covers areas like content generation, customer communication, strategic planning, market analysis, and decision-making frameworks. You can copy them directly into any AI tool you use, and they come as downloadable DOCX files so you always have them on hand. They're designed by our AI research engine to maximize the quality and usefulness of the output you get from AI assistants."
   },
   {
+    question: "What are Customer Service blueprints?",
+    answer: "Customer Service blueprints give you proven frameworks for delivering outstanding support and building lasting customer loyalty. Each guide covers support workflow optimization, ticket management systems, response templates, escalation procedures, and customer satisfaction measurement. You'll get specific strategies for reducing response times, handling difficult situations, training support teams, and turning unhappy customers into loyal advocates. Whether you're building a support operation from scratch or improving an existing one, these blueprints provide the systems and scripts you need to deliver consistently excellent service."
+  },
+  {
+    question: "What are Data Analysis blueprints?",
+    answer: "Data Analysis blueprints help you turn raw business data into clear, actionable intelligence. Each guide walks you through setting up data collection frameworks, building KPI tracking systems, creating meaningful dashboards, and using data to make better business decisions. You'll learn which metrics actually matter for your industry, how to spot trends before your competitors do, and how to present findings in a way that drives action. These blueprints cover everything from basic spreadsheet analytics to more advanced predictive modeling approaches, all written in plain language with step-by-step implementation guides."
+  },
+  {
+    question: "What are Marketing blueprints?",
+    answer: "Marketing blueprints provide detailed campaign planning playbooks, content marketing frameworks, SEO and paid advertising guides, and brand positioning strategies. Each guide gives you specific tactics with budget ranges, timeline estimates, and expected results based on current market data. You'll get ready-to-use campaign templates, audience targeting strategies, channel selection frameworks, and measurement systems to track your return on investment. Whether you're running social media campaigns, building email funnels, or launching a brand awareness push, these blueprints give you a tested plan to follow."
+  },
+  {
+    question: "What are Operations blueprints?",
+    answer: "Operations blueprints help you streamline your business processes for maximum efficiency and minimum waste. Each guide covers process optimization, supply chain management, inventory control systems, quality assurance frameworks, and operational KPI tracking. You'll get specific workflow diagrams, standard operating procedure templates, resource allocation models, and bottleneck identification techniques. These blueprints are designed for business owners who want to reduce costs, improve throughput, and build systems that scale without breaking down as the business grows."
+  },
+  {
+    question: "What are Business to Business blueprints?",
+    answer: "Business to Business blueprints are built for companies that sell to other businesses rather than individual consumers. Each guide covers B2B sales playbooks, partnership development frameworks, enterprise deal strategies, account management systems, and proposal templates. You'll learn how to build a repeatable B2B sales process, negotiate larger contracts, develop strategic partnerships, and manage long sales cycles effectively. These blueprints address the unique challenges of B2B selling, including multi-stakeholder decision making, RFP responses, and building relationships that lead to recurring revenue."
+  },
+  {
     question: "What is the Blueprint Studio and how does it work?",
     answer: "The Blueprint Studio is your personal blueprint creation tool. Instead of browsing the marketplace for pre-made guides, you can generate a completely custom blueprint on any business topic you choose. Simply pick a topic, select a category and focus area, and our AI engine will research and produce a comprehensive guide in seconds. You download it as a polished Word document with full resale rights included, meaning you can use it in your business, share it with clients, or even sell it as your own product. The Studio also includes Discover and Analyze tools to help you research trending business needs and validate topics before generating."
   },
