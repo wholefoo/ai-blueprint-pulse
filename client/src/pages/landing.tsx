@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link } from "wouter";
-import aiInfographic from "@assets/Gemini_Generated_Image_Good,_Bad,_Ugly_1771819461158.png";
+import aiInfographic from "@assets/Gemini_Generated_Image_Good,_Bad,_Ugly_1771820714279.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
