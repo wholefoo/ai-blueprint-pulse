@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link } from "wouter";
+import aiInfographic from "@assets/Gemini_Generated_Image_Good,_Bad,_Ugly_1771819461158.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
@@ -616,6 +617,23 @@ export default function LandingPage() {
                     Open Blueprint Studio
                   </Button>
                 </Link>
+              </div>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      <section className="py-16">
+        <div className="container">
+          <ScrollReveal>
+            <div className="mx-auto max-w-5xl">
+              <div className="rounded-xl overflow-hidden border shadow-lg">
+                <img
+                  src={aiInfographic}
+                  alt="Artificial Intelligence - The Good, The Bad and The Ugly - An overview of AI benefits, risks, and concerns"
+                  className="w-full h-auto"
+                  data-testid="img-ai-infographic"
+                />
               </div>
             </div>
           </ScrollReveal>
