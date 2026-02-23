@@ -430,6 +430,9 @@ export default function LandingPage() {
                   data-testid="img-ai-infographic"
                 />
               </div>
+              <cite className="block text-center text-xs text-muted-foreground mt-3 not-italic">
+                Disclaimer: This infographic provides a high-level overview and is not exhaustive. The landscape of AI is rapidly evolving. Approach with caution and critical thinking.
+              </cite>
             </div>
           </div>
         </div>
