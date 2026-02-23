@@ -360,7 +360,7 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col">
-      <section className="relative overflow-hidden py-20 lg:py-24">
+      <section className="relative overflow-hidden py-14 lg:py-18">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/8 animate-gradient-shift" />
         <div className="absolute top-20 left-10 w-72 h-72 bg-accent/5 rounded-full blur-3xl" />
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
@@ -435,7 +435,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="py-8 border-y bg-muted/20">
+      <section className="py-6 border-y bg-muted/20">
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat) => (
@@ -451,7 +451,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="py-14">
+      <section className="py-10">
         <div className="container">
           <ScrollReveal>
             <div className="text-center mb-16">
@@ -484,7 +484,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="py-14 bg-muted/30">
+      <section className="py-10 bg-muted/30">
         <div className="container">
           <ScrollReveal>
             <div className="text-center mb-16">
@@ -545,7 +545,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="py-14 relative overflow-hidden" id="credits">
+      <section className="py-10 relative overflow-hidden" id="credits">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-accent/3 via-transparent to-primary/3" />
         <div className="container relative">
           <ScrollReveal>
@@ -634,7 +634,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="py-14 bg-muted/30">
+      <section className="py-10 bg-muted/30">
         <div className="container">
           <ScrollReveal>
             <div className="mx-auto max-w-3xl">
@@ -666,7 +666,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="py-14 relative overflow-hidden">
+      <section className="py-10 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 animate-gradient-shift" />
         <div className="container relative">
           <ScrollReveal>
