@@ -33,6 +33,7 @@ import {
   Megaphone,
   Settings,
   Handshake,
+  Bot,
 } from "lucide-react";
 import {
   Accordion,
@@ -85,18 +86,39 @@ const features = [
     iconColor: "text-blue-500",
   },
   {
-    icon: TrendingUp,
-    title: "Actionable Insights",
-    description: "Step-by-step blueprints you can implement immediately to drive measurable business growth.",
+    icon: Bot,
+    title: "Agent Implementation Scripts",
+    description: "Turn any blueprint into a step-by-step AI agent build guide — complete with architecture, tech stack, prompt templates, and deployment checklist.",
     gradient: "from-emerald-500/10 to-green-500/10",
     iconColor: "text-emerald-500",
+  },
+  {
+    icon: Target,
+    title: "15 Specialized Categories",
+    description: "From Starter to Enterprise, Pain Points to Power Prompts, Marketing to B2B — find or generate the exact blueprint your business needs.",
+    gradient: "from-purple-500/10 to-violet-500/10",
+    iconColor: "text-purple-500",
+  },
+  {
+    icon: TrendingUp,
+    title: "Actionable Insights",
+    description: "Step-by-step blueprints you can implement immediately to drive measurable business growth, not generic theory.",
+    gradient: "from-amber-500/10 to-orange-500/10",
+    iconColor: "text-amber-500",
   },
   {
     icon: Shield,
     title: "Consensus-Verified",
     description: "Cross-validated by multiple AI models to surface high-confidence insights no single model would catch alone.",
-    gradient: "from-purple-500/10 to-violet-500/10",
-    iconColor: "text-purple-500",
+    gradient: "from-rose-500/10 to-pink-500/10",
+    iconColor: "text-rose-500",
+  },
+  {
+    icon: FileText,
+    title: "Full Resale Rights",
+    description: "Every generated blueprint and agent script is yours to use, rebrand, and sell. Download as polished DOCX files ready for your business.",
+    gradient: "from-teal-500/10 to-cyan-500/10",
+    iconColor: "text-teal-500",
   },
 ];
 
@@ -270,10 +292,10 @@ const tiers = [
 ];
 
 const stats = [
-  { value: "AI-Powered", label: "Research Engine", icon: Sparkles },
-  { value: "Real-Time", label: "Market Data", icon: BarChart3 },
+  { value: "5 AI Models", label: "Working Together", icon: Sparkles },
   { value: "15 Categories", label: "Blueprint Topics", icon: Target },
-  { value: "24/7", label: "Instant Access", icon: Clock },
+  { value: "Agent Scripts", label: "Build & Deploy", icon: Bot },
+  { value: "Full Rights", label: "Resale Included", icon: FileText },
 ];
 
 const faqs = [
@@ -283,7 +305,7 @@ const faqs = [
   },
   {
     question: "How is AI Blueprint Pulse different from other business courses?",
-    answer: "Unlike static courses that become outdated the moment they're published, our blueprints are generated using 5 AI models working together — ChatGPT, Claude, Gemini, Grok, and Perplexity — each analyzing your topic independently before a synthesis step combines their best insights into one consensus-verified report. You get actionable intelligence based on what's working right now, cross-validated across multiple AI perspectives for maximum accuracy. Traditional courses often take months to produce and can cost thousands of dollars. Our platform delivers focused, multi-model-verified guidance in minutes at a fraction of the price. Plus, with our Blueprint Studio, you can generate custom guides tailored to your exact business topic and industry, something no pre-recorded course can offer."
+    answer: "Unlike static courses that become outdated the moment they're published, our blueprints are generated using 5 AI models working together — ChatGPT, Claude, Gemini, Grok, and Perplexity — each analyzing your topic independently before a synthesis step combines their best insights into one consensus-verified report. You get actionable intelligence based on what's working right now, cross-validated across multiple AI perspectives for maximum accuracy. Traditional courses often take months to produce and can cost thousands of dollars. Our platform delivers focused, multi-model-verified guidance in minutes at a fraction of the price. Plus, with our Blueprint Studio, you can generate custom guides tailored to your exact business topic and industry, and then generate an Agent Implementation Script to turn that guide into a buildable AI agent system — something no pre-recorded course can offer."
   },
   {
     question: "Do I get lifetime access to purchased blueprints?",
@@ -330,8 +352,12 @@ const faqs = [
     answer: "Business to Business blueprints are built for companies that sell to other businesses rather than individual consumers. Each guide covers B2B sales playbooks, partnership development frameworks, enterprise deal strategies, account management systems, and proposal templates. You'll learn how to build a repeatable B2B sales process, negotiate larger contracts, develop strategic partnerships, and manage long sales cycles effectively. These blueprints address the unique challenges of B2B selling, including multi-stakeholder decision making, RFP responses, and building relationships that lead to recurring revenue."
   },
   {
+    question: "What are Agent Implementation Scripts?",
+    answer: "Agent Implementation Scripts are detailed technical guides that turn any blueprint into a buildable AI agent system. After you generate a blueprint, click the Agent button to create a step-by-step implementation guide covering agent architecture, recommended tech stack with specific frameworks and libraries, numbered implementation steps with code snippets, prompt templates for each agent role, automation workflows with trigger conditions and error handling, a deployment checklist, and a scaling strategy. The script is generated by GPT-4.1 and tailored to your specific blueprint content. You can view it inline or download it as a DOCX file. It's designed for a technical audience who wants to move from strategy to working software."
+  },
+  {
     question: "What is the Blueprint Studio and how does it work?",
-    answer: "The Blueprint Studio is your personal blueprint creation tool. Instead of browsing the marketplace for pre-made guides, you can generate a completely custom blueprint on any business topic you choose. Simply pick a topic, select a category and focus area, and our AI engine will research and produce a comprehensive guide in seconds. You download it as a polished Word document with full resale rights included, meaning you can use it in your business, share it with clients, or even sell it as your own product. The Studio also includes Discover and Analyze tools to help you research trending business needs and validate topics before generating."
+    answer: "The Blueprint Studio is your personal blueprint creation tool. Instead of browsing the marketplace for pre-made guides, you can generate a completely custom blueprint on any business topic you choose. Simply pick a topic, select a category and focus area, and our AI engine will research and produce a comprehensive guide in seconds. You download it as a polished Word document with full resale rights included, meaning you can use it in your business, share it with clients, or even sell it as your own product. Once your blueprint is ready, you can generate an Agent Implementation Script that provides a complete technical guide for building an AI agent to execute the strategies in your blueprint. The Studio also includes Discover and Analyze tools to help you research trending business needs and validate topics before generating."
   },
   {
     question: "How do Blueprint Studio credits work?",
@@ -380,7 +406,7 @@ export default function LandingPage() {
             
             <p className="animate-fade-in-up animation-delay-200 mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
               Actionable business guides powered by 5 AI models working together — ChatGPT, Claude, Gemini, Grok, and Perplexity. 
-              From startup fundamentals to enterprise strategies, get consensus-verified intelligence.
+              Generate blueprints across 15 categories, then turn them into AI agent implementation scripts you can build and deploy.
             </p>
             
             <div className="animate-fade-in-up animation-delay-300 mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -418,6 +444,10 @@ export default function LandingPage() {
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                 <span>5 AI models combined</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                <span>Agent implementation scripts</span>
               </div>
             </div>
 
@@ -464,12 +494,12 @@ export default function LandingPage() {
               </Badge>
               <h2 className="font-serif text-3xl font-bold">Why AI Blueprint Pulse?</h2>
               <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-                We combine cutting-edge AI research with real-world business expertise to create guides that actually work.
+                We combine 5 AI models with real-world business expertise to create guides you can implement — and agent scripts you can build.
               </p>
             </div>
           </ScrollReveal>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, i) => (
               <ScrollReveal key={feature.title}>
                 <Card className={`border-0 bg-gradient-to-br ${feature.gradient} h-full`}>
@@ -565,7 +595,7 @@ export default function LandingPage() {
                   Build Your Own — on any topic, in seconds
                 </p>
                 <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-                  Use credits to generate a fully custom business blueprint tailored to your exact needs. Pick any topic, choose a category, and our AI engine delivers a polished Word document with full resale rights.
+                  Use credits to generate a fully custom business blueprint tailored to your exact needs. Pick any topic, choose a category, and our AI engine delivers a polished Word document with full resale rights. Then generate an AI agent implementation script to turn your blueprint into a deployable system.
                 </p>
               </div>
 
@@ -603,6 +633,10 @@ export default function LandingPage() {
                         <div className="flex items-center gap-2 text-sm text-foreground">
                           <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
                           <span>DOCX Download</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                          <span>Agent Script Generation</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-foreground">
                           <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
@@ -679,7 +713,7 @@ export default function LandingPage() {
               </div>
               <h2 className="font-serif text-3xl font-bold mb-4">Ready to Accelerate Your Success?</h2>
               <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
-                Join action-taking entrepreneurs and business leaders who have transformed their operations with our blueprints.
+                Join action-taking entrepreneurs and business leaders who use our blueprints and agent scripts to build smarter businesses.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-4">
                 <Link href="/marketplace">
