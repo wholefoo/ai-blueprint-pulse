@@ -6,7 +6,7 @@ import passport from "passport";
 import { isAuthenticated, setupAuth, getSession, registerAuthRoutes } from "./replit_integrations/auth";
 import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClient";
 import { WebhookHandlers } from "./webhookHandlers";
-import { analyzeBusinessTrends, generateBlueprintContent, discoverTrendingNeeds } from "./openai";
+import { analyzeBusinessTrends, generateBlueprintContent, discoverTrendingNeeds, generateAgentScript } from "./openai";
 import { multiModelAnalyze, multiModelBlueprintResearch } from "./multiModelService";
 import { triggerPostPurchaseSequence } from "./emailService";
 import { submitNexusResearch, handleNexusCallback, getNexusJobStatus, getUserNexusJobs } from "./nexusResearchService";
@@ -974,6 +974,58 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error downloading blueprint:", error);
       res.status(500).json({ error: "Failed to download blueprint" });
+    }
+  });
+
+  app.post("/api/studio/blueprints/:id/agent-script", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const id = parseInt(req.params.id);
+      const blueprint = await storage.getGeneratedBlueprint(id, userId);
+
+      if (!blueprint) {
+        return res.status(404).json({ error: "Blueprint not found" });
+      }
+
+      if (blueprint.agentScript) {
+        return res.json({ agentScript: blueprint.agentScript });
+      }
+
+      const script = await generateAgentScript(blueprint.title, blueprint.content, blueprint.topic, blueprint.tier);
+      const updated = await storage.updateGeneratedBlueprintAgentScript(id, userId, script);
+
+      res.json({ agentScript: updated?.agentScript || script });
+    } catch (error) {
+      console.error("Error generating agent script:", error);
+      res.status(500).json({ error: "Failed to generate agent script" });
+    }
+  });
+
+  app.get("/api/studio/blueprints/:id/agent-script/download", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const id = parseInt(req.params.id);
+      const blueprint = await storage.getGeneratedBlueprint(id, userId);
+
+      if (!blueprint || !blueprint.agentScript) {
+        return res.status(404).json({ error: "Agent script not found" });
+      }
+
+      const { generateDocx } = await import("./docxService");
+      const docxBuffer = await generateDocx(
+        `Agent Script: ${blueprint.title}`,
+        blueprint.agentScript,
+        blueprint.tier
+      );
+
+      const filename = `Agent_Script_${blueprint.title.replace(/[^a-zA-Z0-9\s]/g, "").replace(/\s+/g, "_")}.docx`;
+
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.send(docxBuffer);
+    } catch (error) {
+      console.error("Error downloading agent script:", error);
+      res.status(500).json({ error: "Failed to download agent script" });
     }
   });
 

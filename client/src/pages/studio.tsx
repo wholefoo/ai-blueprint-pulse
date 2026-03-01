@@ -46,6 +46,7 @@ import {
   Megaphone,
   Settings,
   Handshake,
+  Bot,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import type { BlueprintTier, GeneratedBlueprint } from "@shared/schema";
@@ -101,6 +102,8 @@ export default function StudioPage() {
   const [promptTopic, setPromptTopic] = useState("");
   const [promptCategory, setPromptCategory] = useState("Marketing");
   const [copiedPromptId, setCopiedPromptId] = useState<number | null>(null);
+  const [agentScriptPreview, setAgentScriptPreview] = useState<{ blueprintId: number; content: string } | null>(null);
+  const [generatingAgentScriptId, setGeneratingAgentScriptId] = useState<number | null>(null);
 
   const creditsQuery = useQuery<{ balance: number; totalPurchased: number; totalUsed: number }>({
     queryKey: ["/api/credits"],
@@ -252,6 +255,45 @@ export default function StudioPage() {
       window.URL.revokeObjectURL(url);
     } catch {
       toast({ title: "Error", description: "Failed to download blueprint.", variant: "destructive" });
+    }
+  };
+
+  const handleGenerateAgentScript = async (blueprintId: number) => {
+    setGeneratingAgentScriptId(blueprintId);
+    try {
+      const res = await apiRequest("POST", `/api/studio/blueprints/${blueprintId}/agent-script`);
+      const data = await res.json();
+      if (data.agentScript) {
+        setAgentScriptPreview({ blueprintId, content: data.agentScript });
+        if (previewBlueprint && previewBlueprint.id === blueprintId) {
+          setPreviewBlueprint({ ...previewBlueprint, agentScript: data.agentScript });
+        }
+        queryClient.invalidateQueries({ queryKey: ["/api/studio/blueprints"] });
+        toast({ title: "Agent Script Ready", description: "Your agent implementation script has been generated." });
+        setActiveTab("blueprints");
+      }
+    } catch {
+      toast({ title: "Error", description: "Failed to generate agent script.", variant: "destructive" });
+    } finally {
+      setGeneratingAgentScriptId(null);
+    }
+  };
+
+  const handleDownloadAgentScript = async (blueprintId: number, title: string) => {
+    try {
+      const res = await fetch(`/api/studio/blueprints/${blueprintId}/agent-script/download`, { credentials: "include" });
+      if (!res.ok) throw new Error("Download failed");
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Agent_Script_${title.replace(/[^a-zA-Z0-9\s]/g, "").replace(/\s+/g, "_")}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      toast({ title: "Error", description: "Failed to download agent script.", variant: "destructive" });
     }
   };
 
@@ -455,14 +497,37 @@ export default function StudioPage() {
                           <h3 className="font-semibold text-foreground" data-testid="text-preview-title">{previewBlueprint.title}</h3>
                           <p className="text-sm text-muted-foreground">{previewBlueprint.description}</p>
                         </div>
-                        <Button
-                          size="sm"
-                          onClick={() => handleDownload(previewBlueprint.id, previewBlueprint.title)}
-                          data-testid="button-download-preview"
-                        >
-                          <Download className="h-4 w-4 mr-1" />
-                          DOCX
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant={previewBlueprint.agentScript ? "outline" : "secondary"}
+                            onClick={() => {
+                              if (previewBlueprint.agentScript) {
+                                setAgentScriptPreview({ blueprintId: previewBlueprint.id, content: previewBlueprint.agentScript });
+                                setActiveTab("blueprints");
+                              } else {
+                                handleGenerateAgentScript(previewBlueprint.id);
+                              }
+                            }}
+                            disabled={generatingAgentScriptId === previewBlueprint.id}
+                            data-testid="button-agent-script-preview"
+                          >
+                            {generatingAgentScriptId === previewBlueprint.id ? (
+                              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                            ) : (
+                              <Bot className="h-4 w-4 mr-1" />
+                            )}
+                            {previewBlueprint.agentScript ? "Agent Script" : "Generate Agent"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => handleDownload(previewBlueprint.id, previewBlueprint.title)}
+                            data-testid="button-download-preview"
+                          >
+                            <Download className="h-4 w-4 mr-1" />
+                            DOCX
+                          </Button>
+                        </div>
                       </div>
                       <div className="prose prose-sm dark:prose-invert max-h-[400px] overflow-y-auto">
                         <ReactMarkdown>{previewBlueprint.content.slice(0, 2000)}</ReactMarkdown>
@@ -668,6 +733,45 @@ export default function StudioPage() {
               </Badge>
             </div>
 
+            {agentScriptPreview && (
+              <Card className="border-primary/30">
+                <CardHeader className="pb-3">
+                  <div className="flex flex-row items-start justify-between gap-2 flex-wrap">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Bot className="h-5 w-5 text-primary" />
+                      Agent Implementation Script
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleDownloadAgentScript(
+                          agentScriptPreview.blueprintId,
+                          blueprintsQuery.data?.blueprints?.find(b => b.id === agentScriptPreview.blueprintId)?.title || "Agent_Script"
+                        )}
+                        data-testid="button-download-agent-script"
+                      >
+                        <Download className="h-3 w-3 mr-1" />
+                        DOCX
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setAgentScriptPreview(null)}
+                        data-testid="button-close-agent-script"
+                      >
+                        Close
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="prose prose-sm dark:prose-invert max-h-[500px] overflow-y-auto">
+                    <ReactMarkdown>{agentScriptPreview.content}</ReactMarkdown>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {blueprintsQuery.isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[1, 2, 3].map((i) => (
@@ -704,14 +808,30 @@ export default function StudioPage() {
                             <Clock className="h-3 w-3" />
                             {new Date(bp.createdAt).toLocaleDateString()}
                           </span>
-                          <Button
-                            size="sm"
-                            onClick={() => handleDownload(bp.id, bp.title)}
-                            data-testid={`button-download-${bp.id}`}
-                          >
-                            <Download className="h-3 w-3 mr-1" />
-                            DOCX
-                          </Button>
+                          <div className="flex items-center gap-1.5">
+                            <Button
+                              size="sm"
+                              variant={bp.agentScript ? "outline" : "secondary"}
+                              onClick={() => bp.agentScript ? setAgentScriptPreview({ blueprintId: bp.id, content: bp.agentScript }) : handleGenerateAgentScript(bp.id)}
+                              disabled={generatingAgentScriptId === bp.id}
+                              data-testid={`button-agent-script-${bp.id}`}
+                            >
+                              {generatingAgentScriptId === bp.id ? (
+                                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                              ) : (
+                                <Bot className="h-3 w-3 mr-1" />
+                              )}
+                              {bp.agentScript ? "View" : "Agent"}
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => handleDownload(bp.id, bp.title)}
+                              data-testid={`button-download-${bp.id}`}
+                            >
+                              <Download className="h-3 w-3 mr-1" />
+                              DOCX
+                            </Button>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>

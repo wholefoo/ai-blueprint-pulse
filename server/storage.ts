@@ -63,6 +63,7 @@ export interface IStorage {
   createGeneratedBlueprint(blueprint: InsertGeneratedBlueprint): Promise<GeneratedBlueprint>;
   getGeneratedBlueprints(userId: string): Promise<GeneratedBlueprint[]>;
   getGeneratedBlueprint(id: number, userId: string): Promise<GeneratedBlueprint | undefined>;
+  updateGeneratedBlueprintAgentScript(id: number, userId: string, agentScript: string): Promise<GeneratedBlueprint | undefined>;
 }
 
 class DatabaseStorage implements IStorage {
@@ -283,6 +284,14 @@ class DatabaseStorage implements IStorage {
   async getGeneratedBlueprint(id: number, userId: string): Promise<GeneratedBlueprint | undefined> {
     const [blueprint] = await db.select().from(generatedBlueprints).where(and(eq(generatedBlueprints.id, id), eq(generatedBlueprints.userId, userId)));
     return blueprint;
+  }
+
+  async updateGeneratedBlueprintAgentScript(id: number, userId: string, agentScript: string): Promise<GeneratedBlueprint | undefined> {
+    const [updated] = await db.update(generatedBlueprints)
+      .set({ agentScript })
+      .where(and(eq(generatedBlueprints.id, id), eq(generatedBlueprints.userId, userId)))
+      .returning();
+    return updated;
   }
 }
 

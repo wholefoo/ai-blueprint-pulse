@@ -6,7 +6,16 @@ AI Blueprint Pulse is a SaaS digital marketplace for marketing and selling busin
 
 **Design Theme**: Fintech-inspired aesthetic with deep navy primary colors and clean white backgrounds using Inter typography.
 
-## Recent Changes (February 2026)
+## Recent Changes (March 2026)
+- Agent Implementation Scripts
+  - Generate AI agent implementation scripts from any created blueprint
+  - GPT-4.1-powered script generation with architecture, tech stack, step-by-step implementation, prompt templates, automation workflows, deployment checklist
+  - Agent scripts stored in `agent_script` column on `generated_blueprints` table
+  - DOCX download support for agent scripts via docxService
+  - API endpoints: POST /api/studio/blueprints/:id/agent-script, GET /api/studio/blueprints/:id/agent-script/download
+  - UI: "Agent" button on blueprint cards in My Blueprints tab and Generate preview, inline viewer with DOCX download
+
+## Previous Changes (February 2026)
 - Blueprint Quality Improvements
   - Enhanced generation prompt with strict no-filler rules, anti-AI-tells, specificity requirements, professional prose standards
   - Added Claude-powered post-generation quality review pass (qualityReviewPass in server/openai.ts)

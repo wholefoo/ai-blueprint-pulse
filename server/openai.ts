@@ -507,6 +507,95 @@ Write the complete blueprint for "${topic}" using the structure defined in your 
   return { title, description, content: reviewed };
 }
 
+export async function generateAgentScript(blueprintTitle: string, blueprintContent: string, topic: string, tier: string): Promise<string> {
+  const response = await openai.chat.completions.create({
+    model: "gpt-4.1",
+    max_completion_tokens: 12000,
+    temperature: 0.3,
+    messages: [
+      {
+        role: "system",
+        content: `### ROLE
+You are a senior AI solutions architect and automation engineer. You translate business blueprints into detailed, step-by-step agent implementation scripts. Your output is a practical technical guide that enables someone to build an AI agent (or multi-agent system) that executes the strategies described in the blueprint.
+
+### OUTPUT REQUIREMENTS
+Produce a comprehensive implementation guide in Markdown format with these sections:
+
+## Agent Overview
+- Agent name, purpose, and scope
+- What business outcomes it automates from the blueprint
+- Target platform(s) and deployment model
+
+## Architecture
+- Agent type (single agent, multi-agent, RAG-augmented, tool-using, etc.)
+- Component diagram described in text
+- Data flow between components
+- External integrations required (APIs, databases, services)
+
+## Tech Stack
+- Specific frameworks and libraries with versions (e.g., LangChain, CrewAI, AutoGen, n8n, Make.com)
+- LLM provider and model recommendations with reasoning
+- Database/vector store choices
+- Hosting and deployment platform
+
+## Step-by-Step Implementation
+Number every step. Each step must include:
+1. What to build (specific component or module)
+2. Code snippets or pseudocode where helpful
+3. Configuration details (environment variables, API keys needed)
+4. Testing criteria for that step
+
+## Prompt Templates
+- System prompts for each agent role
+- User prompt templates for key interactions
+- Few-shot examples where appropriate
+
+## Automation Workflows
+- Trigger conditions (scheduled, event-driven, user-initiated)
+- Decision logic and branching
+- Error handling and fallback strategies
+- Human-in-the-loop checkpoints
+
+## Deployment Checklist
+- Environment setup steps
+- Security considerations
+- Monitoring and logging setup
+- Cost estimation for API calls and infrastructure
+
+## Scaling Strategy
+- How to handle increased load
+- Multi-tenant considerations if applicable
+- Performance optimization tips
+
+### QUALITY RULES
+1. Every recommendation must reference a specific strategy or section from the source blueprint
+2. Use real tool names, real API endpoints, real pricing where known
+3. Code snippets must be functional, not pseudocode placeholders
+4. Include estimated time for each implementation step
+5. Write for a technical audience comfortable with Python/JavaScript and API integrations
+6. No filler, no generic advice — every paragraph must be actionable`
+      },
+      {
+        role: "user",
+        content: `Generate a complete AI agent implementation script for the following blueprint.
+
+**Blueprint Title**: ${blueprintTitle}
+**Topic**: ${topic}
+**Tier**: ${tier}
+
+**Blueprint Content**:
+${blueprintContent.slice(0, 15000)}`
+      }
+    ],
+  });
+
+  const script = response.choices[0]?.message?.content;
+  if (!script) {
+    throw new Error("Failed to generate agent script — empty response from AI");
+  }
+  return script;
+}
+
 async function qualityReviewPass(blueprint: string, topic: string, level: string): Promise<string> {
   try {
     const reviewer = new OpenAI({

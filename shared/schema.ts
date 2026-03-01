@@ -115,6 +115,7 @@ export const generatedBlueprints = pgTable("generated_blueprints", {
   category: text("category").notNull(),
   topic: text("topic").notNull(),
   status: text("status").notNull().default("completed"),
+  agentScript: text("agent_script"),
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
