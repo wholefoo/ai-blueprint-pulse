@@ -6,7 +6,7 @@ import passport from "passport";
 import { isAuthenticated, setupAuth, getSession, registerAuthRoutes } from "./replit_integrations/auth";
 import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClient";
 import { WebhookHandlers } from "./webhookHandlers";
-import { analyzeBusinessTrends, generateBlueprintContent, discoverTrendingNeeds, generateAgentScript } from "./openai";
+import { analyzeBusinessTrends, generateBlueprintContent, discoverTrendingNeeds, generateAgentScript, businessInsiderIntelligence } from "./openai";
 import { multiModelAnalyze, multiModelBlueprintResearch } from "./multiModelService";
 import { triggerPostPurchaseSequence } from "./emailService";
 import { submitNexusResearch, handleNexusCallback, getNexusJobStatus, getUserNexusJobs } from "./nexusResearchService";
@@ -562,6 +562,20 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error discovering trends:", error);
       res.status(500).json({ error: "Failed to discover trends" });
+    }
+  });
+
+  app.post("/api/admin/business-intelligence", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const { industry, focusArea = "general" } = req.body;
+      if (!industry) {
+        return res.status(400).json({ error: "Industry is required" });
+      }
+      const results = await businessInsiderIntelligence(industry, focusArea);
+      res.json({ results });
+    } catch (error) {
+      console.error("Error generating business intelligence:", error);
+      res.status(500).json({ error: "Failed to generate intelligence briefing" });
     }
   });
 

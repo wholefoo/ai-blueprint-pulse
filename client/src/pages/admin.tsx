@@ -74,6 +74,7 @@ import {
   Megaphone,
   Settings,
   Handshake,
+  Briefcase,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import jsPDF from "jspdf";
@@ -1158,6 +1159,9 @@ export default function AdminPage() {
   // Trend Discovery state
   const [discoverCategory, setDiscoverCategory] = useState("general");
   const [discoverResults, setDiscoverResults] = useState("");
+  const [biIndustry, setBiIndustry] = useState("technology");
+  const [biFocusArea, setBiFocusArea] = useState("general");
+  const [biResults, setBiResults] = useState("");
 
   const [researchTopic, setResearchTopic] = useState("");
   const [researchResults, setResearchResults] = useState("");
@@ -1196,6 +1200,28 @@ export default function AdminPage() {
     onError: (error: Error) => {
       toast({
         title: "Discovery Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const biMutation = useMutation({
+    mutationFn: async ({ industry, focusArea }: { industry: string; focusArea: string }) => {
+      setBiResults("");
+      const res = await apiRequest("POST", "/api/admin/business-intelligence", { industry, focusArea });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setBiResults(data.results || "");
+      toast({
+        title: "Intelligence Briefing Ready",
+        description: "Business insider intelligence report has been generated.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Intelligence Failed",
         description: error.message,
         variant: "destructive",
       });
@@ -1340,6 +1366,10 @@ export default function AdminPage() {
             <TabsTrigger value="nexus" className="flex items-center gap-2" data-testid="tab-nexus">
               <Radio className="h-4 w-4" />
               Nexus Status
+            </TabsTrigger>
+            <TabsTrigger value="intelligence" className="flex items-center gap-2" data-testid="tab-intelligence">
+              <Briefcase className="h-4 w-4" />
+              Business Insider Intelligence
             </TabsTrigger>
             <TabsTrigger value="painpoints" className="flex items-center gap-2" data-testid="tab-painpoints">
               <Youtube className="h-4 w-4" />
@@ -1768,6 +1798,197 @@ export default function AdminPage() {
 
           <TabsContent value="nexus" className="space-y-6">
             <NexusStatusDashboard />
+          </TabsContent>
+
+          <TabsContent value="intelligence" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Briefcase className="h-5 w-5" />
+                    Intelligence Briefing
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Generate executive-level business intelligence reports with market analysis, competitive landscape, deal flow, and blueprint opportunities.
+                  </p>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="bi-industry">Industry</Label>
+                    <Select value={biIndustry} onValueChange={setBiIndustry}>
+                      <SelectTrigger data-testid="select-bi-industry">
+                        <SelectValue placeholder="Select industry" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="technology">Technology & Software</SelectItem>
+                        <SelectItem value="artificial intelligence">Artificial Intelligence</SelectItem>
+                        <SelectItem value="fintech">Fintech & Financial Services</SelectItem>
+                        <SelectItem value="healthcare">Healthcare & Biotech</SelectItem>
+                        <SelectItem value="ecommerce">E-Commerce & Retail</SelectItem>
+                        <SelectItem value="saas">SaaS & Cloud Computing</SelectItem>
+                        <SelectItem value="cybersecurity">Cybersecurity</SelectItem>
+                        <SelectItem value="real estate">Real Estate & PropTech</SelectItem>
+                        <SelectItem value="education">EdTech & Education</SelectItem>
+                        <SelectItem value="energy">Energy & CleanTech</SelectItem>
+                        <SelectItem value="media entertainment">Media & Entertainment</SelectItem>
+                        <SelectItem value="manufacturing">Manufacturing & Industry 4.0</SelectItem>
+                        <SelectItem value="logistics">Logistics & Supply Chain</SelectItem>
+                        <SelectItem value="food agriculture">Food & Agriculture</SelectItem>
+                        <SelectItem value="automotive">Automotive & Mobility</SelectItem>
+                        <SelectItem value="construction">Construction & Infrastructure</SelectItem>
+                        <SelectItem value="legal services">Legal Services & LegalTech</SelectItem>
+                        <SelectItem value="insurance">Insurance & InsurTech</SelectItem>
+                        <SelectItem value="telecommunications">Telecommunications</SelectItem>
+                        <SelectItem value="gaming">Gaming & Interactive Media</SelectItem>
+                        <SelectItem value="crypto blockchain">Crypto & Blockchain</SelectItem>
+                        <SelectItem value="hr talent">HR & Talent Management</SelectItem>
+                        <SelectItem value="marketing advertising">Marketing & Advertising</SelectItem>
+                        <SelectItem value="sustainability">Sustainability & ESG</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="bi-focus">Focus Area</Label>
+                    <Select value={biFocusArea} onValueChange={setBiFocusArea}>
+                      <SelectTrigger data-testid="select-bi-focus">
+                        <SelectValue placeholder="Select focus" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="general">General Overview</SelectItem>
+                        <SelectItem value="market sizing">Market Sizing & Growth</SelectItem>
+                        <SelectItem value="competitive analysis">Competitive Analysis</SelectItem>
+                        <SelectItem value="mergers acquisitions">Mergers & Acquisitions</SelectItem>
+                        <SelectItem value="startup ecosystem">Startup Ecosystem</SelectItem>
+                        <SelectItem value="regulatory landscape">Regulatory Landscape</SelectItem>
+                        <SelectItem value="consumer trends">Consumer Trends</SelectItem>
+                        <SelectItem value="technology adoption">Technology Adoption</SelectItem>
+                        <SelectItem value="investment opportunities">Investment Opportunities</SelectItem>
+                        <SelectItem value="workforce trends">Workforce & Talent Trends</SelectItem>
+                        <SelectItem value="ai automation impact">AI & Automation Impact</SelectItem>
+                        <SelectItem value="pricing strategy">Pricing & Monetization</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <Button
+                    onClick={() => biMutation.mutate({ industry: biIndustry, focusArea: biFocusArea })}
+                    disabled={biMutation.isPending}
+                    className="w-full"
+                    data-testid="button-generate-intelligence"
+                  >
+                    {biMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Gathering Intelligence...
+                      </>
+                    ) : (
+                      <>
+                        <Briefcase className="h-4 w-4 mr-2" />
+                        Generate Briefing
+                      </>
+                    )}
+                  </Button>
+
+                  {biResults && (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setActiveTab("research");
+                      }}
+                      data-testid="button-bi-to-research"
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Research a Topic
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+
+              <div className="lg:col-span-2">
+                <Card className="h-full">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart className="h-5 w-5" />
+                      Intelligence Report
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {biMutation.isPending ? (
+                      <div className="space-y-4">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-4 w-5/6" />
+                        <Skeleton className="h-32 w-full" />
+                        <Skeleton className="h-4 w-2/3" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-20 w-full" />
+                        <Skeleton className="h-4 w-4/5" />
+                      </div>
+                    ) : biResults ? (
+                      <div className="max-h-[700px] overflow-y-auto pr-2 space-y-6">
+                        {(() => {
+                          const nicheMatch = biResults.match(/---NICHES---\n([\s\S]*?)---END_NICHES---/);
+                          if (nicheMatch) {
+                            const niches = nicheMatch[1]
+                              .split('\n')
+                              .map(n => n.trim())
+                              .filter(n => n.length > 0);
+
+                            if (niches.length > 0) {
+                              return (
+                                <Card className="border-primary/20 bg-primary/5">
+                                  <CardHeader className="pb-3">
+                                    <CardTitle className="text-base flex items-center gap-2">
+                                      <Target className="h-4 w-4" />
+                                      Blueprint Opportunities — Click to Research
+                                    </CardTitle>
+                                  </CardHeader>
+                                  <CardContent className="pt-0">
+                                    <div className="flex flex-wrap gap-2">
+                                      {niches.map((niche, idx) => (
+                                        <Button
+                                          key={idx}
+                                          variant="outline"
+                                          size="sm"
+                                          className="text-xs"
+                                          onClick={() => {
+                                            setResearchTopic(niche);
+                                            setActiveTab("research");
+                                          }}
+                                          data-testid={`button-bi-niche-${idx}`}
+                                        >
+                                          {niche}
+                                        </Button>
+                                      ))}
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              );
+                            }
+                          }
+                          return null;
+                        })()}
+
+                        <article className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-serif">
+                          <ReactMarkdown>
+                            {biResults.replace(/---NICHES---[\s\S]*?---END_NICHES---/, '')}
+                          </ReactMarkdown>
+                        </article>
+                      </div>
+                    ) : (
+                      <div className="text-center py-12 text-muted-foreground">
+                        <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p className="font-medium mb-1">No Intelligence Report Yet</p>
+                        <p className="text-sm">Select an industry and focus area, then click "Generate Briefing" to create an executive intelligence report.</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="painpoints" className="space-y-6">

@@ -14,6 +14,14 @@ AI Blueprint Pulse is a SaaS digital marketplace for marketing and selling busin
   - DOCX download support for agent scripts via docxService
   - API endpoints: POST /api/studio/blueprints/:id/agent-script, GET /api/studio/blueprints/:id/agent-script/download
   - UI: "Agent" button on blueprint cards in My Blueprints tab and Generate preview, inline viewer with DOCX download
+- Business Insider Intelligence (Admin Dashboard)
+  - New admin tab for executive-level business intelligence briefings
+  - Tavily-powered research across 6 query dimensions (market size, competitive landscape, strategy, M&A, regulation, consumer behavior)
+  - GPT-4.1 synthesis into structured reports: Executive Summary, Market Landscape, Disruption Watch, Deal Flow, Consumer Intelligence, Threat/Opportunity Matrix, Blueprint Opportunities, 30-Day Action Items
+  - 24 industry verticals, 12 focus areas (market sizing, competitive analysis, M&A, startup ecosystem, etc.)
+  - Clickable niche buttons link directly to Research & Generate tab
+  - API endpoint: POST /api/admin/business-intelligence
+  - Function: businessInsiderIntelligence() in server/openai.ts
 
 ## Previous Changes (February 2026)
 - Blueprint Quality Improvements

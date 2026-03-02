@@ -124,6 +124,133 @@ ${analysis}
 *Report generated using real-time community data from Reddit, forums, and industry sources.*`;
 }
 
+export async function businessInsiderIntelligence(industry: string, focusArea: string = "general"): Promise<string> {
+  const searchQueries = [
+    `${industry} industry report market size revenue growth 2025 2026`,
+    `${industry} competitive landscape market leaders disruption startups 2026`,
+    `${industry} ${focusArea} business strategy trends executive insights 2026`,
+    `${industry} mergers acquisitions partnerships funding rounds 2026`,
+    `${industry} regulatory changes technology adoption digital transformation 2026`,
+    `${industry} consumer behavior shifts demand forecast emerging opportunities 2026`,
+  ];
+
+  let allResults: Array<{ title: string; content: string; url: string }> = [];
+
+  for (const query of searchQueries) {
+    try {
+      const searchResponse = await tvly.search(query, {
+        searchDepth: "advanced",
+        maxResults: 4,
+      });
+      allResults = allResults.concat(
+        searchResponse.results.map((r: { title?: string; content?: string; url?: string }) => ({
+          title: r.title || "Source",
+          content: r.content || "",
+          url: r.url || "N/A",
+        }))
+      );
+    } catch (error) {
+      console.error("Tavily search error for BI query:", query, error);
+    }
+  }
+
+  if (allResults.length === 0) {
+    return "Unable to gather intelligence data. Please try again.";
+  }
+
+  const rawFindings = allResults
+    .map((r) => `**${r.title}**\n${r.content}\nSource: ${r.url}`)
+    .join("\n\n---\n\n");
+
+  const analysisResponse = await openai.chat.completions.create({
+    model: "gpt-4.1",
+    messages: [
+      {
+        role: "system",
+        content: `You are a senior business intelligence analyst producing an executive briefing for a digital publishing platform. Your job is to synthesize real-time market data into a structured intelligence report that identifies actionable blueprint and content opportunities.
+
+Write with the precision and authority of a Wall Street research analyst. Use real numbers, real company names, and specific data points wherever possible. Never use filler or speculation without labeling it as such.`
+      },
+      {
+        role: "user",
+        content: `Produce a comprehensive Business Insider Intelligence briefing for the **${industry}** industry${focusArea !== "general" ? `, with a focus on **${focusArea}**` : ""}.
+
+Raw research data:
+
+${rawFindings}
+
+Structure your report as follows:
+
+## Executive Summary
+A 3-4 sentence overview of the most critical findings.
+
+## Market Landscape
+- Current market size and growth trajectory
+- Key players and their market positions
+- Recent shifts in competitive dynamics
+
+## Disruption & Innovation Watch
+- Emerging technologies or business models gaining traction
+- Startups or newcomers challenging incumbents
+- AI and automation impact on the industry
+
+## Strategic Moves & Deal Flow
+- Notable M&A activity, partnerships, or funding rounds
+- Executive moves and leadership changes
+- Regulatory developments that could reshape the market
+
+## Consumer & Demand Intelligence
+- Shifting consumer preferences or buyer behaviors
+- Underserved segments or unmet demand signals
+- Pricing trends and willingness-to-pay indicators
+
+## Threat & Opportunity Matrix
+| Category | Threat Level | Opportunity Level | Key Insight |
+|----------|-------------|-------------------|-------------|
+| [Area 1] | High/Med/Low | High/Med/Low | [Specific insight] |
+| [Area 2] | ... | ... | ... |
+(Include at least 5 rows)
+
+## Blueprint Opportunities
+For each opportunity, provide:
+- **Topic**: Specific blueprint title
+- **Why Now**: What makes this timely
+- **Target Buyer**: Who would purchase this
+- **Recommended Tier**: Starter/Growth/Enterprise
+- **Revenue Potential**: Low/Medium/High
+(Identify at least 5 opportunities)
+
+## 30-Day Action Items
+1. [Specific, time-bound action]
+2. [Another action]
+(At least 5 items)
+
+IMPORTANT: At the very end, include a section exactly like this with 6-10 specific blueprint topics (these will become clickable buttons):
+
+---NICHES---
+[Niche 1 - be specific, e.g., "AI-Powered Supply Chain Optimization for Mid-Market Retailers"]
+[Niche 2]
+[Niche 3]
+[Niche 4]
+[Niche 5]
+[Niche 6]
+---END_NICHES---`
+      }
+    ],
+    max_completion_tokens: 4096,
+  });
+
+  const analysis = analysisResponse.choices[0]?.message?.content || "";
+
+  return `# Business Insider Intelligence: ${industry.charAt(0).toUpperCase() + industry.slice(1)}${focusArea !== "general" ? ` — ${focusArea}` : ""}
+
+${analysis}
+
+---
+
+*Intelligence briefing generated using real-time market data from industry reports, news sources, and financial databases.*`;
+}
+
 export async function analyzeBusinessTrends(topic: string): Promise<string> {
   // Step 0: Fetch real-time trends using Tavily web search
   let webResearchContext = "";
