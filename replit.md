@@ -22,6 +22,15 @@ AI Blueprint Pulse is a SaaS digital marketplace for marketing and selling busin
   - Clickable niche buttons link directly to Research & Generate tab
   - API endpoint: POST /api/admin/business-intelligence
   - Function: businessInsiderIntelligence() in server/openai.ts
+- Landing Page Content Update (March 2026)
+  - Updated hero subtitle to mention 24 industry verticals and executive-level research
+  - Replaced "Actionable Insights" feature card with "Business Intelligence Built In" (Briefcase icon)
+  - Updated stats bar: added "24 Industries / Market Intelligence" stat
+  - Updated "Consensus-Verified" card to mention Tavily web research
+  - Blueprint Studio description updated with market intelligence reference
+  - Added "Market Intelligence Research" bullet to credit packages
+  - Updated FAQs to reference BI engine, 24 verticals, M&A tracking
+  - Updated CTA text with "intelligence-backed" messaging
 
 ## Previous Changes (February 2026)
 - Blueprint Quality Improvements

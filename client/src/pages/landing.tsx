@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { 
   ArrowRight, 
   Sparkles, 
-  TrendingUp, 
   Shield, 
   Zap, 
   Target, 
@@ -34,6 +33,7 @@ import {
   Settings,
   Handshake,
   Bot,
+  Briefcase,
 } from "lucide-react";
 import {
   Accordion,
@@ -100,16 +100,16 @@ const features = [
     iconColor: "text-purple-500",
   },
   {
-    icon: TrendingUp,
-    title: "Actionable Insights",
-    description: "Step-by-step blueprints you can implement immediately to drive measurable business growth, not generic theory.",
+    icon: Briefcase,
+    title: "Business Intelligence Built In",
+    description: "Every blueprint is backed by executive-level market research — industry analysis, competitive landscape, deal flow tracking, and threat/opportunity matrices across 24 verticals.",
     gradient: "from-amber-500/10 to-orange-500/10",
     iconColor: "text-amber-500",
   },
   {
     icon: Shield,
     title: "Consensus-Verified",
-    description: "Cross-validated by multiple AI models to surface high-confidence insights no single model would catch alone.",
+    description: "Cross-validated by multiple AI models and real-time Tavily web research to surface high-confidence insights no single source would catch alone.",
     gradient: "from-rose-500/10 to-pink-500/10",
     iconColor: "text-rose-500",
   },
@@ -293,9 +293,9 @@ const tiers = [
 
 const stats = [
   { value: "5 AI Models", label: "Working Together", icon: Sparkles },
+  { value: "24 Industries", label: "Market Intelligence", icon: Briefcase },
   { value: "15 Categories", label: "Blueprint Topics", icon: Target },
   { value: "Agent Scripts", label: "Build & Deploy", icon: Bot },
-  { value: "Full Rights", label: "Resale Included", icon: FileText },
 ];
 
 const faqs = [
@@ -305,7 +305,7 @@ const faqs = [
   },
   {
     question: "How is AI Blueprint Pulse different from other business courses?",
-    answer: "Unlike static courses that become outdated the moment they're published, our blueprints are generated using 5 AI models working together — ChatGPT, Claude, Gemini, Grok, and Perplexity — each analyzing your topic independently before a synthesis step combines their best insights into one consensus-verified report. You get actionable intelligence based on what's working right now, cross-validated across multiple AI perspectives for maximum accuracy. Traditional courses often take months to produce and can cost thousands of dollars. Our platform delivers focused, multi-model-verified guidance in minutes at a fraction of the price. Plus, with our Blueprint Studio, you can generate custom guides tailored to your exact business topic and industry, and then generate an Agent Implementation Script to turn that guide into a buildable AI agent system — something no pre-recorded course can offer."
+    answer: "Unlike static courses that become outdated the moment they're published, our blueprints are generated using 5 AI models working together — ChatGPT, Claude, Gemini, Grok, and Perplexity — each analyzing your topic independently before a synthesis step combines their best insights into one consensus-verified report. Every blueprint is informed by real-time business intelligence research across 24 industry verticals, covering market sizing, competitive landscapes, M&A activity, and consumer demand signals. You get actionable intelligence based on what's working right now, cross-validated across multiple AI perspectives for maximum accuracy. Traditional courses often take months to produce and can cost thousands of dollars. Our platform delivers focused, intelligence-backed guidance in minutes at a fraction of the price. Plus, with our Blueprint Studio, you can generate custom guides tailored to your exact business topic and industry, and then generate an Agent Implementation Script to turn that guide into a buildable AI agent system — something no pre-recorded course can offer."
   },
   {
     question: "Do I get lifetime access to purchased blueprints?",
@@ -373,7 +373,7 @@ const faqs = [
   },
   {
     question: "How often is new content added?",
-    answer: "We continuously add new blueprints to the marketplace based on market demands and emerging business trends. Our AI research engine is constantly analyzing opportunities across all industries, so you'll see fresh content added regularly across all 15 categories. Beyond the marketplace, the Blueprint Studio lets you generate content on any topic at any time, so you're never limited to what's already available. If there's a niche topic or emerging trend you need a guide for, you can create one yourself in minutes."
+    answer: "We continuously add new blueprints to the marketplace based on market demands and emerging business trends. Our Business Insider Intelligence engine monitors 24 industry verticals in real time — tracking market shifts, competitive moves, M&A activity, and consumer behavior — to identify the highest-value blueprint opportunities. Beyond the marketplace, the Blueprint Studio lets you generate content on any topic at any time, so you're never limited to what's already available. If there's a niche topic or emerging trend you need a guide for, you can create one yourself in minutes."
   },
   {
     question: "What makes actionable blueprints so powerful?",
@@ -405,8 +405,8 @@ export default function LandingPage() {
             </h1>
             
             <p className="animate-fade-in-up animation-delay-200 mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
-              Actionable business guides powered by 5 AI models working together — ChatGPT, Claude, Gemini, Grok, and Perplexity. 
-              Generate blueprints across 15 categories, then turn them into AI agent implementation scripts you can build and deploy.
+              Business blueprints powered by 5 AI models and real-time market intelligence across 24 industry verticals. 
+              Generate guides in 15 categories, create agent implementation scripts, and deploy — all backed by executive-level research.
             </p>
             
             <div className="animate-fade-in-up animation-delay-300 mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -494,7 +494,7 @@ export default function LandingPage() {
               </Badge>
               <h2 className="font-serif text-3xl font-bold">Why AI Blueprint Pulse?</h2>
               <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-                We combine 5 AI models with real-world business expertise to create guides you can implement — and agent scripts you can build.
+                We combine 5 AI models, real-time market intelligence, and executive-level research to create blueprints you can implement and agent scripts you can build.
               </p>
             </div>
           </ScrollReveal>
@@ -595,7 +595,7 @@ export default function LandingPage() {
                   Build Your Own — on any topic, in seconds
                 </p>
                 <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-                  Use credits to generate a fully custom business blueprint tailored to your exact needs. Pick any topic, choose a category, and our AI engine delivers a polished Word document with full resale rights. Then generate an AI agent implementation script to turn your blueprint into a deployable system.
+                  Use credits to generate a fully custom business blueprint backed by real-time market intelligence across 24 industry verticals. Pick any topic, choose a category, and our AI engine delivers a polished Word document with full resale rights. Then generate an agent implementation script to turn your blueprint into a deployable system.
                 </p>
               </div>
 
@@ -637,6 +637,10 @@ export default function LandingPage() {
                         <div className="flex items-center gap-2 text-sm text-foreground">
                           <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
                           <span>Agent Script Generation</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-foreground">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                          <span>Market Intelligence Research</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-foreground">
                           <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
@@ -713,7 +717,7 @@ export default function LandingPage() {
               </div>
               <h2 className="font-serif text-3xl font-bold mb-4">Ready to Accelerate Your Success?</h2>
               <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
-                Join action-taking entrepreneurs and business leaders who use our blueprints and agent scripts to build smarter businesses.
+                Join entrepreneurs and business leaders who use our intelligence-backed blueprints and agent scripts to build smarter, faster businesses.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-4">
                 <Link href="/marketplace">
