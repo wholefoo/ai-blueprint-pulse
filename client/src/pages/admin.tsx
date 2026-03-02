@@ -75,10 +75,14 @@ import {
   Settings,
   Handshake,
   Briefcase,
+  Newspaper,
+  Trash2,
+  Globe,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import jsPDF from "jspdf";
-import type { Blueprint, ResearchSession, BlueprintTier, NexusResearchJob, NexusJobStatus } from "@shared/schema";
+import { Switch } from "@/components/ui/switch";
+import type { Blueprint, BlogPost, ResearchSession, BlueprintTier, NexusResearchJob, NexusJobStatus } from "@shared/schema";
 
 const tierOptions: { value: BlueprintTier; label: string; icon: typeof BookOpen }[] = [
   { value: "free", label: "Free", icon: BookOpen },
@@ -1149,6 +1153,435 @@ function DownloadsSection() {
   );
 }
 
+const blogCategoryOptions = [
+  "Marketing",
+  "Sales",
+  "Operations",
+  "Technology",
+  "Strategy",
+  "Leadership",
+  "AI & Automation",
+  "Growth",
+  "Finance",
+  "Customer Service",
+  "Industry Trends",
+  "Case Studies",
+];
+
+function BlogManager() {
+  const { toast } = useToast();
+  const [blogTopic, setBlogTopic] = useState("");
+  const [blogCategory, setBlogCategory] = useState("Marketing");
+  const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+  const [draftTitle, setDraftTitle] = useState("");
+  const [draftExcerpt, setDraftExcerpt] = useState("");
+  const [draftContent, setDraftContent] = useState("");
+  const [draftCategory, setDraftCategory] = useState("Marketing");
+  const [draftPublished, setDraftPublished] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const { data: blogPosts = [], isLoading: postsLoading } = useQuery<BlogPost[]>({
+    queryKey: ["/api/admin/blog"],
+  });
+
+  const generateMutation = useMutation({
+    mutationFn: async ({ topic, category }: { topic: string; category: string }) => {
+      const res = await apiRequest("POST", "/api/admin/blog/generate", { topic, category });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setDraftTitle(data.title || "");
+      setDraftExcerpt(data.excerpt || "");
+      setDraftContent(data.content || "");
+      setDraftCategory(blogCategory);
+      setDraftPublished(false);
+      setEditingPost(null);
+      toast({
+        title: "Blog Post Generated",
+        description: "Review and edit the generated post before publishing.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Generation Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const slug = draftTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const payload = {
+        title: draftTitle,
+        slug,
+        excerpt: draftExcerpt,
+        content: draftContent,
+        category: draftCategory,
+        isPublished: draftPublished,
+        publishedAt: draftPublished ? new Date().toISOString() : null,
+        authorName: "AI Blueprint Pulse",
+      };
+
+      if (editingPost) {
+        const res = await apiRequest("PATCH", `/api/admin/blog/${editingPost.id}`, payload);
+        return res.json();
+      } else {
+        const res = await apiRequest("POST", "/api/admin/blog", payload);
+        return res.json();
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/blog"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/blog"] });
+      clearDraft();
+      toast({
+        title: editingPost ? "Post Updated" : "Post Saved",
+        description: draftPublished ? "The blog post has been published." : "The blog post has been saved as a draft.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Save Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const publishToggleMutation = useMutation({
+    mutationFn: async ({ id, isPublished }: { id: number; isPublished: boolean }) => {
+      const res = await apiRequest("PATCH", `/api/admin/blog/${id}`, {
+        isPublished,
+        publishedAt: isPublished ? new Date().toISOString() : null,
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/blog"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/blog"] });
+      toast({ title: "Post status updated" });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Update failed", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/admin/blog/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/blog"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/blog"] });
+      toast({ title: "Post Deleted" });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const clearDraft = () => {
+    setDraftTitle("");
+    setDraftExcerpt("");
+    setDraftContent("");
+    setDraftCategory("Marketing");
+    setDraftPublished(false);
+    setEditingPost(null);
+    setShowPreview(false);
+  };
+
+  const loadPostForEditing = (post: BlogPost) => {
+    setEditingPost(post);
+    setDraftTitle(post.title);
+    setDraftExcerpt(post.excerpt);
+    setDraftContent(post.content);
+    setDraftCategory(post.category);
+    setDraftPublished(post.isPublished ?? false);
+    setShowPreview(false);
+  };
+
+  const hasDraft = draftTitle || draftContent;
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5" />
+              Generate Blog Post
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Use AI to generate a blog post from a topic. The post will use web research and multi-model analysis.
+            </p>
+            <div className="space-y-2">
+              <Label>Topic</Label>
+              <Input
+                placeholder="e.g., How AI is Transforming B2B Sales in 2025"
+                value={blogTopic}
+                onChange={(e) => setBlogTopic(e.target.value)}
+                data-testid="input-blog-topic"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Category</Label>
+              <Select value={blogCategory} onValueChange={setBlogCategory}>
+                <SelectTrigger data-testid="select-blog-category">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {blogCategoryOptions.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              onClick={() => generateMutation.mutate({ topic: blogTopic, category: blogCategory })}
+              disabled={!blogTopic.trim() || generateMutation.isPending}
+              className="w-full"
+              data-testid="button-generate-blog"
+            >
+              {generateMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Generating Post...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate Post
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+
+        <div className="lg:col-span-2">
+          {hasDraft ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="flex items-center gap-2">
+                    <Pencil className="h-5 w-5" />
+                    {editingPost ? "Edit Post" : "New Post"}
+                  </span>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowPreview(!showPreview)}
+                      data-testid="button-toggle-preview"
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      {showPreview ? "Edit" : "Preview"}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearDraft}
+                      data-testid="button-clear-draft"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Clear
+                    </Button>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {showPreview ? (
+                  <div className="space-y-4">
+                    <div>
+                      <Badge variant="secondary">{draftCategory}</Badge>
+                      <h2 className="text-xl font-bold mt-2" data-testid="text-preview-title">{draftTitle}</h2>
+                      <p className="text-sm text-muted-foreground mt-1" data-testid="text-preview-excerpt">{draftExcerpt}</p>
+                    </div>
+                    <ScrollArea className="h-96 rounded-lg border p-4">
+                      <article className="prose prose-sm dark:prose-invert max-w-none">
+                        <ReactMarkdown>{draftContent}</ReactMarkdown>
+                      </article>
+                    </ScrollArea>
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <Label>Title</Label>
+                      <Input
+                        value={draftTitle}
+                        onChange={(e) => setDraftTitle(e.target.value)}
+                        placeholder="Post title"
+                        data-testid="input-blog-title"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Excerpt</Label>
+                      <Textarea
+                        value={draftExcerpt}
+                        onChange={(e) => setDraftExcerpt(e.target.value)}
+                        placeholder="Brief summary of the post"
+                        className="resize-none"
+                        rows={2}
+                        data-testid="input-blog-excerpt"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Category</Label>
+                      <Select value={draftCategory} onValueChange={setDraftCategory}>
+                        <SelectTrigger data-testid="select-blog-draft-category">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {blogCategoryOptions.map((cat) => (
+                            <SelectItem key={cat} value={cat}>
+                              {cat}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Content (Markdown)</Label>
+                      <Textarea
+                        value={draftContent}
+                        onChange={(e) => setDraftContent(e.target.value)}
+                        placeholder="Write your blog post content in markdown..."
+                        className="resize-none font-mono text-sm"
+                        rows={12}
+                        data-testid="input-blog-content"
+                      />
+                    </div>
+                  </>
+                )}
+
+                <div className="flex items-center justify-between gap-4 pt-2 border-t flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={draftPublished}
+                      onCheckedChange={setDraftPublished}
+                      data-testid="switch-blog-publish"
+                    />
+                    <Label className="text-sm">
+                      {draftPublished ? (
+                        <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                          <Globe className="h-3 w-3" /> Published
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">Draft</span>
+                      )}
+                    </Label>
+                  </div>
+                  <Button
+                    onClick={() => saveMutation.mutate()}
+                    disabled={!draftTitle || !draftContent || saveMutation.isPending}
+                    data-testid="button-save-blog"
+                  >
+                    {saveMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    {editingPost ? "Update Post" : "Save Post"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="h-full">
+              <CardContent className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+                <Newspaper className="h-12 w-12 mb-4 opacity-20" />
+                <p className="text-center">Generate a blog post or click "Edit" on an existing post below.</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            All Blog Posts ({blogPosts.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {postsLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-16" />
+              ))}
+            </div>
+          ) : blogPosts.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No blog posts yet. Use the generator above to create your first post.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {blogPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="flex items-center justify-between gap-4 p-4 rounded-lg border"
+                  data-testid={`row-blog-${post.id}`}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <Badge variant="secondary">{post.category}</Badge>
+                      {post.isPublished ? (
+                        <Badge variant="outline" className="text-green-600 dark:text-green-400 border-green-600/30">
+                          Published
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-muted-foreground">
+                          Draft
+                        </Badge>
+                      )}
+                    </div>
+                    <h4 className="font-medium truncate" data-testid={`text-blog-title-${post.id}`}>
+                      {post.title}
+                    </h4>
+                    <p className="text-xs text-muted-foreground truncate">{post.excerpt}</p>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => publishToggleMutation.mutate({ id: post.id, isPublished: !post.isPublished })}
+                      data-testid={`button-toggle-publish-${post.id}`}
+                    >
+                      {post.isPublished ? <Eye className="h-4 w-4" /> : <Globe className="h-4 w-4" />}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => loadPostForEditing(post)}
+                      data-testid={`button-edit-blog-${post.id}`}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => deleteMutation.mutate(post.id)}
+                      data-testid={`button-delete-blog-${post.id}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("discover");
@@ -1374,6 +1807,10 @@ export default function AdminPage() {
             <TabsTrigger value="painpoints" className="flex items-center gap-2" data-testid="tab-painpoints">
               <Youtube className="h-4 w-4" />
               Pain Point Discovery
+            </TabsTrigger>
+            <TabsTrigger value="blog" className="flex items-center gap-2" data-testid="tab-blog">
+              <Newspaper className="h-4 w-4" />
+              Blog Manager
             </TabsTrigger>
             <TabsTrigger value="downloads" className="flex items-center gap-2">
               <Download className="h-4 w-4" />
@@ -1993,6 +2430,10 @@ export default function AdminPage() {
 
           <TabsContent value="painpoints" className="space-y-6">
             <PainPointDiscovery />
+          </TabsContent>
+
+          <TabsContent value="blog" className="space-y-6">
+            <BlogManager />
           </TabsContent>
 
           <TabsContent value="blueprints">

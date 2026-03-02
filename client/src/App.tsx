@@ -19,6 +19,8 @@ import CheckoutSuccessPage from "@/pages/checkout-success";
 import TermsPage from "@/pages/terms";
 import AboutPage from "@/pages/about";
 import StudioPage from "@/pages/studio";
+import BlogPage from "@/pages/blog";
+import BlogPostPage from "@/pages/blog-post";
 import { useAuth } from "@/hooks/use-auth";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
@@ -105,6 +107,8 @@ function Router() {
       <Route path="/checkout/cancel" component={MarketplacePage} />
       <Route path="/terms" component={TermsPage} />
       <Route path="/about" component={AboutPage} />
+      <Route path="/blog" component={BlogPage} />
+      <Route path="/blog/:slug" component={BlogPostPage} />
       <Route component={NotFound} />
     </Switch>
   );

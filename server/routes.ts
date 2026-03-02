@@ -6,12 +6,12 @@ import passport from "passport";
 import { isAuthenticated, setupAuth, getSession, registerAuthRoutes } from "./replit_integrations/auth";
 import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClient";
 import { WebhookHandlers } from "./webhookHandlers";
-import { analyzeBusinessTrends, generateBlueprintContent, discoverTrendingNeeds, generateAgentScript, businessInsiderIntelligence } from "./openai";
+import { analyzeBusinessTrends, generateBlueprintContent, discoverTrendingNeeds, generateAgentScript, businessInsiderIntelligence, generateBlogPost } from "./openai";
 import { multiModelAnalyze, multiModelBlueprintResearch } from "./multiModelService";
 import { triggerPostPurchaseSequence } from "./emailService";
 import { submitNexusResearch, handleNexusCallback, getNexusJobStatus, getUserNexusJobs } from "./nexusResearchService";
 import { extractVideoId, getVideoInfo, fetchComments, analyzePainPoints, searchVideos } from "./youtubeScraperService";
-import { insertBlueprintSchema, nexusJobStatuses } from "@shared/schema";
+import { insertBlueprintSchema, insertBlogPostSchema, nexusJobStatuses } from "@shared/schema";
 import type { NexusJobStatus } from "@shared/schema";
 import { z } from "zod";
 
@@ -1145,6 +1145,117 @@ export async function registerRoutes(
     } catch (error: any) {
       console.error("[YouTube] Comments fetch error:", error);
       res.status(500).json({ error: error.message || "Failed to fetch comments" });
+    }
+  });
+
+  // ==========================================
+  // Public Blog Routes
+  // ==========================================
+  app.get("/api/blog", async (_req: Request, res: Response) => {
+    try {
+      const posts = await storage.getPublishedBlogPosts();
+      res.json(posts);
+    } catch (error) {
+      console.error("Error fetching blog posts:", error);
+      res.status(500).json({ error: "Failed to fetch blog posts" });
+    }
+  });
+
+  app.get("/api/blog/:slug", async (req: Request, res: Response) => {
+    try {
+      const post = await storage.getBlogPostBySlug(req.params.slug);
+      if (!post || !post.isPublished) {
+        return res.status(404).json({ error: "Blog post not found" });
+      }
+      res.json(post);
+    } catch (error) {
+      console.error("Error fetching blog post:", error);
+      res.status(500).json({ error: "Failed to fetch blog post" });
+    }
+  });
+
+  // ==========================================
+  // Admin Blog Routes
+  // ==========================================
+  app.get("/api/admin/blog", isAuthenticated, isAdmin, async (_req: any, res: Response) => {
+    try {
+      const posts = await storage.getAllBlogPosts();
+      res.json(posts);
+    } catch (error) {
+      console.error("Error fetching all blog posts:", error);
+      res.status(500).json({ error: "Failed to fetch blog posts" });
+    }
+  });
+
+  app.post("/api/admin/blog/generate", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const { topic, category } = req.body;
+      if (!topic || !category) {
+        return res.status(400).json({ error: "Topic and category are required" });
+      }
+      const result = await generateBlogPost(topic, category);
+      res.json(result);
+    } catch (error) {
+      console.error("Error generating blog post:", error);
+      res.status(500).json({ error: "Failed to generate blog post" });
+    }
+  });
+
+  app.post("/api/admin/blog", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const validated = insertBlogPostSchema.parse({
+        ...req.body,
+        coverImageUrl: req.body.coverImageUrl || null,
+        authorName: req.body.authorName || "AI Blueprint Pulse",
+        isPublished: req.body.isPublished || false,
+        publishedAt: req.body.isPublished ? new Date() : null,
+      });
+      const post = await storage.createBlogPost(validated);
+      res.status(201).json(post);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid blog post data", details: error.errors });
+      }
+      if (error?.code === "23505") {
+        return res.status(409).json({ error: "A blog post with this slug already exists" });
+      }
+      console.error("Error creating blog post:", error);
+      res.status(500).json({ error: "Failed to create blog post" });
+    }
+  });
+
+  app.patch("/api/admin/blog/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validated = insertBlogPostSchema.partial().parse(req.body);
+      if (validated.isPublished && !validated.publishedAt) {
+        validated.publishedAt = new Date();
+      }
+      const post = await storage.updateBlogPost(id, validated);
+      if (!post) {
+        return res.status(404).json({ error: "Blog post not found" });
+      }
+      res.json(post);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid blog post data", details: error.errors });
+      }
+      if (error?.code === "23505") {
+        return res.status(409).json({ error: "A blog post with this slug already exists" });
+      }
+      console.error("Error updating blog post:", error);
+      res.status(500).json({ error: "Failed to update blog post" });
+    }
+  });
+
+  app.delete("/api/admin/blog/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteBlogPost(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting blog post:", error);
+      res.status(500).json({ error: "Failed to delete blog post" });
     }
   });
 

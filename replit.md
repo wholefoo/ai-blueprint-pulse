@@ -22,6 +22,16 @@ AI Blueprint Pulse is a SaaS digital marketplace for marketing and selling busin
   - Clickable niche buttons link directly to Research & Generate tab
   - API endpoint: POST /api/admin/business-intelligence
   - Function: businessInsiderIntelligence() in server/openai.ts
+- Public Blog
+  - AI-generated blog posts using same tools as blueprint generation (Tavily web research + GPT-4.1)
+  - Database table: `blog_posts` (title, slug, excerpt, content, category, coverImageUrl, authorName, isPublished, publishedAt)
+  - Public routes: GET /api/blog (list published), GET /api/blog/:slug (single post)
+  - Admin routes: GET /api/admin/blog (all posts), POST /api/admin/blog/generate (AI generation), POST /api/admin/blog (create), PATCH /api/admin/blog/:id (update), DELETE /api/admin/blog/:id (delete)
+  - Blog Manager admin tab: AI topic+category generation, markdown editor with preview, publish/draft toggle, post management
+  - Public pages: /blog (listing with category filters), /blog/:slug (detail with markdown rendering)
+  - Blog link in navbar between Marketplace and Studio (BookOpen icon)
+  - Zod validation on admin create/update routes
+  - Function: generateBlogPost() in server/openai.ts
 - Landing Page Content Update (March 2026)
   - Updated hero subtitle to mention 24 industry verticals and executive-level research
   - Replaced "Actionable Insights" feature card with "Business Intelligence Built In" (Briefcase icon)

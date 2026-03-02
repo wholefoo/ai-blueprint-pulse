@@ -771,3 +771,100 @@ async function qualityReviewPass(blueprint: string, topic: string, level: string
     return blueprint;
   }
 }
+
+export async function generateBlogPost(topic: string, category: string): Promise<{
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+}> {
+  let webResearchContext = "";
+  try {
+    const searchResponse = await tvly.search(
+      `${topic} business insights trends analysis 2026`,
+      { searchDepth: "advanced", maxResults: 5 }
+    );
+    webResearchContext = searchResponse.results
+      .map((r: { title?: string; content?: string; url?: string }) =>
+        `**${r.title || "Source"}**\n${r.content || ""}\nSource: ${r.url || "N/A"}`
+      )
+      .join("\n\n---\n\n");
+  } catch (error) {
+    console.error("Tavily search error for blog:", error);
+    webResearchContext = "Unable to fetch real-time web data. Using AI analysis only.";
+  }
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4.1",
+    messages: [
+      {
+        role: "system",
+        content: `You are an expert business writer producing high-quality blog posts for AI Blueprint Pulse, a platform that sells AI-generated business success guides.
+
+Your writing style:
+- Clear, authoritative, and engaging — written for entrepreneurs and business leaders
+- Data-driven with specific examples, numbers, and real-world references
+- Actionable — every post should give readers something they can implement
+- SEO-friendly with natural keyword usage in headings and body text
+- Professional but accessible — no academic jargon, no filler phrases
+
+Structure requirements:
+- Strong, compelling headline (not clickbait)
+- Opening hook that establishes relevance and urgency
+- 3-5 clearly organized sections with H2 headings
+- Practical takeaways, frameworks, or checklists where appropriate
+- Closing section with a clear call to action or next steps
+- 1,500-2,500 words total
+
+ABSOLUTE RULES:
+- No phrases like "in today's rapidly evolving landscape" or "it's important to note"
+- No generic filler — every sentence must add value
+- No first-person unless sharing a specific case study
+- Use present tense and active voice
+- Include specific numbers, percentages, and data points from the research provided
+
+Return your response as a valid JSON object with these fields:
+{
+  "title": "The blog post title",
+  "excerpt": "A compelling 1-2 sentence summary (max 200 characters) for preview cards",
+  "content": "The full blog post in Markdown format"
+}`
+      },
+      {
+        role: "user",
+        content: `Write a blog post about: "${topic}"
+Category: ${category}
+
+Real-time research data (2026):
+${webResearchContext}
+
+Generate a compelling, data-driven blog post based on this research. Make it specific to the topic and use the research data to support key points.`
+      }
+    ],
+    max_completion_tokens: 4096,
+    response_format: { type: "json_object" },
+  });
+
+  const raw = response.choices[0]?.message?.content || "{}";
+  let parsed: { title?: string; excerpt?: string; content?: string };
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    parsed = { title: topic, excerpt: `Insights on ${topic}`, content: raw };
+  }
+
+  const title = parsed.title || topic;
+  const slug = title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 80);
+
+  return {
+    title,
+    slug,
+    excerpt: parsed.excerpt || `Insights on ${topic}`,
+    content: parsed.content || raw,
+  };
+}

@@ -176,7 +176,29 @@ export const insertGeneratedBlueprintSchema = createInsertSchema(generatedBluepr
   createdAt: true,
 });
 
+// Blog posts table
+export const blogPosts = pgTable("blog_posts", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  excerpt: text("excerpt").notNull(),
+  content: text("content").notNull(),
+  category: text("category").notNull(),
+  coverImageUrl: text("cover_image_url"),
+  authorName: text("author_name").notNull().default("AI Blueprint Pulse"),
+  isPublished: boolean("is_published").default(false),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
 export type Blueprint = typeof blueprints.$inferSelect;
 export type InsertBlueprint = z.infer<typeof insertBlueprintSchema>;
 export type Purchase = typeof purchases.$inferSelect;
