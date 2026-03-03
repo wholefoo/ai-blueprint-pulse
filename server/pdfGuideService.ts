@@ -72,13 +72,18 @@ function addChecklist(doc: PDFKit.PDFDocument, items: string[]) {
 function addTip(doc: PDFKit.PDFDocument, tip: string) {
   if (doc.y > doc.page.height - 120) doc.addPage();
   const startY = doc.y;
-  doc.rect(72, startY, doc.page.width - 144, 0).fill(LIGHT_GRAY);
-  doc.font("Helvetica-Bold").fontSize(10).fillColor(ACCENT_BLUE).text("PRO TIP:", 88, startY + 10, { continued: true });
-  doc.font("Helvetica").fontSize(10).fillColor(TEXT_COLOR).text(` ${tip}`, { lineGap: 2 });
+  const boxX = 72;
+  const boxWidth = doc.page.width - 144;
+  const textX = 88;
+  const textWidth = boxWidth - 32;
+  doc.rect(boxX, startY, boxWidth, 0).fill(LIGHT_GRAY);
+  doc.font("Helvetica-Bold").fontSize(10).fillColor(ACCENT_BLUE).text("PRO TIP:", textX, startY + 10, { continued: true, width: textWidth });
+  doc.font("Helvetica").fontSize(10).fillColor(TEXT_COLOR).text(` ${tip}`, { lineGap: 2, width: textWidth });
   const endY = doc.y + 10;
-  doc.rect(72, startY, doc.page.width - 144, endY - startY).fill(LIGHT_GRAY);
-  doc.font("Helvetica-Bold").fontSize(10).fillColor(ACCENT_BLUE).text("PRO TIP:", 88, startY + 10, { continued: true });
-  doc.font("Helvetica").fontSize(10).fillColor(TEXT_COLOR).text(` ${tip}`, { lineGap: 2, width: doc.page.width - 144 - 32 });
+  doc.rect(boxX, startY, boxWidth, endY - startY).fill(LIGHT_GRAY);
+  doc.font("Helvetica-Bold").fontSize(10).fillColor(ACCENT_BLUE).text("PRO TIP:", textX, startY + 10, { continued: true, width: textWidth });
+  doc.font("Helvetica").fontSize(10).fillColor(TEXT_COLOR).text(` ${tip}`, { lineGap: 2, width: textWidth });
+  doc.x = boxX;
   doc.y = endY;
   doc.moveDown(0.5);
 }
@@ -156,6 +161,7 @@ function addTable(doc: PDFKit.PDFDocument, table: { headers: string[]; rows: str
     }
     y += rowHeight;
   }
+  doc.x = startX;
   doc.y = y;
   doc.moveDown(0.5);
 }
