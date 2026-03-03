@@ -875,15 +875,30 @@ function getYouTubeGuideChapters(): Chapter[] {
   ];
 }
 
-export async function generateYouTubeGuide(): Promise<Buffer> {
+interface GuideConfig {
+  title: string;
+  coverLine1: string;
+  coverLine2: string;
+  subtitle: string;
+  subtitleLine2?: string;
+  aboutText: string[];
+  usageItems: string[];
+  backPageLine1: string;
+  backPageLine2: string;
+  chapters: Chapter[];
+  pdfTitle: string;
+  pdfSubject: string;
+}
+
+function renderGuide(config: GuideConfig): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
       size: "LETTER",
       margins: { top: 72, bottom: 72, left: 72, right: 72 },
       info: {
-        Title: "AI Blueprint Pulse YouTube Success Guide",
+        Title: config.pdfTitle,
         Author: "AI Blueprint Pulse",
-        Subject: "Comprehensive YouTube Growth Strategy",
+        Subject: config.pdfSubject,
         Creator: "AI Blueprint Pulse",
       },
     });
@@ -892,11 +907,6 @@ export async function generateYouTubeGuide(): Promise<Buffer> {
     doc.on("data", (chunk: Buffer) => buffers.push(chunk));
     doc.on("end", () => resolve(Buffer.concat(buffers)));
     doc.on("error", reject);
-
-    let pageNum = 1;
-    doc.on("pageAdded", () => {
-      pageNum++;
-    });
 
     doc.rect(0, 0, doc.page.width, doc.page.height).fill(NAVY);
     doc.moveDown(6);
@@ -910,15 +920,17 @@ export async function generateYouTubeGuide(): Promise<Buffer> {
       .strokeColor(ACCENT_BLUE).lineWidth(2).stroke();
     doc.moveDown(1.5);
     doc.fontSize(32).fillColor("#FFFFFF").font("Helvetica-Bold")
-      .text("YouTube", { align: "center" });
+      .text(config.coverLine1, { align: "center" });
     doc.fontSize(32).fillColor("#FFFFFF").font("Helvetica-Bold")
-      .text("Success Guide", { align: "center" });
+      .text(config.coverLine2, { align: "center" });
     doc.moveDown(1);
     doc.fontSize(14).fillColor("#94A3B8").font("Helvetica")
-      .text("The Complete Playbook for Building a Profitable YouTube Channel", { align: "center" });
-    doc.moveDown(0.5);
-    doc.fontSize(14).fillColor("#94A3B8")
-      .text("From Zero to Revenue in 90 Days", { align: "center" });
+      .text(config.subtitle, { align: "center" });
+    if (config.subtitleLine2) {
+      doc.moveDown(0.5);
+      doc.fontSize(14).fillColor("#94A3B8")
+        .text(config.subtitleLine2, { align: "center" });
+    }
     doc.moveDown(4);
     doc.fontSize(10).fillColor(ACCENT_BLUE)
       .text("Powered by Multi-Model AI Intelligence", { align: "center" });
@@ -930,15 +942,13 @@ export async function generateYouTubeGuide(): Promise<Buffer> {
     doc.text("© AI Blueprint Pulse — All Rights Reserved", { align: "center" });
 
     doc.addPage();
-    const chapters = getYouTubeGuideChapters();
-
     doc.rect(0, 0, doc.page.width, 100).fill(DARK_NAVY);
     doc.fontSize(28).fillColor("#FFFFFF").font("Helvetica-Bold")
       .text("Table of Contents", 72, 40);
     doc.y = 120;
 
     doc.font("Helvetica").fontSize(12).fillColor(TEXT_COLOR);
-    for (const ch of chapters) {
+    for (const ch of config.chapters) {
       doc.moveDown(0.3);
       doc.font("Helvetica-Bold").fillColor(NAVY)
         .text(`Chapter ${ch.number}`, { continued: true });
@@ -957,30 +967,21 @@ export async function generateYouTubeGuide(): Promise<Buffer> {
     doc.font("Helvetica-Bold").fontSize(18).fillColor(NAVY).text("About This Guide");
     doc.moveDown(0.5);
     doc.font("Helvetica").fontSize(10.5).fillColor(TEXT_COLOR);
-    doc.text("This guide was created by AI Blueprint Pulse to provide a comprehensive, actionable roadmap for building a profitable YouTube channel. Whether you're a complete beginner or an experienced creator looking to optimize your strategy, the insights and frameworks in this guide will help you achieve sustainable growth.", { align: "justify", lineGap: 3 });
+    for (const para of config.aboutText) {
+      doc.text(para, { align: "justify", lineGap: 3 });
+      doc.moveDown(0.5);
+    }
     doc.moveDown(0.5);
-    doc.text("The strategies outlined here are based on analysis of successful YouTube channels across dozens of niches, current platform best practices, and the latest research on video content optimization. Every recommendation is designed to be practical and immediately implementable.", { align: "justify", lineGap: 3 });
-    doc.moveDown(0.5);
-    doc.text("This guide is organized in a progressive structure — each chapter builds on the foundation laid by previous chapters. We recommend reading through the entire guide once to understand the complete framework, then using individual chapters as reference material as you implement each phase of your YouTube strategy.", { align: "justify", lineGap: 3 });
-    doc.moveDown(1);
     doc.font("Helvetica-Bold").fontSize(12).fillColor(ACCENT_BLUE).text("How to Use This Guide:");
     doc.moveDown(0.3);
     doc.font("Helvetica").fontSize(10.5).fillColor(TEXT_COLOR);
-    const usageItems = [
-      "Read chapters 1-3 before creating your channel",
-      "Use chapters 4-5 as production reference guides",
-      "Follow the 90-Day Launch Plan in Chapter 12 for structured implementation",
-      "Revisit chapters 6-7 as your channel grows and you're ready to monetize",
-      "Use chapters 8-10 for advanced optimization and scaling"
-    ];
-    for (const item of usageItems) {
+    for (const item of config.usageItems) {
       doc.text(`  -  ${item}`, { indent: 15, lineGap: 2 });
       doc.moveDown(0.15);
     }
 
-    for (const chapter of chapters) {
+    for (const chapter of config.chapters) {
       doc.addPage();
-
       doc.rect(0, 0, doc.page.width, 110).fill(DARK_NAVY);
       doc.fontSize(12).fillColor(ACCENT_BLUE).font("Helvetica")
         .text(`CHAPTER ${chapter.number}`, 72, 35, { characterSpacing: 3 });
@@ -1002,8 +1003,8 @@ export async function generateYouTubeGuide(): Promise<Buffer> {
     doc.rect(0, 0, doc.page.width, doc.page.height).fill(NAVY);
     doc.moveDown(8);
     doc.fontSize(28).fillColor("#FFFFFF").font("Helvetica-Bold")
-      .text("Start Building Your", { align: "center" });
-    doc.text("YouTube Empire Today", { align: "center" });
+      .text(config.backPageLine1, { align: "center" });
+    doc.text(config.backPageLine2, { align: "center" });
     doc.moveDown(1.5);
     doc.fontSize(13).fillColor("#94A3B8").font("Helvetica")
       .text("Visit AI Blueprint Pulse for more business intelligence,", { align: "center" });
@@ -1017,5 +1018,31 @@ export async function generateYouTubeGuide(): Promise<Buffer> {
     doc.text("Powered by Multi-Model AI Intelligence", { align: "center" });
 
     doc.end();
+  });
+}
+
+export async function generateYouTubeGuide(): Promise<Buffer> {
+  return renderGuide({
+    pdfTitle: "AI Blueprint Pulse YouTube Success Guide",
+    pdfSubject: "Comprehensive YouTube Growth Strategy",
+    coverLine1: "YouTube",
+    coverLine2: "Success Guide",
+    subtitle: "The Complete Playbook for Building a Profitable YouTube Channel",
+    subtitleLine2: "From Zero to Revenue in 90 Days",
+    aboutText: [
+      "This guide was created by AI Blueprint Pulse to provide a comprehensive, actionable roadmap for building a profitable YouTube channel. Whether you're a complete beginner or an experienced creator looking to optimize your strategy, the insights and frameworks in this guide will help you achieve sustainable growth.",
+      "The strategies outlined here are based on analysis of successful YouTube channels across dozens of niches, current platform best practices, and the latest research on video content optimization. Every recommendation is designed to be practical and immediately implementable.",
+      "This guide is organized in a progressive structure — each chapter builds on the foundation laid by previous chapters. We recommend reading through the entire guide once to understand the complete framework, then using individual chapters as reference material as you implement each phase of your YouTube strategy.",
+    ],
+    usageItems: [
+      "Read chapters 1-3 before creating your channel",
+      "Use chapters 4-5 as production reference guides",
+      "Follow the 90-Day Launch Plan in Chapter 12 for structured implementation",
+      "Revisit chapters 6-7 as your channel grows and you're ready to monetize",
+      "Use chapters 8-10 for advanced optimization and scaling",
+    ],
+    backPageLine1: "Start Building Your",
+    backPageLine2: "YouTube Empire Today",
+    chapters: getYouTubeGuideChapters(),
   });
 }
