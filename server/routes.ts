@@ -1203,19 +1203,23 @@ export async function registerRoutes(
 
   app.post("/api/admin/blog", isAuthenticated, isAdmin, async (req: any, res: Response) => {
     try {
-      const validated = insertBlogPostSchema.parse({
-        ...req.body,
-        coverImageUrl: req.body.coverImageUrl || null,
-        authorName: req.body.authorName || "AI Blueprint Pulse",
-        isPublished: req.body.isPublished || false,
-        publishedAt: req.body.isPublished ? new Date() : null,
+      const { title, slug, excerpt, content, category, coverImageUrl, authorName, isPublished } = req.body;
+      if (!title || !slug || !excerpt || !content || !category) {
+        return res.status(400).json({ error: "Title, slug, excerpt, content, and category are required" });
+      }
+      const post = await storage.createBlogPost({
+        title,
+        slug,
+        excerpt,
+        content,
+        category,
+        coverImageUrl: coverImageUrl || null,
+        authorName: authorName || "AI Blueprint Pulse",
+        isPublished: isPublished || false,
+        publishedAt: isPublished ? new Date() : null,
       });
-      const post = await storage.createBlogPost(validated);
       res.status(201).json(post);
     } catch (error: any) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: "Invalid blog post data", details: error.errors });
-      }
       if (error?.code === "23505") {
         return res.status(409).json({ error: "A blog post with this slug already exists" });
       }
@@ -1227,19 +1231,18 @@ export async function registerRoutes(
   app.patch("/api/admin/blog/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      const validated = insertBlogPostSchema.partial().parse(req.body);
-      if (validated.isPublished && !validated.publishedAt) {
-        validated.publishedAt = new Date();
+      const { publishedAt, ...updates } = req.body;
+      if (updates.isPublished === true) {
+        updates.publishedAt = new Date();
+      } else if (updates.isPublished === false) {
+        updates.publishedAt = null;
       }
-      const post = await storage.updateBlogPost(id, validated);
+      const post = await storage.updateBlogPost(id, updates);
       if (!post) {
         return res.status(404).json({ error: "Blog post not found" });
       }
       res.json(post);
     } catch (error: any) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: "Invalid blog post data", details: error.errors });
-      }
       if (error?.code === "23505") {
         return res.status(409).json({ error: "A blog post with this slug already exists" });
       }
