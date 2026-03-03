@@ -11,7 +11,7 @@ import { multiModelAnalyze, multiModelBlueprintResearch } from "./multiModelServ
 import { triggerPostPurchaseSequence } from "./emailService";
 import { submitNexusResearch, handleNexusCallback, getNexusJobStatus, getUserNexusJobs } from "./nexusResearchService";
 import { extractVideoId, getVideoInfo, fetchComments, analyzePainPoints, searchVideos } from "./youtubeScraperService";
-import { generateYouTubeGuide } from "./pdfGuideService";
+import { generateYouTubeGuide, generateAgenticWorkflowGuide } from "./pdfGuideService";
 import { insertBlueprintSchema, insertBlogPostSchema, nexusJobStatuses } from "@shared/schema";
 import type { NexusJobStatus } from "@shared/schema";
 import { z } from "zod";
@@ -1264,6 +1264,7 @@ export async function registerRoutes(
   });
 
   let cachedYouTubeGuide: Buffer | null = null;
+  let cachedAgenticGuide: Buffer | null = null;
 
   app.get("/api/resources/youtube-guide", async (_req: Request, res: Response) => {
     try {
@@ -1280,6 +1281,21 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/resources/agentic-workflow-guide", async (_req: Request, res: Response) => {
+    try {
+      if (!cachedAgenticGuide) {
+        cachedAgenticGuide = await generateAgenticWorkflowGuide();
+      }
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", 'attachment; filename="AI-Blueprint-Pulse-Agentic-Workflow-Guide.pdf"');
+      res.setHeader("Content-Length", cachedAgenticGuide.length.toString());
+      res.send(cachedAgenticGuide);
+    } catch (error) {
+      console.error("Error generating Agentic Workflow guide:", error);
+      res.status(500).json({ error: "Failed to generate guide" });
+    }
+  });
+
   app.get("/api/resources", (_req: Request, res: Response) => {
     res.json([
       {
@@ -1291,6 +1307,16 @@ export async function registerRoutes(
         format: "PDF",
         downloadUrl: "/api/resources/youtube-guide",
         topics: ["Channel Setup", "Content Strategy", "YouTube SEO", "Video Production", "Monetization", "AI Tools", "Analytics", "90-Day Launch Plan"],
+      },
+      {
+        id: "agentic-workflow-guide",
+        title: "AI Agentic Workflow Guide",
+        description: "A comprehensive 40+ page guide to building autonomous AI agent systems for business automation. Covers agent architecture, tool design, multi-agent orchestration, prompt engineering, production deployment, and a 30-day implementation roadmap with checklists.",
+        pages: "45+",
+        category: "AI & Automation",
+        format: "PDF",
+        downloadUrl: "/api/resources/agentic-workflow-guide",
+        topics: ["Agent Architecture", "Tool Design", "Multi-Agent Systems", "Prompt Engineering", "Production Deployment", "RAG & Function Calling", "Industry Use Cases", "30-Day Roadmap"],
       }
     ]);
   });

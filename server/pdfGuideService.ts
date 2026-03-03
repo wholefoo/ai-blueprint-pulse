@@ -1021,6 +1021,641 @@ function renderGuide(config: GuideConfig): Promise<Buffer> {
   });
 }
 
+function getAgenticWorkflowChapters(): Chapter[] {
+  return [
+    {
+      number: 1,
+      title: "The Rise of AI Agents: Why Agentic Workflows Matter",
+      sections: [
+        {
+          heading: "From Chatbots to Autonomous Agents",
+          body: [
+            "The AI landscape has undergone a fundamental shift. We have moved beyond simple chatbots that respond to prompts and into the era of autonomous AI agents — systems that can plan, reason, use tools, and execute multi-step tasks with minimal human intervention. This transition represents the single largest productivity leap since the invention of software itself.",
+            "An AI agent is not just a language model. It is a language model wrapped in a decision-making loop that gives it the ability to observe its environment, form a plan, take actions, evaluate results, and iterate until a goal is achieved. Where a chatbot answers a question, an agent completes a mission.",
+            "Businesses that adopt agentic workflows today will compound their advantage over the next decade. Early adopters report 40-70% reductions in time spent on repetitive knowledge work, from research and report generation to customer onboarding and data pipeline management. The companies that wait will find themselves competing against organizations that operate at a fundamentally different speed."
+          ],
+          tip: "Think of AI agents as digital employees who never sleep, never forget instructions, and can be cloned instantly. The key is giving them clear objectives, the right tools, and well-defined boundaries."
+        },
+        {
+          heading: "What Makes a Workflow 'Agentic'",
+          body: [
+            "Not every AI-powered automation qualifies as an agentic workflow. The distinction matters because it determines how much complexity and autonomy you can delegate. A traditional automation follows a fixed sequence: if X happens, do Y. An agentic workflow is dynamic — the agent decides what to do next based on the current state of the task.",
+            "There are four characteristics that define a truly agentic workflow. First, the agent must have a goal, not just a trigger. Second, it must be able to choose from multiple tools or actions. Third, it must evaluate whether its actions moved it closer to the goal. Fourth, it must be able to adjust its approach when something does not work as expected."
+          ],
+          bullets: [
+            "Goal-oriented: The agent works toward a defined outcome, not just a response",
+            "Tool-equipped: The agent can call APIs, search the web, query databases, write files, and more",
+            "Self-evaluating: The agent checks its own output for quality and completeness",
+            "Adaptive: The agent changes strategy when it encounters obstacles or unexpected data"
+          ]
+        },
+        {
+          heading: "The Business Case for Agentic AI",
+          body: [
+            "The ROI of agentic workflows is measurable and significant. Consider a market research task that takes a human analyst 8 hours. An agentic workflow can search dozens of sources, synthesize findings, cross-reference data, and produce a structured report in under 10 minutes. The cost difference is not incremental — it is orders of magnitude."
+          ],
+          table: {
+            headers: ["Metric", "Traditional Process", "Agentic Workflow", "Improvement"],
+            rows: [
+              ["Research report", "8 hours", "10 minutes", "48x faster"],
+              ["Lead qualification", "15 min/lead", "30 sec/lead", "30x faster"],
+              ["Content drafting", "4 hours", "5 minutes", "48x faster"],
+              ["Data extraction", "2 hours", "2 minutes", "60x faster"],
+              ["Email sequences", "3 hours", "3 minutes", "60x faster"],
+              ["Competitive analysis", "12 hours", "20 minutes", "36x faster"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      number: 2,
+      title: "Core Architecture of an AI Agent",
+      sections: [
+        {
+          heading: "The Agent Loop: Plan, Act, Observe, Reflect",
+          body: [
+            "Every effective AI agent operates on a cognitive loop that mirrors how humans approach complex tasks. This loop has four stages that repeat until the agent's goal is achieved or a termination condition is met.",
+            "In the Plan stage, the agent analyzes its current situation, reviews what it knows, and decides on the next action. In the Act stage, it executes that action — calling a tool, generating text, or making an API request. In the Observe stage, it processes the result of its action. In the Reflect stage, it evaluates whether the result moved it closer to the goal and decides whether to continue, adjust, or stop.",
+            "The quality of your agent depends almost entirely on how well you design this loop. A poorly designed loop leads to agents that run in circles, waste tokens, or produce inconsistent results. A well-designed loop produces agents that are reliable, efficient, and surprisingly capable."
+          ],
+          tip: "Always include a maximum iteration count in your agent loop. Without it, a confused agent can burn through your entire API budget in minutes. Start with a limit of 10 iterations and increase only after you have observed the agent's behavior on real tasks."
+        },
+        {
+          heading: "System Prompts: The Agent's Operating Manual",
+          body: [
+            "The system prompt is the single most important component of your agent. It defines the agent's identity, capabilities, constraints, and behavioral patterns. A mediocre system prompt produces a mediocre agent regardless of how sophisticated your tooling is.",
+            "An effective agent system prompt has five sections. The Role section defines who the agent is and what it specializes in. The Context section provides background information the agent needs. The Tools section describes what tools are available and when to use each one. The Constraints section defines what the agent must not do. The Output section specifies the format and quality standards for the agent's deliverables."
+          ],
+          checklist: [
+            "Define a clear, specific role (not just 'helpful assistant')",
+            "List every available tool with usage instructions",
+            "Set explicit constraints and boundaries",
+            "Specify output format with examples",
+            "Include error handling instructions",
+            "Add a 'think step by step' directive for complex reasoning",
+            "Define when the agent should ask for clarification vs. proceed independently"
+          ]
+        },
+        {
+          heading: "Memory and Context Management",
+          body: [
+            "AI agents need memory to function effectively across multi-step tasks. There are three types of memory that matter: working memory (the current conversation context), short-term memory (information from earlier in the current task), and long-term memory (knowledge persisted across sessions).",
+            "Working memory is handled by the model's context window. For most agents, this is your primary memory system. The key challenge is keeping the context window focused — loading too much irrelevant information degrades performance. Use summarization strategies to compress completed steps and keep only the most relevant details in the active context.",
+            "For agents that need to remember across sessions, implement a vector database or structured knowledge store. Store key decisions, user preferences, and task outcomes. Retrieve relevant memories at the start of each new session to give the agent continuity."
+          ],
+          table: {
+            headers: ["Memory Type", "Storage", "Lifespan", "Use Case"],
+            rows: [
+              ["Working", "Context window", "Current turn", "Active reasoning and tool use"],
+              ["Short-term", "Conversation history", "Current session", "Multi-step task tracking"],
+              ["Long-term", "Vector DB / database", "Persistent", "User preferences, past decisions"],
+              ["Episodic", "Structured logs", "Persistent", "Learning from past successes/failures"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      number: 3,
+      title: "Designing Effective Tool Systems",
+      sections: [
+        {
+          heading: "Why Tools Transform Agent Capabilities",
+          body: [
+            "A language model without tools is limited to generating text based on its training data. Add tools, and it becomes capable of interacting with the real world — searching the internet, querying databases, calling APIs, processing files, sending emails, and executing code. Tools are what turn a language model into an agent.",
+            "The most effective tool systems follow three design principles. First, each tool should do one thing well — avoid building Swiss Army knife tools that try to handle multiple responsibilities. Second, every tool should return structured, parseable output so the agent can reliably extract the information it needs. Third, tools should include clear error messages that help the agent recover from failures."
+          ]
+        },
+        {
+          heading: "Essential Tool Categories",
+          body: [
+            "Most business agents need tools from five categories. Understanding these categories helps you plan your tool architecture before you start building."
+          ],
+          table: {
+            headers: ["Category", "Examples", "When to Use"],
+            rows: [
+              ["Information retrieval", "Web search, database queries, file reading", "Agent needs facts or data it does not already know"],
+              ["Data transformation", "JSON parsing, CSV processing, calculations", "Agent needs to reshape or analyze structured data"],
+              ["Communication", "Email, Slack, SMS, webhook triggers", "Agent needs to notify humans or other systems"],
+              ["Content creation", "Document generation, image creation, code writing", "Agent needs to produce deliverables"],
+              ["System integration", "CRM updates, project management, calendar", "Agent needs to modify state in external systems"]
+            ]
+          }
+        },
+        {
+          heading: "Building Tool Descriptions That Work",
+          body: [
+            "The way you describe your tools to the agent determines whether it uses them correctly. A vague tool description leads to misuse, hallucinated parameters, and wasted iterations. A precise tool description leads to reliable, first-attempt-correct tool calls.",
+            "Every tool description should include the tool's purpose in one sentence, the exact parameters it accepts with their types and constraints, what the tool returns on success, what error conditions are possible, and when this tool should be chosen over alternatives."
+          ],
+          tip: "Test your tool descriptions by asking the model: 'Given this task, which tool would you use and what parameters would you pass?' If it consistently picks the right tool with correct parameters, your descriptions are good. If not, they need refinement."
+        },
+        {
+          heading: "Handling Tool Failures Gracefully",
+          body: [
+            "Tools will fail. APIs return errors, rate limits get hit, data comes back malformed, and network connections drop. Your agent needs a strategy for each type of failure.",
+            "Implement three levels of error handling. At the tool level, catch exceptions and return structured error objects instead of crashing. At the agent level, include retry logic with exponential backoff for transient failures. At the workflow level, define fallback strategies — if the primary data source is down, can the agent use a secondary source?"
+          ],
+          bullets: [
+            "Transient errors (timeouts, rate limits): Retry up to 3 times with exponential backoff",
+            "Data errors (malformed response, missing fields): Log the issue, attempt to parse what is available",
+            "Permission errors (auth failures, forbidden): Stop and report to the user immediately",
+            "Logic errors (wrong tool for the task): Let the agent self-correct by trying an alternative approach"
+          ]
+        }
+      ]
+    },
+    {
+      number: 4,
+      title: "Prompt Engineering for Agentic Systems",
+      sections: [
+        {
+          heading: "Beyond Basic Prompting",
+          body: [
+            "Prompt engineering for agents is fundamentally different from prompting for single-turn interactions. In a single-turn interaction, you optimize for the quality of one response. In an agentic system, you optimize for the quality of a sequence of decisions made over multiple turns. This requires a different set of techniques.",
+            "The most important shift is from instruction-based prompting to goal-based prompting. Instead of telling the agent exactly what steps to take, you define the desired outcome and let the agent determine the best path. This allows the agent to adapt when conditions change or when it encounters unexpected data."
+          ]
+        },
+        {
+          heading: "Chain-of-Thought and ReAct Patterns",
+          body: [
+            "Chain-of-thought (CoT) prompting instructs the agent to show its reasoning before taking action. This is not just a debugging convenience — it genuinely improves decision quality. When a model articulates its reasoning, it is less likely to skip logical steps or make unfounded assumptions.",
+            "The ReAct (Reasoning + Acting) pattern takes this further by alternating between thinking and acting. The agent first reasons about what to do, then takes an action, then reasons about the result, then takes the next action. This creates a natural checkpoint system where you can verify the agent's logic at every step."
+          ],
+          tip: "Always use the ReAct pattern for agents that make consequential decisions (spending money, sending communications, modifying data). The reasoning trace gives you an audit trail and makes debugging vastly easier."
+        },
+        {
+          heading: "Few-Shot Examples for Agent Behavior",
+          body: [
+            "Few-shot examples are even more powerful in agentic contexts than in single-turn prompting. By showing the agent examples of complete task executions — including tool calls, error handling, and output formatting — you establish behavioral patterns that the agent will follow consistently.",
+            "Structure your few-shot examples as complete reasoning traces. Show the agent thinking through a problem, selecting and calling a tool, processing the result, and deciding on the next step. Include at least one example where things go wrong and the agent recovers. This teaches the agent resilience."
+          ],
+          checklist: [
+            "Include 2-3 complete task execution examples in the system prompt",
+            "Show at least one example with a tool failure and recovery",
+            "Demonstrate the expected output format in every example",
+            "Include examples of edge cases the agent is likely to encounter",
+            "Show examples where the agent correctly decides to ask for clarification"
+          ]
+        },
+        {
+          heading: "Structured Output Prompting",
+          body: [
+            "Agents that produce structured output (JSON, XML, markdown with specific sections) are dramatically easier to integrate into larger systems. The key to reliable structured output is providing an explicit schema in the system prompt and validating the output with a parsing step.",
+            "Use JSON mode or function calling when available in your model provider. When those options are not available, include the exact JSON schema in your prompt and add a validation step that checks the output before passing it downstream. If validation fails, send the output back to the agent with specific feedback about what needs to be fixed."
+          ]
+        }
+      ]
+    },
+    {
+      number: 5,
+      title: "Multi-Agent Orchestration",
+      sections: [
+        {
+          heading: "When One Agent Is Not Enough",
+          body: [
+            "Complex workflows often exceed what a single agent can handle effectively. A research agent that is also expected to write marketing copy, analyze financial data, and manage a project timeline will perform poorly at all four tasks. The solution is multi-agent orchestration — breaking complex workflows into specialized agents that collaborate.",
+            "Multi-agent systems follow the same principle as well-organized teams: each member has a clear specialty, communication channels are defined, and there is a coordination mechanism to keep everyone aligned. The result is a system that handles complexity gracefully while maintaining high quality at every stage."
+          ]
+        },
+        {
+          heading: "Orchestration Patterns",
+          body: [
+            "There are four primary patterns for coordinating multiple agents. Choosing the right pattern depends on whether your agents need to work sequentially or in parallel, and whether they need to communicate with each other or just with a central coordinator."
+          ],
+          table: {
+            headers: ["Pattern", "Structure", "Best For"],
+            rows: [
+              ["Sequential Pipeline", "Agent A -> Agent B -> Agent C", "Tasks with clear stages (research -> draft -> edit)"],
+              ["Parallel Fan-Out", "Coordinator -> Agents A,B,C -> Merge", "Tasks needing multiple perspectives simultaneously"],
+              ["Hierarchical", "Manager agent delegates to specialist agents", "Complex projects with diverse sub-tasks"],
+              ["Collaborative", "Agents discuss and debate to reach consensus", "Decisions requiring multiple viewpoints"]
+            ]
+          }
+        },
+        {
+          heading: "Building a Supervisor Agent",
+          body: [
+            "In a hierarchical multi-agent system, the supervisor (or manager) agent is responsible for decomposing the overall task, assigning sub-tasks to specialist agents, collecting results, and synthesizing a final output. This agent does not do the detailed work itself — it coordinates.",
+            "A good supervisor agent needs three capabilities. First, task decomposition: the ability to break a complex request into clear, assignable sub-tasks. Second, delegation: knowing which specialist agent is best suited for each sub-task. Third, quality control: evaluating the outputs from each specialist and requesting revisions when necessary.",
+            "Keep your supervisor agent's system prompt focused on coordination, not expertise. It should know what each specialist can do but should not try to duplicate their knowledge. Think of it as a project manager, not a subject matter expert."
+          ],
+          tip: "Start with a sequential pipeline before attempting hierarchical orchestration. Pipelines are easier to debug, test, and monitor. Only move to hierarchical patterns when your pipeline becomes too complex or when you need agents to work in parallel."
+        },
+        {
+          heading: "Handling Inter-Agent Communication",
+          body: [
+            "When agents need to pass information to each other, the format and structure of that communication matters enormously. Unstructured text passed between agents leads to information loss, misinterpretation, and compounding errors.",
+            "Define a clear message schema for inter-agent communication. Each message should include: the sending agent's identity, the task context, the structured result, confidence level, and any caveats or limitations. This prevents downstream agents from treating uncertain information as established fact."
+          ],
+          bullets: [
+            "Use structured JSON for all inter-agent messages",
+            "Include a confidence score (0-1) with every result",
+            "Tag any assumptions or limitations explicitly",
+            "Keep messages focused — include only what the receiving agent needs",
+            "Log all inter-agent communication for debugging and auditing"
+          ]
+        }
+      ]
+    },
+    {
+      number: 6,
+      title: "Real-World Agentic Workflow Patterns",
+      sections: [
+        {
+          heading: "Research and Report Generation",
+          body: [
+            "One of the most immediately valuable agentic workflows is automated research. A research agent can search multiple sources, extract key information, cross-reference findings, identify patterns, and produce a structured report — all in a fraction of the time a human analyst would need.",
+            "A production research workflow typically involves three agents. A Search agent that queries multiple data sources (web, databases, APIs) and returns raw findings. An Analysis agent that processes the raw data, identifies themes, and extracts insights. A Writing agent that takes the analysis and produces a polished, formatted report."
+          ],
+          checklist: [
+            "Define the research question or objective clearly",
+            "Identify 3-5 data sources the agent should search",
+            "Set criteria for source credibility and relevance",
+            "Define the output format (sections, length, level of detail)",
+            "Include a fact-checking step before finalizing the report",
+            "Add citation tracking so every claim is traceable to a source"
+          ]
+        },
+        {
+          heading: "Customer Support Automation",
+          body: [
+            "Agentic customer support goes beyond scripted chatbot responses. An agent-powered support system can understand complex customer issues, search knowledge bases and past tickets for relevant information, attempt resolution steps, and escalate to humans only when necessary.",
+            "The key to effective support agents is a well-structured knowledge base and clear escalation criteria. The agent should know what it can resolve independently (password resets, billing questions, feature explanations) and what requires human intervention (refund approvals, technical bugs, account security issues)."
+          ],
+          table: {
+            headers: ["Issue Type", "Agent Action", "Escalation Trigger"],
+            rows: [
+              ["Password reset", "Send reset link automatically", "Account locked or security flag"],
+              ["Billing question", "Look up account, explain charges", "Dispute or refund request over $100"],
+              ["Feature help", "Search docs, provide step-by-step guide", "Bug discovered during troubleshooting"],
+              ["Technical issue", "Collect diagnostics, attempt known fixes", "Issue persists after 2 fix attempts"],
+              ["Account changes", "Process simple updates", "Ownership transfer or deletion request"]
+            ]
+          }
+        },
+        {
+          heading: "Content Pipeline Automation",
+          body: [
+            "Content teams can build agentic workflows that handle the entire content lifecycle — from topic ideation and keyword research through drafting, editing, formatting, and scheduling. Each stage can be handled by a specialized agent with domain-specific tools and quality standards.",
+            "A typical content pipeline has five stages. Ideation: an agent analyzes trending topics, competitor content, and audience questions to suggest content ideas. Research: an agent gathers data, statistics, and expert opinions on the chosen topic. Drafting: an agent produces a first draft following brand guidelines and SEO best practices. Editing: an agent reviews the draft for clarity, accuracy, and tone. Publishing: an agent formats the content for the target platform and schedules it."
+          ],
+          tip: "Always keep a human review step before publishing content produced by an agentic pipeline. The agent handles the heavy lifting — research, drafting, formatting — but a human should make the final call on brand voice, accuracy of claims, and strategic alignment."
+        },
+        {
+          heading: "Data Processing and ETL Workflows",
+          body: [
+            "AI agents excel at data processing tasks that are too complex for simple scripts but too tedious for human analysts. Tasks like extracting information from unstructured documents, classifying data into categories, reconciling data from multiple sources, and generating summaries from large datasets are ideal candidates for agentic automation.",
+            "Build your data processing agents with strict input/output schemas. The agent should receive data in a defined format, process it according to clear rules, and output results in a validated structure. This makes the agent composable — you can chain multiple processing agents together without worrying about format incompatibilities."
+          ]
+        }
+      ]
+    },
+    {
+      number: 7,
+      title: "Building with Popular Agent Frameworks",
+      sections: [
+        {
+          heading: "Choosing the Right Framework",
+          body: [
+            "The AI agent ecosystem has matured rapidly, and several production-ready frameworks are now available. Your choice of framework should be driven by three factors: the complexity of your workflows, the tools and integrations you need, and the level of control you want over the agent's behavior.",
+            "For simple single-agent workflows with a few tools, you may not need a framework at all — a well-structured loop using the OpenAI or Anthropic API directly is sufficient. For multi-agent systems with complex orchestration, a dedicated framework saves significant development time."
+          ],
+          table: {
+            headers: ["Framework", "Best For", "Key Strength"],
+            rows: [
+              ["LangChain / LangGraph", "Complex chains, graph-based workflows", "Rich tool ecosystem, state management"],
+              ["CrewAI", "Multi-agent role-based collaboration", "Simple agent definition, built-in delegation"],
+              ["AutoGen", "Multi-agent conversations", "Agent-to-agent communication patterns"],
+              ["OpenAI Assistants", "Simple tool-using agents", "Managed infrastructure, easy setup"],
+              ["Custom (API direct)", "Full control, simple workflows", "No dependencies, maximum flexibility"]
+            ]
+          }
+        },
+        {
+          heading: "LangGraph: State-Machine Workflows",
+          body: [
+            "LangGraph models workflows as directed graphs where nodes are processing steps and edges define the flow between them. This is powerful because it lets you define conditional branching, parallel execution, and cycles (loops) in a visual, debuggable way.",
+            "Each node in a LangGraph workflow receives the current state, performs its work, and returns an updated state. The graph engine routes the state to the next node based on the edges you have defined. This makes complex workflows explicit and easy to reason about.",
+            "LangGraph is particularly strong for workflows that need human-in-the-loop checkpoints. You can define breakpoints where the workflow pauses and waits for human approval before continuing. This is essential for high-stakes workflows like financial transactions or public communications."
+          ]
+        },
+        {
+          heading: "n8n and Make: No-Code Agent Orchestration",
+          body: [
+            "Not every agentic workflow needs to be built in code. Platforms like n8n and Make (formerly Integromat) provide visual workflow builders that support AI agent nodes. These platforms are ideal for business teams that want to build automated workflows without deep programming expertise.",
+            "n8n in particular has strong AI capabilities including an AI Agent node that supports tool calling, memory, and multi-step reasoning. You can connect it to hundreds of integrations — CRMs, databases, email platforms, cloud storage — and build sophisticated workflows entirely through a drag-and-drop interface.",
+            "The trade-off with no-code platforms is flexibility. If your workflow requires highly custom logic, unusual data transformations, or fine-grained control over the agent's reasoning process, a code-based approach will serve you better. The sweet spot for no-code agent orchestration is standard business processes with well-defined inputs and outputs."
+          ],
+          tip: "Use n8n or Make for your first agentic workflows. The visual interface helps you understand the flow of data and decisions. Once you are comfortable with the patterns, you can rebuild critical workflows in code for more control and better performance."
+        }
+      ]
+    },
+    {
+      number: 8,
+      title: "Production Deployment and Reliability",
+      sections: [
+        {
+          heading: "From Prototype to Production",
+          body: [
+            "An agent that works in a notebook is not an agent that works in production. The gap between prototype and production is significant, and closing it requires attention to reliability, observability, security, and cost management. Most agent projects fail not because the AI is not capable, but because the production engineering is not robust.",
+            "Production agents need five capabilities that prototypes typically lack: automatic retry and error recovery, comprehensive logging and monitoring, rate limiting and cost controls, input validation and output verification, and graceful degradation when dependent services are unavailable."
+          ]
+        },
+        {
+          heading: "Observability and Logging",
+          body: [
+            "You cannot improve what you cannot observe. Every production agent needs comprehensive logging that captures the complete reasoning trace: what the agent decided to do, what tools it called, what results it received, and what output it produced. Without this, debugging production issues is guesswork.",
+            "Implement structured logging at three levels. At the decision level, log every plan the agent makes and every tool selection. At the execution level, log every tool call with input parameters, duration, and result. At the output level, log the final deliverable along with any quality metrics."
+          ],
+          checklist: [
+            "Log every agent decision with reasoning trace",
+            "Record all tool calls with inputs, outputs, and duration",
+            "Track token usage per step and per workflow",
+            "Monitor latency from request to completion",
+            "Set up alerts for error rates above threshold",
+            "Store logs in a searchable, structured format",
+            "Implement trace IDs to correlate steps in multi-agent workflows"
+          ]
+        },
+        {
+          heading: "Cost Management",
+          body: [
+            "AI agent costs can escalate quickly if not managed proactively. A single runaway agent can burn hundreds of dollars in API calls in minutes. Implement hard limits at every level: per-request token limits, per-user daily limits, per-workflow cost caps, and organization-wide monthly budgets.",
+            "Optimize costs by choosing the right model for each task. Not every step in your workflow needs the most expensive model. Use a fast, cheap model for classification and routing decisions. Use a mid-tier model for drafting and summarization. Reserve the most capable model for tasks that genuinely require advanced reasoning."
+          ],
+          table: {
+            headers: ["Task Type", "Recommended Model Tier", "Typical Cost/1K Tasks"],
+            rows: [
+              ["Classification/routing", "Small (GPT-4.1-mini, Haiku)", "$0.10-0.50"],
+              ["Summarization", "Medium (GPT-4.1-mini, Sonnet)", "$0.50-2.00"],
+              ["Complex reasoning", "Large (GPT-4.1, Opus)", "$5.00-20.00"],
+              ["Code generation", "Large (GPT-4.1, Sonnet)", "$3.00-15.00"],
+              ["Data extraction", "Small-Medium", "$0.20-1.00"],
+              ["Creative writing", "Medium-Large", "$1.00-5.00"]
+            ]
+          }
+        },
+        {
+          heading: "Security Considerations",
+          body: [
+            "AI agents introduce unique security challenges. An agent with tool access can read sensitive data, make API calls on behalf of your organization, and produce outputs that users may treat as authoritative. Securing your agent system requires thinking about prompt injection, data leakage, and authorization boundaries.",
+            "Implement the principle of least privilege for every agent. Each agent should have access only to the tools and data it needs for its specific task. Never give an agent blanket access to all your APIs or databases. Use scoped API keys, read-only database connections where appropriate, and explicit allow-lists for the actions each agent can take."
+          ],
+          bullets: [
+            "Sanitize all user inputs before passing them to the agent",
+            "Use scoped API keys with minimum necessary permissions",
+            "Implement output filtering to prevent sensitive data leakage",
+            "Log all agent actions for security auditing",
+            "Add confirmation steps for destructive or irreversible actions",
+            "Rate-limit agent actions to prevent abuse",
+            "Regularly review and rotate credentials used by agents"
+          ]
+        }
+      ]
+    },
+    {
+      number: 9,
+      title: "Evaluation and Quality Assurance",
+      sections: [
+        {
+          heading: "Why Agent Evaluation Is Different",
+          body: [
+            "Evaluating an AI agent is harder than evaluating a single model output. With a single output, you can check if it is correct. With an agent, you need to evaluate the entire trajectory — did it choose the right tools, did it use them correctly, did it handle errors well, did it reach the right conclusion, and did it do so efficiently?",
+            "Agent evaluation requires both outcome metrics (did the agent achieve the goal?) and process metrics (did the agent take a reasonable path to get there?). An agent that reaches the correct answer through five unnecessary tool calls is not as good as one that reaches the same answer in two calls."
+          ]
+        },
+        {
+          heading: "Building an Evaluation Framework",
+          body: [
+            "Create a test suite of representative tasks with known correct outcomes. For each task, define the expected result, the maximum acceptable number of steps, and any required intermediate actions (such as calling a specific tool). Run your agent against this test suite after every significant change to catch regressions.",
+            "Evaluation should cover five dimensions: correctness (did the agent produce the right output?), completeness (did the agent address all parts of the task?), efficiency (how many steps and tokens did it use?), reliability (does it produce consistent results across multiple runs?), and robustness (does it handle edge cases and errors gracefully?)."
+          ],
+          table: {
+            headers: ["Dimension", "What to Measure", "Target"],
+            rows: [
+              ["Correctness", "Output matches expected result", ">95% on standard tasks"],
+              ["Completeness", "All required elements present", ">90% coverage"],
+              ["Efficiency", "Steps and tokens used", "Within 2x of optimal path"],
+              ["Reliability", "Same result across 5+ runs", ">85% consistency"],
+              ["Robustness", "Handles malformed input gracefully", "Zero crashes, clear error messages"]
+            ]
+          }
+        },
+        {
+          heading: "LLM-as-Judge for Automated Scoring",
+          body: [
+            "For tasks where the correct answer is not a single value — such as writing quality, analysis depth, or recommendation relevance — you can use a separate LLM as an automated judge. This model evaluates the agent's output against a rubric you define and assigns a score.",
+            "LLM-as-Judge is not perfect, but it scales. You can run hundreds of evaluation cases in minutes, which would take human evaluators days. Use it as a first pass to catch obvious quality issues, and complement it with periodic human evaluation for nuanced quality assessment."
+          ],
+          tip: "Use a different model for judging than the one your agent uses. If your agent runs on GPT-4.1, use Claude for evaluation (or vice versa). This reduces the risk of the judge sharing the same blind spots as the agent."
+        },
+        {
+          heading: "Continuous Monitoring in Production",
+          body: [
+            "Evaluation does not end at deployment. Production agents encounter inputs and scenarios that your test suite never anticipated. Set up continuous monitoring that tracks success rate, average step count, error frequency, and user satisfaction for every workflow.",
+            "Implement feedback loops where production failures are automatically added to your test suite. When an agent fails in production, capture the inputs and the failure mode, add it as a test case, fix the underlying issue, and verify the fix passes. Over time, this builds a comprehensive regression test suite that reflects real-world usage."
+          ]
+        }
+      ]
+    },
+    {
+      number: 10,
+      title: "Advanced Patterns: RAG, Function Calling, and Code Execution",
+      sections: [
+        {
+          heading: "Retrieval-Augmented Generation (RAG) for Agents",
+          body: [
+            "RAG gives your agent access to a custom knowledge base that is far more specific and current than the model's training data. By embedding your documents, policies, product information, and internal knowledge into a vector database, your agent can retrieve relevant context before generating responses.",
+            "The quality of your RAG system depends on three factors: how you chunk your documents, how you embed them, and how you retrieve them. Chunking too large means irrelevant information dilutes the context. Chunking too small means the agent loses the broader picture. A chunk size of 500-1000 tokens with 100-200 tokens of overlap is a solid starting point for most business documents."
+          ],
+          bullets: [
+            "Chunk documents at natural boundaries (paragraphs, sections, headings)",
+            "Use overlapping chunks to preserve context across boundaries",
+            "Embed with a high-quality model (text-embedding-3-large or similar)",
+            "Retrieve 3-5 chunks per query to balance relevance and context usage",
+            "Include metadata (source document, section, date) with each chunk",
+            "Re-rank retrieved chunks by relevance before passing to the agent"
+          ]
+        },
+        {
+          heading: "Function Calling: Structured Tool Use",
+          body: [
+            "Function calling (also called tool use) is the mechanism by which the model requests to execute a specific function with specific parameters. This is more reliable than asking the model to output tool calls in plain text because the model provider validates the function name and parameter structure.",
+            "Define your functions with detailed JSON schemas. Include descriptions for every parameter, specify required vs. optional fields, set enum values where the options are limited, and add constraints (minimum, maximum, pattern) wherever applicable. The more precise your schema, the more accurate the model's function calls will be."
+          ],
+          tip: "When using parallel function calling, be aware that the model may call multiple functions simultaneously. Design your tools to be independently executable — avoid tools that depend on the result of another tool being called first in the same turn."
+        },
+        {
+          heading: "Code Execution: The Ultimate Tool",
+          body: [
+            "Giving your agent the ability to write and execute code is one of the most powerful capabilities available. A code-executing agent can perform calculations, transform data, generate visualizations, scrape websites, and handle virtually any computational task.",
+            "The security implications are serious. Never let an agent execute arbitrary code on your production servers. Use sandboxed environments — Docker containers, serverless functions, or dedicated code execution services — that isolate the agent's code from your infrastructure. Set strict resource limits (CPU time, memory, network access) to prevent both accidental and malicious resource consumption."
+          ],
+          checklist: [
+            "Always sandbox code execution in isolated environments",
+            "Set CPU time limits (30 seconds is reasonable for most tasks)",
+            "Limit memory usage (256MB-1GB depending on the task)",
+            "Restrict network access to only necessary endpoints",
+            "Log all executed code for security auditing",
+            "Validate outputs before returning them to the user",
+            "Use a separate execution environment for each request"
+          ]
+        }
+      ]
+    },
+    {
+      number: 11,
+      title: "Industry Use Cases and Case Studies",
+      sections: [
+        {
+          heading: "Financial Services: Automated Analysis and Compliance",
+          body: [
+            "Financial institutions use agentic workflows for market research, regulatory compliance monitoring, and client report generation. A compliance agent can monitor regulatory changes across multiple jurisdictions, assess their impact on the firm's operations, and generate action items for the compliance team.",
+            "One mid-size investment firm deployed a research agent that monitors 200+ financial news sources, extracts relevant developments for their portfolio companies, and produces morning briefings for their analysts. The system reduced research time by 65% and caught three material developments that human analysts had missed in its first quarter of operation."
+          ]
+        },
+        {
+          heading: "Healthcare: Clinical Documentation and Patient Intake",
+          body: [
+            "Healthcare providers use agents for clinical note generation, patient intake processing, and insurance pre-authorization workflows. A clinical documentation agent listens to doctor-patient conversations, extracts relevant medical information, and generates structured clinical notes in the required format.",
+            "Patient intake agents can process intake forms, verify insurance eligibility, check for medication interactions, and prepare the patient's chart before the appointment. This reduces administrative burden on clinical staff and ensures that no critical information is missed during the intake process."
+          ],
+          table: {
+            headers: ["Workflow", "Time Saved", "Error Reduction", "Staff Impact"],
+            rows: [
+              ["Clinical note generation", "15 min/patient", "30% fewer omissions", "Doctors see 2 more patients/day"],
+              ["Insurance pre-auth", "45 min/case", "50% fewer rejections", "1 FTE reallocated to patient care"],
+              ["Patient intake", "20 min/patient", "40% fewer data errors", "Front desk handles 3x volume"],
+              ["Prescription management", "10 min/refill", "25% fewer interactions", "Pharmacists focus on consultations"]
+            ]
+          }
+        },
+        {
+          heading: "E-Commerce: Personalization and Operations",
+          body: [
+            "E-commerce companies deploy agents across the customer lifecycle — from product recommendations and personalized marketing to order management and returns processing. A product recommendation agent analyzes browsing behavior, purchase history, and seasonal trends to generate hyper-personalized suggestions.",
+            "Operations agents handle inventory monitoring, supplier communication, and pricing optimization. A pricing agent can monitor competitor prices across dozens of platforms, analyze demand signals, and recommend price adjustments that maximize margin while maintaining competitiveness."
+          ],
+          tip: "E-commerce agentic workflows generate the fastest ROI when applied to high-volume, repetitive tasks like product description writing, review summarization, and customer email responses. Start there, measure the results, then expand to more complex workflows."
+        },
+        {
+          heading: "Professional Services: Proposal and Contract Automation",
+          body: [
+            "Law firms, consulting agencies, and accounting firms use agents for document drafting, contract analysis, and proposal generation. A contract review agent can read a 50-page agreement, flag non-standard clauses, compare terms against company policies, and produce a summary with recommendations in minutes.",
+            "Proposal generation agents are particularly valuable for firms that respond to RFPs. The agent can analyze the RFP requirements, pull relevant case studies and team credentials from a knowledge base, draft responses to each requirement, and format the final document according to the RFP's specifications."
+          ]
+        }
+      ]
+    },
+    {
+      number: 12,
+      title: "Building Your First Agentic Workflow: A 30-Day Roadmap",
+      sections: [
+        {
+          heading: "Week 1: Foundation and Planning",
+          body: [
+            "The first week is about selecting your initial workflow, understanding the requirements, and setting up your development environment. Choose a workflow that is high-volume, well-understood, and currently handled manually. Do not start with your most complex process — pick something where success is measurable and failure is recoverable."
+          ],
+          checklist: [
+            "Identify 3 candidate workflows for automation",
+            "Score each on: volume, complexity, measurability, risk tolerance",
+            "Select the highest-value, lowest-risk workflow",
+            "Document the current manual process step by step",
+            "Identify what tools and data sources the agent will need",
+            "Set up your development environment (API keys, frameworks, sandbox)",
+            "Define success metrics: speed, accuracy, cost, user satisfaction"
+          ]
+        },
+        {
+          heading: "Week 2: Build the Core Agent",
+          body: [
+            "In week two, build a minimal viable agent that can handle the happy path of your selected workflow. Do not try to handle every edge case yet — focus on getting the core logic right. Build the tool integrations, write the system prompt, and implement the agent loop.",
+            "Test the agent manually with 10-20 representative inputs. Record the results and identify patterns in where the agent succeeds and where it struggles. Use these observations to refine the system prompt and tool descriptions."
+          ],
+          checklist: [
+            "Write the system prompt with role, tools, constraints, and output format",
+            "Build and test each tool independently",
+            "Implement the agent loop with maximum iteration limits",
+            "Test with 10 real-world inputs and record results",
+            "Refine the system prompt based on failure patterns",
+            "Add basic error handling and retry logic",
+            "Measure token usage and estimate production costs"
+          ]
+        },
+        {
+          heading: "Week 3: Harden and Evaluate",
+          body: [
+            "Week three is about making the agent production-ready. Add comprehensive logging, implement error handling for every failure mode you have observed, build a test suite from your manual testing results, and add cost controls.",
+            "Run your evaluation suite and establish baseline metrics. Set targets for correctness, efficiency, and reliability. If the agent does not meet your targets, iterate on the prompt and tools until it does. Do not deploy an agent that does not pass your evaluation criteria — the cost of cleaning up bad outputs exceeds the cost of additional development time."
+          ],
+          checklist: [
+            "Build automated evaluation suite with 30+ test cases",
+            "Add structured logging at decision, execution, and output levels",
+            "Implement rate limiting and cost caps",
+            "Add input validation and output verification",
+            "Test error handling with intentional failures",
+            "Run 5 full evaluation passes and measure consistency",
+            "Document known limitations and edge cases"
+          ]
+        },
+        {
+          heading: "Week 4: Deploy and Monitor",
+          body: [
+            "In the final week, deploy the agent to a staging environment, run it alongside the manual process for comparison, and gradually shift traffic to the automated workflow. Monitor closely for the first few days — check every output manually until you are confident in the agent's reliability.",
+            "Set up dashboards that show key metrics: success rate, average completion time, cost per task, and error frequency. Configure alerts for anomalies. Establish a weekly review cadence where you examine failures, update the test suite, and refine the agent."
+          ],
+          checklist: [
+            "Deploy to staging environment",
+            "Run parallel testing: agent vs. manual for 50+ tasks",
+            "Compare results and measure quality parity",
+            "Set up monitoring dashboards and alerts",
+            "Deploy to production with gradual traffic ramp",
+            "Monitor first 100 production tasks manually",
+            "Establish weekly review and improvement cadence",
+            "Document the workflow for team knowledge sharing"
+          ]
+        },
+        {
+          heading: "Beyond Day 30: Scaling and Expanding",
+          body: [
+            "Once your first agentic workflow is stable in production, you have the foundation to scale. The patterns, tools, and evaluation frameworks you built for one workflow can be reused and adapted for the next. Most teams find that their second and third workflows ship in half the time because they already have the infrastructure in place.",
+            "Look for opportunities to connect workflows — the output of one agent becomes the input for another. This is where the compounding value of agentic systems becomes apparent. Each new workflow you automate not only saves time on that specific task but also creates data and capabilities that make future workflows more powerful."
+          ],
+          tip: "Keep a running list of every task your team does manually that involves gathering information, making a decision based on rules, and producing a document or communication. Each of those tasks is a candidate for your next agentic workflow."
+        }
+      ]
+    }
+  ];
+}
+
+export async function generateAgenticWorkflowGuide(): Promise<Buffer> {
+  return renderGuide({
+    pdfTitle: "AI Blueprint Pulse Agentic Workflow Guide",
+    pdfSubject: "Comprehensive Guide to Building AI Agentic Workflows",
+    coverLine1: "AI Agentic",
+    coverLine2: "Workflow Guide",
+    subtitle: "The Complete Playbook for Building Autonomous AI Agent Systems",
+    subtitleLine2: "From Concept to Production in 30 Days",
+    aboutText: [
+      "This guide was created by AI Blueprint Pulse to provide a comprehensive, actionable roadmap for building AI agentic workflows that automate complex business processes. Whether you are new to AI agents or looking to scale existing implementations, the frameworks and patterns in this guide will accelerate your progress.",
+      "The strategies outlined here are based on analysis of production agentic systems across dozens of industries, current best practices from leading AI research labs, and hands-on experience deploying multi-agent workflows for real businesses. Every recommendation is designed to be practical and immediately implementable.",
+      "This guide is organized in a progressive structure — foundational concepts come first, followed by design patterns, production engineering, and real-world case studies. We recommend reading the entire guide to understand the complete landscape, then using individual chapters as reference material as you build and deploy your workflows.",
+    ],
+    usageItems: [
+      "Read chapters 1-2 to understand agent fundamentals before building",
+      "Use chapters 3-4 as reference guides for tool design and prompt engineering",
+      "Study chapter 5 when your workflow needs multiple collaborating agents",
+      "Follow chapters 6-7 for implementation patterns and framework selection",
+      "Use the 30-Day Roadmap in Chapter 12 for structured implementation",
+    ],
+    backPageLine1: "Start Building Your",
+    backPageLine2: "AI Agent Systems Today",
+    chapters: getAgenticWorkflowChapters(),
+  });
+}
+
 export async function generateYouTubeGuide(): Promise<Buffer> {
   return renderGuide({
     pdfTitle: "AI Blueprint Pulse YouTube Success Guide",

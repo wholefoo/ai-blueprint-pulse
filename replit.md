@@ -9,10 +9,11 @@ AI Blueprint Pulse is a SaaS digital marketplace for marketing and selling busin
 ## Recent Changes (March 2026)
 - Public Resources Page
   - New /resources page with downloadable free guides and toolkits
-  - "AI Blueprint Pulse YouTube Success Guide" — 45+ page PDF generated with PDFKit
-  - 12 chapters: channel setup, content strategy, SEO, production, growth, monetization, AI tools, analytics, legal, 90-day launch plan
-  - PDF cached in memory for fast subsequent downloads
-  - API: GET /api/resources (listing), GET /api/resources/youtube-guide (PDF download)
+  - "AI Blueprint Pulse YouTube Success Guide" — 45+ page PDF (12 chapters: channel setup, content strategy, SEO, production, growth, monetization, AI tools, analytics, legal, 90-day launch plan)
+  - "AI Agentic Workflow Guide" — 45+ page PDF (12 chapters: agent fundamentals, architecture, tool design, prompt engineering, multi-agent orchestration, real-world patterns, frameworks, production deployment, evaluation, RAG/function calling, industry use cases, 30-day roadmap)
+  - PDF generation refactored into reusable `renderGuide()` function with `GuideConfig` interface
+  - PDFs cached in memory for fast subsequent downloads
+  - API: GET /api/resources (listing), GET /api/resources/youtube-guide, GET /api/resources/agentic-workflow-guide
   - Resources link in navbar between Blog and Studio (FolderOpen icon)
   - server/pdfGuideService.ts: PDFKit-based PDF generation with branded cover page, table of contents, chapter headers, tables, checklists, pro tips
 - Blueprint Editing in Admin Dashboard
