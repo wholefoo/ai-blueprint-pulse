@@ -318,7 +318,7 @@ const severityConfig: Record<string, { label: string; color: string }> = {
   critical: { label: "Critical", color: "bg-red-500/10 text-red-600 dark:text-red-400" },
 };
 
-function PainPointDiscovery() {
+function PainPointDiscovery({ onCreateBlogPost }: { onCreateBlogPost?: (draft: BlogDraft) => void }) {
   const { toast } = useToast();
   const [videoUrl, setVideoUrl] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -687,6 +687,32 @@ function PainPointDiscovery() {
                   </div>
                 </CardContent>
               </Card>
+
+              {onCreateBlogPost && (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    const painPointsList = analysis.painPoints
+                      .map((p, i) => `### ${i + 1}. ${p.title}\n\n${p.description}\n\n**Business Opportunity:** ${p.businessOpportunity}\n\n**Severity:** ${p.severity} | **Frequency:** ${p.frequency}/10`)
+                      .join("\n\n---\n\n");
+                    const oppList = analysis.topOpportunities
+                      .map((o, i) => `${i + 1}. ${o}`)
+                      .join("\n");
+                    const content = `## Overview\n\n${analysis.summary}\n\n## Key Pain Points\n\n${painPointsList}\n\n## Top Business Opportunities\n\n${oppList}\n\n## What This Means for Your Business\n\nThe pain points identified above represent real, unmet needs expressed by actual users. Each one is a potential product, service, or content opportunity waiting to be seized.`;
+                    onCreateBlogPost({
+                      title: `Pain Points & Opportunities: ${analysis.videoInfo?.title || sector || "Industry Analysis"}`,
+                      excerpt: analysis.summary.slice(0, 200),
+                      content,
+                      category: "Strategy",
+                    });
+                  }}
+                  data-testid="button-painpoint-to-blog"
+                >
+                  <Newspaper className="h-4 w-4 mr-2" />
+                  Create Blog Post
+                </Button>
+              )}
             </div>
           </div>
         </>
@@ -1168,7 +1194,14 @@ const blogCategoryOptions = [
   "Case Studies",
 ];
 
-function BlogManager() {
+interface BlogDraft {
+  title: string;
+  excerpt: string;
+  content: string;
+  category: string;
+}
+
+function BlogManager({ incomingDraft, onDraftConsumed }: { incomingDraft?: BlogDraft | null; onDraftConsumed?: () => void }) {
   const { toast } = useToast();
   const [blogTopic, setBlogTopic] = useState("");
   const [blogCategory, setBlogCategory] = useState("Marketing");
@@ -1179,6 +1212,19 @@ function BlogManager() {
   const [draftCategory, setDraftCategory] = useState("Marketing");
   const [draftPublished, setDraftPublished] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+
+  useEffect(() => {
+    if (incomingDraft) {
+      setDraftTitle(incomingDraft.title);
+      setDraftExcerpt(incomingDraft.excerpt);
+      setDraftContent(incomingDraft.content);
+      setDraftCategory(incomingDraft.category);
+      setDraftPublished(false);
+      setEditingPost(null);
+      setShowPreview(false);
+      onDraftConsumed?.();
+    }
+  }, [incomingDraft]);
 
   const { data: blogPosts = [], isLoading: postsLoading } = useQuery<BlogPost[]>({
     queryKey: ["/api/admin/blog"],
@@ -1595,6 +1641,12 @@ export default function AdminPage() {
   const [biIndustry, setBiIndustry] = useState("technology");
   const [biFocusArea, setBiFocusArea] = useState("general");
   const [biResults, setBiResults] = useState("");
+  const [blogDraft, setBlogDraft] = useState<BlogDraft | null>(null);
+
+  const handleCreateBlogPost = (draft: BlogDraft) => {
+    setBlogDraft(draft);
+    setActiveTab("blog");
+  };
 
   const [researchTopic, setResearchTopic] = useState("");
   const [researchResults, setResearchResults] = useState("");
@@ -2329,17 +2381,36 @@ export default function AdminPage() {
                   </Button>
 
                   {biResults && (
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => {
-                        setActiveTab("research");
-                      }}
-                      data-testid="button-bi-to-research"
-                    >
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Research a Topic
-                    </Button>
+                    <>
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => {
+                          setActiveTab("research");
+                        }}
+                        data-testid="button-bi-to-research"
+                      >
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Research a Topic
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => {
+                          const cleanContent = biResults.replace(/---NICHES---[\s\S]*?---END_NICHES---/, '').trim();
+                          handleCreateBlogPost({
+                            title: `${biIndustry.charAt(0).toUpperCase() + biIndustry.slice(1)} Market Intelligence: ${biFocusArea.charAt(0).toUpperCase() + biFocusArea.slice(1)}`,
+                            excerpt: `Executive-level business intelligence briefing on ${biIndustry} covering ${biFocusArea} — market landscape, disruption watch, and actionable opportunities.`,
+                            content: cleanContent,
+                            category: "Strategy",
+                          });
+                        }}
+                        data-testid="button-bi-to-blog"
+                      >
+                        <Newspaper className="h-4 w-4 mr-2" />
+                        Create Blog Post
+                      </Button>
+                    </>
                   )}
                 </CardContent>
               </Card>
@@ -2429,11 +2500,11 @@ export default function AdminPage() {
           </TabsContent>
 
           <TabsContent value="painpoints" className="space-y-6">
-            <PainPointDiscovery />
+            <PainPointDiscovery onCreateBlogPost={handleCreateBlogPost} />
           </TabsContent>
 
           <TabsContent value="blog" className="space-y-6">
-            <BlogManager />
+            <BlogManager incomingDraft={blogDraft} onDraftConsumed={() => setBlogDraft(null)} />
           </TabsContent>
 
           <TabsContent value="blueprints">

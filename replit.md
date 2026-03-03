@@ -28,6 +28,9 @@ AI Blueprint Pulse is a SaaS digital marketplace for marketing and selling busin
   - Public routes: GET /api/blog (list published), GET /api/blog/:slug (single post)
   - Admin routes: GET /api/admin/blog (all posts), POST /api/admin/blog/generate (AI generation), POST /api/admin/blog (create), PATCH /api/admin/blog/:id (update), DELETE /api/admin/blog/:id (delete)
   - Blog Manager admin tab: AI topic+category generation, markdown editor with preview, publish/draft toggle, post management
+  - Create Blog Post from BI Intelligence tab (strips niches, passes report as draft to Blog Manager)
+  - Create Blog Post from Pain Point Discovery tab (compiles pain points, opportunities, summary into blog draft)
+  - BlogDraft interface for cross-tab content sharing (BI → Blog, Pain Points → Blog)
   - Public pages: /blog (listing with category filters), /blog/:slug (detail with markdown rendering)
   - Blog link in navbar between Marketplace and Studio (BookOpen icon)
   - Zod validation on admin create/update routes
