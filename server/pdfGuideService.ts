@@ -23,10 +23,11 @@ interface Chapter {
 }
 
 function addPageNumber(doc: PDFKit.PDFDocument, pageNum: number) {
+  const y = doc.page.height - 50;
   doc.save();
-  doc.fontSize(8).fillColor(MEDIUM_GRAY)
-    .text(`AI Blueprint Pulse  |  YouTube Success Guide`, 72, doc.page.height - 50, { align: "left", width: 250 })
-    .text(`Page ${pageNum}`, 0, doc.page.height - 50, { align: "right", width: doc.page.width - 72 * 2 });
+  doc.fontSize(8).fillColor(MEDIUM_GRAY);
+  doc.text(`AI Blueprint Pulse  |  YouTube Success Guide`, 72, y, { width: 250, lineBreak: false });
+  doc.text(`Page ${pageNum}`, doc.page.width - 72 - 80, y, { width: 80, align: "right", lineBreak: false });
   doc.restore();
 }
 
@@ -885,13 +886,17 @@ export async function generateYouTubeGuide(): Promise<Buffer> {
         Subject: "Comprehensive YouTube Growth Strategy",
         Creator: "AI Blueprint Pulse",
       },
-      bufferPages: true,
     });
 
     const buffers: Buffer[] = [];
     doc.on("data", (chunk: Buffer) => buffers.push(chunk));
     doc.on("end", () => resolve(Buffer.concat(buffers)));
     doc.on("error", reject);
+
+    let pageNum = 1;
+    doc.on("pageAdded", () => {
+      pageNum++;
+    });
 
     doc.rect(0, 0, doc.page.width, doc.page.height).fill(NAVY);
     doc.moveDown(6);
@@ -973,10 +978,8 @@ export async function generateYouTubeGuide(): Promise<Buffer> {
       doc.moveDown(0.15);
     }
 
-    let pageNum = 3;
     for (const chapter of chapters) {
       doc.addPage();
-      pageNum++;
 
       doc.rect(0, 0, doc.page.width, 110).fill(DARK_NAVY);
       doc.fontSize(12).fillColor(ACCENT_BLUE).font("Helvetica")
@@ -996,7 +999,6 @@ export async function generateYouTubeGuide(): Promise<Buffer> {
     }
 
     doc.addPage();
-    pageNum++;
     doc.rect(0, 0, doc.page.width, doc.page.height).fill(NAVY);
     doc.moveDown(8);
     doc.fontSize(28).fillColor("#FFFFFF").font("Helvetica-Bold")
@@ -1008,17 +1010,11 @@ export async function generateYouTubeGuide(): Promise<Buffer> {
     doc.text("AI-powered research tools, and premium business blueprints.", { align: "center" });
     doc.moveDown(2);
     doc.fontSize(11).fillColor(ACCENT_BLUE)
-      .text("aiblueprintpulse.replit.app", { align: "center" });
+      .text("aiblueprintpulse.com", { align: "center" });
     doc.moveDown(3);
     doc.fontSize(9).fillColor("#475569")
       .text("© AI Blueprint Pulse — All Rights Reserved", { align: "center" });
     doc.text("Powered by Multi-Model AI Intelligence", { align: "center" });
-
-    const totalPages = doc.bufferedPageRange().count;
-    for (let i = 1; i < totalPages - 1; i++) {
-      doc.switchToPage(i);
-      addPageNumber(doc, i);
-    }
 
     doc.end();
   });
