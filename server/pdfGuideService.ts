@@ -83,30 +83,78 @@ function addTip(doc: PDFKit.PDFDocument, tip: string) {
   doc.moveDown(0.5);
 }
 
+function measureTextHeight(doc: PDFKit.PDFDocument, text: string, width: number, fontSize: number, font: string): number {
+  doc.font(font).fontSize(fontSize);
+  return doc.heightOfString(text, { width });
+}
+
+function computeColumnWidths(doc: PDFKit.PDFDocument, table: { headers: string[]; rows: string[][] }, tableWidth: number): number[] {
+  const colCount = table.headers.length;
+  const fontSize = 8.5;
+  const padding = 10;
+
+  const maxContentWidths: number[] = [];
+  for (let c = 0; c < colCount; c++) {
+    let maxW = doc.font("Helvetica-Bold").fontSize(fontSize).widthOfString(table.headers[c]);
+    for (const row of table.rows) {
+      const w = doc.font("Helvetica").fontSize(fontSize).widthOfString(row[c] || "");
+      if (w > maxW) maxW = w;
+    }
+    maxContentWidths.push(maxW + padding);
+  }
+
+  const totalNatural = maxContentWidths.reduce((a, b) => a + b, 0);
+
+  if (totalNatural <= tableWidth) {
+    const extra = tableWidth - totalNatural;
+    return maxContentWidths.map((w) => w + extra / colCount);
+  }
+
+  const minWidth = tableWidth / colCount * 0.5;
+  const weights = maxContentWidths.map((w) => Math.max(w, minWidth));
+  const totalWeight = weights.reduce((a, b) => a + b, 0);
+  return weights.map((w) => (w / totalWeight) * tableWidth);
+}
+
 function addTable(doc: PDFKit.PDFDocument, table: { headers: string[]; rows: string[][] }) {
   if (doc.y > doc.page.height - 200) doc.addPage();
   const colCount = table.headers.length;
   const tableWidth = doc.page.width - 144;
-  const colWidth = tableWidth / colCount;
   const startX = 72;
+  const cellPad = 5;
+  const fontSize = 8.5;
   let y = doc.y;
 
-  doc.rect(startX, y, tableWidth, 22).fill(NAVY);
-  doc.font("Helvetica-Bold").fontSize(9).fillColor("#FFFFFF");
-  for (let i = 0; i < colCount; i++) {
-    doc.text(table.headers[i], startX + i * colWidth + 6, y + 6, { width: colWidth - 12 });
-  }
-  y += 22;
+  const colWidths = computeColumnWidths(doc, table, tableWidth);
 
-  doc.font("Helvetica").fontSize(9).fillColor(TEXT_COLOR);
+  const headerRowHeight = Math.max(22, ...table.headers.map((h, i) =>
+    measureTextHeight(doc, h, colWidths[i] - cellPad * 2, fontSize, "Helvetica-Bold") + cellPad * 2
+  ));
+
+  doc.rect(startX, y, tableWidth, headerRowHeight).fill(NAVY);
+  doc.font("Helvetica-Bold").fontSize(fontSize).fillColor("#FFFFFF");
+  let xOff = startX;
+  for (let i = 0; i < colCount; i++) {
+    doc.text(table.headers[i], xOff + cellPad, y + cellPad, { width: colWidths[i] - cellPad * 2 });
+    xOff += colWidths[i];
+  }
+  y += headerRowHeight;
+
   for (let r = 0; r < table.rows.length; r++) {
-    if (y > doc.page.height - 80) { doc.addPage(); y = 72; }
-    if (r % 2 === 0) doc.rect(startX, y, tableWidth, 20).fill("#F1F5F9");
-    doc.fillColor(TEXT_COLOR);
+    const rowHeight = Math.max(20, ...table.rows[r].map((cell, i) =>
+      measureTextHeight(doc, cell || "", colWidths[i] - cellPad * 2, fontSize, "Helvetica") + cellPad * 2
+    ));
+
+    if (y + rowHeight > doc.page.height - 72) { doc.addPage(); y = 72; }
+
+    if (r % 2 === 0) doc.rect(startX, y, tableWidth, rowHeight).fill("#F1F5F9");
+    doc.font("Helvetica").fontSize(fontSize).fillColor(TEXT_COLOR);
+    xOff = startX;
     for (let c = 0; c < colCount; c++) {
-      doc.text(table.rows[r][c] || "", startX + c * colWidth + 6, y + 5, { width: colWidth - 12 });
+      doc.text(table.rows[r][c] || "", xOff + cellPad, y + cellPad, { width: colWidths[c] - cellPad * 2 });
+      xOff += colWidths[c];
     }
-    y += 20;
+    y += rowHeight;
   }
   doc.y = y;
   doc.moveDown(0.5);
