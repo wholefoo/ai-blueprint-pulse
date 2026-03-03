@@ -1632,8 +1632,8 @@ export default function AdminPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("discover");
   const [selectedBlueprint, setSelectedBlueprint] = useState<Blueprint | null>(null);
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [editTitle, setEditTitle] = useState("");
+  const [isEditingBlueprint, setIsEditingBlueprint] = useState(false);
+  const [editFields, setEditFields] = useState({ title: "", description: "", price: 0, tier: "", category: "" });
 
   // Trend Discovery state
   const [discoverCategory, setDiscoverCategory] = useState("general");
@@ -1798,19 +1798,18 @@ export default function AdminPage() {
     },
   });
 
-  // Update blueprint title mutation
-  const updateTitleMutation = useMutation({
-    mutationFn: async ({ id, title }: { id: number; title: string }) => {
-      const res = await apiRequest("PATCH", `/api/admin/blueprints/${id}`, { title });
+  const updateBlueprintMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: number; updates: Record<string, any> }) => {
+      const res = await apiRequest("PATCH", `/api/admin/blueprints/${id}`, updates);
       return res.json();
     },
     onSuccess: (updatedBlueprint) => {
       queryClient.invalidateQueries({ queryKey: ["/api/blueprints"] });
       setSelectedBlueprint(updatedBlueprint);
-      setIsEditingTitle(false);
+      setIsEditingBlueprint(false);
       toast({
-        title: "Title Updated",
-        description: "Blueprint title has been updated.",
+        title: "Blueprint Updated",
+        description: "Blueprint has been updated successfully.",
       });
     },
     onError: (error: Error) => {
@@ -2570,94 +2569,150 @@ export default function AdminPage() {
       <Dialog open={!!selectedBlueprint} onOpenChange={(open) => {
           if (!open) {
             setSelectedBlueprint(null);
-            setIsEditingTitle(false);
+            setIsEditingBlueprint(false);
           }
         }}>
         <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
           <DialogHeader className="flex-shrink-0">
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <Badge variant="outline" className="capitalize">
-                {selectedBlueprint?.tier}
-              </Badge>
-              <Badge variant="secondary">{selectedBlueprint?.category}</Badge>
-              <span className="text-sm text-muted-foreground">
-                ${((selectedBlueprint?.price || 0) / 100).toFixed(2)}
-              </span>
-              <Button
-                variant="default"
-                size="sm"
-                className="ml-auto"
-                onClick={() => selectedBlueprint && generatePDF(selectedBlueprint)}
-                data-testid="button-download-pdf"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download PDF
-              </Button>
-            </div>
-            {isEditingTitle ? (
-              <div className="flex items-center gap-2">
-                <Input
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  className="font-serif text-xl h-auto py-1"
-                  data-testid="input-edit-title"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && selectedBlueprint) {
-                      updateTitleMutation.mutate({ id: selectedBlueprint.id, title: editTitle });
-                    } else if (e.key === "Escape") {
-                      setIsEditingTitle(false);
-                    }
-                  }}
-                />
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => {
-                    if (selectedBlueprint) {
-                      updateTitleMutation.mutate({ id: selectedBlueprint.id, title: editTitle });
-                    }
-                  }}
-                  disabled={updateTitleMutation.isPending}
-                  data-testid="button-save-title"
-                >
-                  {updateTitleMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Check className="h-4 w-4" />
-                  )}
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => setIsEditingTitle(false)}
-                  data-testid="button-cancel-edit"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+            {isEditingBlueprint ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Title</label>
+                  <Input
+                    value={editFields.title}
+                    onChange={(e) => setEditFields(f => ({ ...f, title: e.target.value }))}
+                    className="font-serif text-lg"
+                    data-testid="input-edit-title"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Description</label>
+                  <Textarea
+                    value={editFields.description}
+                    onChange={(e) => setEditFields(f => ({ ...f, description: e.target.value }))}
+                    rows={2}
+                    data-testid="input-edit-description"
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Price ($)</label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={(editFields.price / 100).toFixed(2)}
+                      onChange={(e) => setEditFields(f => ({ ...f, price: Math.round(parseFloat(e.target.value) * 100) || 0 }))}
+                      data-testid="input-edit-price"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Tier</label>
+                    <Select value={editFields.tier} onValueChange={(v) => setEditFields(f => ({ ...f, tier: v }))}>
+                      <SelectTrigger data-testid="select-edit-tier">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="starter">Starter</SelectItem>
+                        <SelectItem value="growth">Growth</SelectItem>
+                        <SelectItem value="enterprise">Enterprise</SelectItem>
+                        <SelectItem value="pain-points">Pain Points</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Category</label>
+                    <Select value={editFields.category} onValueChange={(v) => setEditFields(f => ({ ...f, category: v }))}>
+                      <SelectTrigger data-testid="select-edit-category">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {["Marketing", "Sales", "Operations", "Strategy", "Technology", "Finance", "Leadership", "Growth", "AI & Automation"].map(c => (
+                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={() => {
+                      if (selectedBlueprint) {
+                        updateBlueprintMutation.mutate({
+                          id: selectedBlueprint.id,
+                          updates: editFields,
+                        });
+                      }
+                    }}
+                    disabled={updateBlueprintMutation.isPending}
+                    data-testid="button-save-blueprint"
+                  >
+                    {updateBlueprintMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Check className="h-4 w-4 mr-2" />
+                    )}
+                    Save Changes
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsEditingBlueprint(false)}
+                    data-testid="button-cancel-edit"
+                  >
+                    Cancel
+                  </Button>
+                </div>
               </div>
             ) : (
-              <div className="flex items-center gap-2 group">
+              <>
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <Badge variant="outline" className="capitalize">
+                    {selectedBlueprint?.tier}
+                  </Badge>
+                  <Badge variant="secondary">{selectedBlueprint?.category}</Badge>
+                  <span className="text-sm text-muted-foreground">
+                    ${((selectedBlueprint?.price || 0) / 100).toFixed(2)}
+                  </span>
+                  <div className="ml-auto flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (selectedBlueprint) {
+                          setEditFields({
+                            title: selectedBlueprint.title,
+                            description: selectedBlueprint.description,
+                            price: selectedBlueprint.price,
+                            tier: selectedBlueprint.tier,
+                            category: selectedBlueprint.category,
+                          });
+                          setIsEditingBlueprint(true);
+                        }
+                      }}
+                      data-testid="button-edit-blueprint"
+                    >
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => selectedBlueprint && generatePDF(selectedBlueprint)}
+                      data-testid="button-download-pdf"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download PDF
+                    </Button>
+                  </div>
+                </div>
                 <DialogTitle className="font-serif text-xl">
                   {selectedBlueprint?.title}
                 </DialogTitle>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => {
-                    setEditTitle(selectedBlueprint?.title || "");
-                    setIsEditingTitle(true);
-                  }}
-                  data-testid="button-edit-title"
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </div>
+                <p className="text-sm text-muted-foreground">
+                  {selectedBlueprint?.description}
+                </p>
+              </>
             )}
-            <p className="text-sm text-muted-foreground">
-              {selectedBlueprint?.description}
-            </p>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto min-h-0 pr-2">
             <article className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-serif">
