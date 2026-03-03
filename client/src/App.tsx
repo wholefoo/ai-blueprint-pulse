@@ -21,6 +21,7 @@ import AboutPage from "@/pages/about";
 import StudioPage from "@/pages/studio";
 import BlogPage from "@/pages/blog";
 import BlogPostPage from "@/pages/blog-post";
+import ResourcesPage from "@/pages/resources";
 import { useAuth } from "@/hooks/use-auth";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
@@ -109,6 +110,7 @@ function Router() {
       <Route path="/about" component={AboutPage} />
       <Route path="/blog" component={BlogPage} />
       <Route path="/blog/:slug" component={BlogPostPage} />
+      <Route path="/resources" component={ResourcesPage} />
       <Route component={NotFound} />
     </Switch>
   );

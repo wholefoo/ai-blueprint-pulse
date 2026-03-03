@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Compass, LayoutDashboard, LogOut, Shield, User, Sparkles, BookOpen } from "lucide-react";
+import { Compass, LayoutDashboard, LogOut, Shield, User, Sparkles, BookOpen, FolderOpen } from "lucide-react";
 
 export function Navbar() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -50,6 +50,16 @@ export function Navbar() {
               >
                 <BookOpen className="h-4 w-4 mr-1" />
                 Blog
+              </Button>
+            </Link>
+            <Link href="/resources">
+              <Button
+                variant={location === "/resources" ? "secondary" : "ghost"}
+                size="sm"
+                data-testid="link-resources"
+              >
+                <FolderOpen className="h-4 w-4 mr-1" />
+                Resources
               </Button>
             </Link>
             <Link href="/studio">

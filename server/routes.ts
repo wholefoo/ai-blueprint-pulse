@@ -11,6 +11,7 @@ import { multiModelAnalyze, multiModelBlueprintResearch } from "./multiModelServ
 import { triggerPostPurchaseSequence } from "./emailService";
 import { submitNexusResearch, handleNexusCallback, getNexusJobStatus, getUserNexusJobs } from "./nexusResearchService";
 import { extractVideoId, getVideoInfo, fetchComments, analyzePainPoints, searchVideos } from "./youtubeScraperService";
+import { generateYouTubeGuide } from "./pdfGuideService";
 import { insertBlueprintSchema, insertBlogPostSchema, nexusJobStatuses } from "@shared/schema";
 import type { NexusJobStatus } from "@shared/schema";
 import { z } from "zod";
@@ -1260,6 +1261,38 @@ export async function registerRoutes(
       console.error("Error deleting blog post:", error);
       res.status(500).json({ error: "Failed to delete blog post" });
     }
+  });
+
+  let cachedYouTubeGuide: Buffer | null = null;
+
+  app.get("/api/resources/youtube-guide", async (_req: Request, res: Response) => {
+    try {
+      if (!cachedYouTubeGuide) {
+        cachedYouTubeGuide = await generateYouTubeGuide();
+      }
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", 'attachment; filename="AI-Blueprint-Pulse-YouTube-Success-Guide.pdf"');
+      res.setHeader("Content-Length", cachedYouTubeGuide.length.toString());
+      res.send(cachedYouTubeGuide);
+    } catch (error) {
+      console.error("Error generating YouTube guide:", error);
+      res.status(500).json({ error: "Failed to generate guide" });
+    }
+  });
+
+  app.get("/api/resources", (_req: Request, res: Response) => {
+    res.json([
+      {
+        id: "youtube-success-guide",
+        title: "AI Blueprint Pulse YouTube Success Guide",
+        description: "A comprehensive 40+ page guide covering everything you need to build a profitable YouTube channel — from channel setup and content strategy to AI-powered growth tools and monetization. Includes a 90-day launch plan with actionable checklists.",
+        pages: "45+",
+        category: "Growth",
+        format: "PDF",
+        downloadUrl: "/api/resources/youtube-guide",
+        topics: ["Channel Setup", "Content Strategy", "YouTube SEO", "Video Production", "Monetization", "AI Tools", "Analytics", "90-Day Launch Plan"],
+      }
+    ]);
   });
 
   return httpServer;
