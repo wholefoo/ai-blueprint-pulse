@@ -9,8 +9,8 @@ AI Blueprint Pulse is a SaaS digital marketplace for marketing and selling busin
 ## Recent Changes (March 2026)
 - Public Resources Page
   - New /resources page with downloadable free guides and toolkits
-  - "AI Blueprint Pulse YouTube Success Guide" — 45+ page PDF (12 chapters: channel setup, content strategy, SEO, production, growth, monetization, AI tools, analytics, legal, 90-day launch plan)
-  - "AI Agentic Workflow Guide" — 45+ page PDF (12 chapters: agent fundamentals, architecture, tool design, prompt engineering, multi-agent orchestration, real-world patterns, frameworks, production deployment, evaluation, RAG/function calling, industry use cases, 30-day roadmap)
+  - "AI Blueprint Pulse YouTube Success Guide" — PDF (12 chapters: channel setup, content strategy, SEO, production, growth, monetization, AI tools, analytics, legal, 90-day launch plan)
+  - "AI Agentic Workflow Guide" — PDF (12 chapters: agent fundamentals, architecture, tool design, prompt engineering, multi-agent orchestration, real-world patterns, frameworks, production deployment, evaluation, RAG/function calling, industry use cases, 30-day roadmap)
   - PDF generation refactored into reusable `renderGuide()` function with `GuideConfig` interface
   - PDFs cached in memory for fast subsequent downloads
   - API: GET /api/resources (listing), GET /api/resources/youtube-guide, GET /api/resources/agentic-workflow-guide

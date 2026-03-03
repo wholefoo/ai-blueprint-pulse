@@ -1441,8 +1441,7 @@ Sitemap: ${SITE_URL}/sitemap.xml
       {
         id: "youtube-success-guide",
         title: "AI Blueprint Pulse YouTube Success Guide",
-        description: "A comprehensive 40+ page guide covering everything you need to build a profitable YouTube channel — from channel setup and content strategy to AI-powered growth tools and monetization. Includes a 90-day launch plan with actionable checklists.",
-        pages: "45+",
+        description: "A comprehensive guide covering everything you need to build a profitable YouTube channel — from channel setup and content strategy to AI-powered growth tools and monetization. Includes a 90-day launch plan with actionable checklists.",
         category: "Growth",
         format: "PDF",
         downloadUrl: "/api/resources/youtube-guide",
@@ -1451,8 +1450,7 @@ Sitemap: ${SITE_URL}/sitemap.xml
       {
         id: "agentic-workflow-guide",
         title: "AI Agentic Workflow Guide",
-        description: "A comprehensive 40+ page guide to building autonomous AI agent systems for business automation. Covers agent architecture, tool design, multi-agent orchestration, prompt engineering, production deployment, and a 30-day implementation roadmap with checklists.",
-        pages: "45+",
+        description: "A comprehensive guide to building autonomous AI agent systems for business automation. Covers agent architecture, tool design, multi-agent orchestration, prompt engineering, production deployment, and a 30-day implementation roadmap with checklists.",
         category: "AI & Automation",
         format: "PDF",
         downloadUrl: "/api/resources/agentic-workflow-guide",

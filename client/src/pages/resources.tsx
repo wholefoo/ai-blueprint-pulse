@@ -10,7 +10,6 @@ interface Resource {
   id: string;
   title: string;
   description: string;
-  pages: string;
   category: string;
   format: string;
   downloadUrl: string;
@@ -26,7 +25,7 @@ export default function ResourcesPage() {
     <div className="min-h-screen bg-background">
       <SEO
         title="Free Resources - Downloadable Guides & Toolkits"
-        description="Download free AI-powered business guides including the YouTube Success Guide and AI Agentic Workflow Guide. 45+ page PDFs with actionable strategies and roadmaps."
+        description="Download free AI-powered business guides including the YouTube Success Guide and AI Agentic Workflow Guide. Comprehensive PDFs with actionable strategies and roadmaps."
         path="/resources"
       />
       <BreadcrumbSchema items={[{ name: "Home", url: "/" }, { name: "Resources", url: "/resources" }]} />
@@ -63,8 +62,7 @@ export default function ResourcesPage() {
                       <div className="lg:w-64 bg-gradient-to-br from-primary to-primary/80 p-8 flex flex-col items-center justify-center text-primary-foreground">
                         <FileText className="h-16 w-16 mb-4 opacity-90" />
                         <span className="text-sm font-medium uppercase tracking-wider opacity-80">{resource.format}</span>
-                        <span className="text-3xl font-bold mt-1">{resource.pages}</span>
-                        <span className="text-sm opacity-80">Pages</span>
+                        <span className="text-lg font-semibold mt-1">Free Download</span>
                       </div>
 
                       <div className="flex-1 p-6 lg:p-8">
