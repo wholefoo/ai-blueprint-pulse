@@ -1,10 +1,17 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Code2, Search, FileText, MapPin, Sparkles } from "lucide-react";
+import { SEO, BreadcrumbSchema } from "@/components/seo";
 
 export default function AboutPage() {
   return (
     <div className="py-8">
+      <SEO
+        title="About"
+        description="Learn about AI Blueprint Pulse - an AI-powered business intelligence platform built by a solo founder using multi-model AI research across 24 industry verticals."
+        path="/about"
+      />
+      <BreadcrumbSchema items={[{ name: "Home", url: "/" }, { name: "About", url: "/about" }]} />
       <div className="container max-w-4xl">
         <div className="text-center mb-12">
           <Badge variant="secondary" className="mb-4">About the Founder</Badge>

@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ReactMarkdown from "react-markdown";
 import { ArrowLeft, Calendar, UserIcon } from "lucide-react";
 import type { BlogPost } from "@shared/schema";
+import { SEO, ArticleSchema, BreadcrumbSchema } from "@/components/seo";
 
 export default function BlogPostPage() {
   const [, params] = useRoute("/blog/:slug");
@@ -60,6 +61,28 @@ export default function BlogPostPage() {
 
   return (
     <div className="py-8">
+      <SEO
+        title={post.title}
+        description={post.excerpt}
+        path={`/blog/${post.slug}`}
+        ogType="article"
+        ogImage={post.coverImageUrl || undefined}
+        article={{
+          publishedTime: post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
+          author: post.authorName,
+          category: post.category,
+        }}
+      />
+      <ArticleSchema
+        title={post.title}
+        description={post.excerpt}
+        url={`/blog/${post.slug}`}
+        publishedTime={post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined}
+        author={post.authorName}
+        category={post.category}
+        image={post.coverImageUrl || undefined}
+      />
+      <BreadcrumbSchema items={[{ name: "Home", url: "/" }, { name: "Blog", url: "/blog" }, { name: post.title, url: `/blog/${post.slug}` }]} />
       <div className="container">
         <div className="max-w-3xl mx-auto">
           <Button

@@ -99,6 +99,146 @@ export async function registerRoutes(
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
 
+  const SITE_URL = "https://aiblueprintpulse.com";
+
+  app.get("/robots.txt", (_req: Request, res: Response) => {
+    res.type("text/plain").send(`User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /checkout/*
+Disallow: /api/
+
+# AI Crawlers
+User-agent: GPTBot
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /api/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /api/
+
+User-agent: Claude-Web
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /api/
+
+User-agent: Anthropic-AI
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /api/
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /api/
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: ${SITE_URL}/sitemap.xml
+`);
+  });
+
+  app.get("/sitemap.xml", async (_req: Request, res: Response) => {
+    try {
+      const blogPosts = await storage.getPublishedBlogPosts();
+      const blueprints = await storage.getBlueprints();
+      const now = new Date().toISOString().split("T")[0];
+
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${SITE_URL}/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <lastmod>${now}</lastmod>
+  </url>
+  <url>
+    <loc>${SITE_URL}/marketplace</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <lastmod>${now}</lastmod>
+  </url>
+  <url>
+    <loc>${SITE_URL}/blog</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <lastmod>${now}</lastmod>
+  </url>
+  <url>
+    <loc>${SITE_URL}/resources</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>${now}</lastmod>
+  </url>
+  <url>
+    <loc>${SITE_URL}/studio</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>${now}</lastmod>
+  </url>
+  <url>
+    <loc>${SITE_URL}/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>${SITE_URL}/terms</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>`;
+
+      for (const post of blogPosts) {
+        const lastmod = post.publishedAt ? new Date(post.publishedAt).toISOString().split("T")[0] : now;
+        xml += `
+  <url>
+    <loc>${SITE_URL}/blog/${post.slug}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>${lastmod}</lastmod>
+  </url>`;
+      }
+
+      for (const bp of blueprints) {
+        xml += `
+  <url>
+    <loc>${SITE_URL}/blueprint/${bp.id}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>`;
+      }
+
+      xml += `
+</urlset>`;
+
+      res.type("application/xml").send(xml);
+    } catch (error) {
+      console.error("Error generating sitemap:", error);
+      res.status(500).send("Error generating sitemap");
+    }
+  });
+
   // Public routes
   app.get("/api/blueprints", async (req: Request, res: Response) => {
     try {

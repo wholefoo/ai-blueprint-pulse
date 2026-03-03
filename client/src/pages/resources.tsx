@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Download, FileText, BookOpen, ArrowRight } from "lucide-react";
+import { SEO, BreadcrumbSchema } from "@/components/seo";
 
 interface Resource {
   id: string;
@@ -23,6 +24,12 @@ export default function ResourcesPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Free Resources - Downloadable Guides & Toolkits"
+        description="Download free AI-powered business guides including the YouTube Success Guide and AI Agentic Workflow Guide. 45+ page PDFs with actionable strategies and roadmaps."
+        path="/resources"
+      />
+      <BreadcrumbSchema items={[{ name: "Home", url: "/" }, { name: "Resources", url: "/resources" }]} />
       <section className="relative overflow-hidden border-b bg-gradient-to-b from-primary/5 to-background py-16 md:py-24">
         <div className="container max-w-5xl mx-auto text-center">
           <Badge variant="outline" className="mb-4" data-testid="badge-resources">

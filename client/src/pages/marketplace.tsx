@@ -8,6 +8,7 @@ import { BlueprintCard } from "@/components/blueprint-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Filter, BookOpen, Rocket, Building2, LayoutGrid, Gift, Zap, FileText, AlertTriangle, Lightbulb, Flame, MessageSquareText, Headphones, Database, Megaphone, Settings, Handshake } from "lucide-react";
 import type { Blueprint, BlueprintTier } from "@shared/schema";
+import { SEO, BreadcrumbSchema } from "@/components/seo";
 import {
   Select,
   SelectContent,
@@ -112,6 +113,12 @@ export default function MarketplacePage() {
 
   return (
     <div className="py-8">
+      <SEO
+        title="Blueprint Marketplace"
+        description="Browse AI-researched business blueprints across 15 categories. Starter, Growth, and Enterprise guides with actionable strategies, frameworks, and implementation plans."
+        path="/marketplace"
+      />
+      <BreadcrumbSchema items={[{ name: "Home", url: "/" }, { name: "Marketplace", url: "/marketplace" }]} />
       <div className="container">
         <div className="mb-8">
           <h1 className="font-serif text-3xl font-bold mb-2" data-testid="text-page-title">

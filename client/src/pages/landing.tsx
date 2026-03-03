@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { Badge } from "@/components/ui/badge";
+import { SEO, OrganizationSchema, WebSiteSchema, SoftwareApplicationSchema, FAQSchema } from "@/components/seo";
 import { 
   ArrowRight, 
   Sparkles, 
@@ -381,11 +382,22 @@ const faqs = [
   },
 ];
 
+const faqSchemaData = faqs.slice(0, 10).map(f => ({ question: f.question, answer: f.answer }));
+
 export default function LandingPage() {
   const { isAuthenticated } = useAuth();
 
   return (
     <div className="flex flex-col">
+      <SEO
+        title="AI-Powered Business Intelligence & Blueprint Generation"
+        description="Multi-model AI research platform with ChatGPT, Claude, Gemini, Grok & Perplexity. Generate business blueprints, market intelligence, and agent implementation scripts across 24 industry verticals."
+        path="/"
+      />
+      <OrganizationSchema />
+      <WebSiteSchema />
+      <SoftwareApplicationSchema />
+      <FAQSchema questions={faqSchemaData} />
       <section className="relative overflow-hidden py-14 lg:py-18">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/8 animate-gradient-shift" />
         <div className="absolute top-20 left-10 w-72 h-72 bg-accent/5 rounded-full blur-3xl" />

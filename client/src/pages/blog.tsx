@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen, Calendar, ArrowRight, Newspaper } from "lucide-react";
 import type { BlogPost } from "@shared/schema";
+import { SEO, BreadcrumbSchema } from "@/components/seo";
 
 const categoryColors: Record<string, string> = {
   "AI & Automation": "bg-blue-500/10 text-blue-700 dark:text-blue-300",
@@ -53,6 +54,12 @@ export default function BlogPage() {
 
   return (
     <div className="py-8">
+      <SEO
+        title="Blog - Insights & Intelligence"
+        description="AI-generated business insights, market analysis, and actionable strategies. Expert articles on marketing, growth, AI automation, and more."
+        path="/blog"
+      />
+      <BreadcrumbSchema items={[{ name: "Home", url: "/" }, { name: "Blog", url: "/blog" }]} />
       <div className="container">
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">
