@@ -67,15 +67,6 @@ export async function registerRoutes(
   }
   registerAuthRoutes(app);
 
-  // Domain redirect: aiosorchestrationlab.com → aiblueprintpulse.com
-  app.use((req: Request, res: Response, next: NextFunction) => {
-    const host = req.hostname;
-    if (host === "aiosorchestrationlab.com" || host === "www.aiosorchestrationlab.com") {
-      return res.redirect(301, `https://aiblueprintpulse.com${req.originalUrl}`);
-    }
-    next();
-  });
-
   // Stripe webhook - MUST be before express.json()
   app.post(
     '/api/stripe/webhook',
