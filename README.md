@@ -2,8 +2,6 @@
 
 A full-stack SaaS marketplace for AI-generated business success guides, powered by multi-model AI research across 5 large language models.
 
-**Live site:** [aiblueprintpulse.com](https://aiblueprintpulse.com)
-
 ---
 
 ## What It Does
